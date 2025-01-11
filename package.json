@@ -8,6 +8,8 @@
     "compromise": "14.14.2"
   },
   "devDependencies": {
+    "@playwright/test": "1.49.1",
+    "@types/node": "22.10.5",
     "tsx": "4.19.2"
   }
 }
