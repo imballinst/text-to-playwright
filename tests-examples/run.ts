@@ -15,22 +15,34 @@ async function runPlaywrightExample() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.goto("https://calculator.aws/#/");
-  let title = await page.title();
-  console.log(`Page title: ${title}`);
+  page.setContent(`
+<nav>
+  <ul>
+    <li>
+      <a href="#">Users</a>
+    </li>
+  </ul>
+</nav>
 
-  const createEstimateButton = page.getByRole("button", {
-    name: "Create Estimate",
-  });
-  await createEstimateButton.click();
+<button>Create User</button>
+  `);
 
-  await waitFor(async () => {
-    title = await page.title();
-    assert.deepEqual(title, "Add service - AWS Pricing Calculator");
-    console.log(`Page title: ${title}`);
-  });
+  // await page.goto("https://calculator.aws/#/");
+  // let title = await page.title();
+  // console.log(`Page title: ${title}`);
 
-  await page.getByLabel("Choose a region").innerHTML();
+  // const createEstimateButton = page.getByRole("button", {
+  //   name: "Create Estimate",
+  // });
+  // await createEstimateButton.click();
+
+  // await waitFor(async () => {
+  //   title = await page.title();
+  //   assert.deepEqual(title, "Add service - AWS Pricing Calculator");
+  //   console.log(`Page title: ${title}`);
+  // });
+
+  // await page.getByLabel("Choose a region").innerHTML();
 
   // TODO: update region type
   // TODO: ensure the Choose a region changed the label
