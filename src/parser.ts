@@ -18,7 +18,7 @@ export function parse(sentence: string) {
     return nlp(clause, { ...lexicon, click: "Verb" }).out("json");
   });
 
-  const output: any[][] = [];
+  const output: any[] = [];
 
   for (const clauses of result) {
     for (const clause of clauses) {
@@ -33,19 +33,31 @@ export function parse(sentence: string) {
       for (const term of clause.terms) {
         if (!["Verb", "Noun"].includes(term.chunk)) continue;
 
+        const text = (term.pre + term.text + term.post).trim();
+        const endsWithQuote = text.endsWith('"');
+
         if (!prev || prev.type !== term.chunk) {
           prev = {
             type: term.chunk,
-            words: [(term.pre + term.text + term.post).trim()],
+            words: [text],
           };
           cur.push(prev);
-          continue;
+        } else {
+          prev.words.push(text);
         }
 
-        prev.words.push((term.pre + term.text + term.post).trim());
+        if (endsWithQuote) {
+          prev = undefined;
+        }
       }
 
-      output.push(cur);
+      const [action, object, elementType] = cur;
+
+      output.push({
+        action: action.words.join(" "),
+        object: object.words.join(" ").replace(/"/g, ""),
+        elementType: elementType.words.join(" ").replace(/[\.,]/g, ""),
+      });
     }
   }
 

@@ -30,7 +30,7 @@ async function runPlaywrightExample() {
 
   const parsed = parse('Click "Users" menu, then click "Create User" button.');
   for (const commands of parsed) {
-    // console.info(command);
+    console.info(commands);
   }
 
   // await page.goto("https://calculator.aws/#/");
