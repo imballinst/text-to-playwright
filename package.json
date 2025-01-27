@@ -2,7 +2,7 @@
   "name": "text-to-playwright",
   "packageManager": "yarn@4.5.1",
   "scripts": {
-    "start": "tsx src/index.ts"
+    "dev": "tsx src/index.ts"
   },
   "dependencies": {
     "compromise": "14.14.2"

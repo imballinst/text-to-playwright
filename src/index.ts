@@ -1,27 +1,88 @@
-import nlp from "compromise";
+import assert from "node:assert";
+import { chromium } from "playwright";
+import { parse } from "./parser";
 
-// nlp.verbose(true);
-let text = 'Click "Users" menu, then click "Create User" button.';
-let doc = nlp(text);
-let clauses: string[] = doc.clauses().out("array");
-// print(clauses);
-print(
-  clauses.map((clause) => {
-    const lexicon = nlp(text)
-      .quotations()
-      .out("array")
-      .map((el) => (el.endsWith('"') ? el : el.slice(0, -1)))
-      .reduce((obj, cur) => {
-        obj[cur] = "Noun";
-        return obj;
-      }, {});
-
-    console.info(clause, lexicon);
-    return nlp(clause, lexicon).remove("#Pivot").out("json");
-  })
-);
-
-function print(thing: any) {
-  // return;
-  console.info(JSON.stringify(thing, null, 2));
+interface TestAction {
+  action: string;
 }
+
+interface TestExpectation {
+  expect: string;
+}
+
+type MaybeAsyncFn<T = any> = (() => T) | (() => Promise<T>);
+
+async function runPlaywrightExample() {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+
+  await page.setContent(`
+<nav>
+  <ul>
+    <li>
+      <a href="#">Users</a>
+    </li>
+  </ul>
+</nav>
+
+<button>Create User</button>
+  `);
+
+  const parsed = parse('Click "Users" menu, then click "Create User" button.');
+  for (const commands of parsed) {
+    // console.info(command);
+  }
+
+  // await page.goto("https://calculator.aws/#/");
+  // let title = await page.title();
+  // console.log(`Page title: ${title}`);
+
+  // const createEstimateButton = page.getByRole("button", {
+  //   name: "Create Estimate",
+  // });
+  // await createEstimateButton.click();
+
+  // await waitFor(async () => {
+  //   title = await page.title();
+  //   assert.deepEqual(title, "Add service - AWS Pricing Calculator");
+  //   console.log(`Page title: ${title}`);
+  // });
+
+  // await page.getByLabel("Choose a region").innerHTML();
+
+  // TODO: update region type
+  // TODO: ensure the Choose a region changed the label
+
+  await browser.close();
+}
+
+async function waitFor(
+  cb: MaybeAsyncFn,
+  options?: {
+    interval?: number;
+    timeout?: number;
+  }
+) {
+  const interval = options?.interval ?? 1000;
+  let timeout = options?.timeout ?? 10_000;
+  let isPassed = false;
+
+  while (!isPassed) {
+    if (timeout < 0) throw new Error("");
+
+    isPassed = await new Promise((res) => {
+      setTimeout(async () => {
+        try {
+          await cb();
+          res(true);
+        } catch (err) {
+          res(false);
+        }
+      }, interval);
+    });
+
+    timeout -= interval;
+  }
+}
+
+runPlaywrightExample();
