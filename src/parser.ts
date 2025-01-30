@@ -1,4 +1,16 @@
 import nlp from "compromise";
+import { AriaRoles } from "./types/aria";
+
+interface Command {
+  action: "click";
+  object: string;
+  elementType: AriaRoles;
+}
+
+interface PartOfSpeech {
+  type: "Verb" | "Noun";
+  words: string[];
+}
 
 export function parse(sentence: string) {
   const doc = nlp(sentence);
@@ -14,21 +26,15 @@ export function parse(sentence: string) {
         return obj;
       }, {});
 
-    // console.info(lexicon);
     return nlp(clause, { ...lexicon, click: "Verb" }).out("json");
   });
 
-  const output: any[] = [];
+  const output: Command[] = [];
 
   for (const clauses of result) {
     for (const clause of clauses) {
-      const cur: any[] = [];
-      let prev:
-        | {
-            type: "Verb" | "Noun";
-            words: string[];
-          }
-        | undefined;
+      const cur: PartOfSpeech[] = [];
+      let prev: PartOfSpeech | undefined;
 
       for (const term of clause.terms) {
         if (!["Verb", "Noun"].includes(term.chunk)) continue;
@@ -54,10 +60,11 @@ export function parse(sentence: string) {
       const [action, object, elementType] = cur;
 
       output.push({
-        action: action.words.join(" "),
+        action: action.words.join(" ").toLowerCase(),
         object: object.words.join(" ").replace(/"/g, ""),
         elementType: elementType.words.join(" ").replace(/[\.,]/g, ""),
-      });
+        // TODO: validate with zod.
+      } as Command);
     }
   }
 

@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import { chromium } from "playwright";
+import { expect } from "@playwright/test";
 import { parse } from "./parser";
 
 interface TestAction {
@@ -17,41 +18,32 @@ async function runPlaywrightExample() {
   const page = await browser.newPage();
 
   await page.setContent(`
-<nav>
-  <ul>
-    <li>
-      <a href="#">Users</a>
-    </li>
-  </ul>
-</nav>
-
-<button>Create User</button>
+<html>
+  <body>
+    <nav>
+      <ul>
+        <li>
+          <a href="#">Users</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <button>Create User</button>
+  </body>
+</html>
   `);
 
-  const parsed = parse('Click "Users" menu, then click "Create User" button.');
-  for (const commands of parsed) {
-    console.info(commands);
+  // console.info(await page.innerHTML("body"));
+
+  const parsed = parse('Click "Users" link, then click "Create User" button.');
+  for (const command of parsed) {
+    const { action, elementType, object } = command;
+
+    if (action === "click") {
+      const element = page.getByRole(elementType, { name: object });
+      await expect(element).toBeVisible();
+    }
   }
-
-  // await page.goto("https://calculator.aws/#/");
-  // let title = await page.title();
-  // console.log(`Page title: ${title}`);
-
-  // const createEstimateButton = page.getByRole("button", {
-  //   name: "Create Estimate",
-  // });
-  // await createEstimateButton.click();
-
-  // await waitFor(async () => {
-  //   title = await page.title();
-  //   assert.deepEqual(title, "Add service - AWS Pricing Calculator");
-  //   console.log(`Page title: ${title}`);
-  // });
-
-  // await page.getByLabel("Choose a region").innerHTML();
-
-  // TODO: update region type
-  // TODO: ensure the Choose a region changed the label
 
   await browser.close();
 }
