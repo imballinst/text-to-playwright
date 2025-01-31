@@ -1,32 +1,33 @@
-import nlp from "compromise";
-import { AriaRoles } from "./types/aria";
+import nlp from 'compromise';
+import { AriaRoles } from './types/aria';
 
 interface Command {
-  action: "click";
+  // TODO: need an action to fill inputs.
+  action: 'click';
   object: string;
   elementType: AriaRoles;
 }
 
 interface PartOfSpeech {
-  type: "Verb" | "Noun";
+  type: 'Verb' | 'Noun';
   words: string[];
 }
 
 export function parse(sentence: string) {
   const doc = nlp(sentence);
-  const clauses: string[] = doc.clauses().out("array");
+  const clauses: string[] = doc.clauses().out('array');
   // print(clauses);
   const result = clauses.map((clause) => {
     const lexicon = nlp(clause)
       .quotations()
-      .out("array")
+      .out('array')
       .map((el) => (el.endsWith('"') ? el.slice(1, -1) : el.slice(0, -1)))
       .reduce((obj, cur) => {
-        obj[cur] = "Noun";
+        obj[cur] = 'Noun';
         return obj;
       }, {});
 
-    return nlp(clause, { ...lexicon, click: "Verb" }).out("json");
+    return nlp(clause, { ...lexicon, click: 'Verb' }).out('json');
   });
 
   const output: Command[] = [];
@@ -37,7 +38,7 @@ export function parse(sentence: string) {
       let prev: PartOfSpeech | undefined;
 
       for (const term of clause.terms) {
-        if (!["Verb", "Noun"].includes(term.chunk)) continue;
+        if (!['Verb', 'Noun'].includes(term.chunk)) continue;
 
         const text = (term.pre + term.text + term.post).trim();
         const endsWithQuote = text.endsWith('"');
@@ -45,7 +46,7 @@ export function parse(sentence: string) {
         if (!prev || prev.type !== term.chunk) {
           prev = {
             type: term.chunk,
-            words: [text],
+            words: [text]
           };
           cur.push(prev);
         } else {
@@ -60,9 +61,9 @@ export function parse(sentence: string) {
       const [action, object, elementType] = cur;
 
       output.push({
-        action: action.words.join(" ").toLowerCase(),
-        object: object.words.join(" ").replace(/"/g, ""),
-        elementType: elementType.words.join(" ").replace(/[\.,]/g, ""),
+        action: action.words.join(' ').toLowerCase(),
+        object: object.words.join(' ').replace(/"/g, ''),
+        elementType: elementType.words.join(' ').replace(/[\.,]/g, '')
         // TODO: validate with zod.
       } as Command);
     }

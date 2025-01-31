@@ -1,0 +1,93 @@
+<html>
+  <body>
+    <nav>
+      <ul>
+        <li>
+          <a href="#users">Users</a>
+        </li>
+        <li>
+          <a href="#teams">Teams</a>
+        </li>
+      </ul>
+    </nav>
+
+    <section id="users">
+      <h2>Users</h2>
+
+      <pre id="user-output"></pre>
+
+      <form data-output-id="user-output">
+        <div>
+          <label for="user-id">User ID</label>
+
+          <input id="user-id" name="user-id" />
+        </div>
+
+        <button>Submit</button>
+      </form>
+    </section>
+
+    <section id="teams">
+      <h2>Teams</h2>
+
+      <pre id="team-output"></pre>
+
+      <form data-output-id="team-output">
+        <div>
+          <label for="team-id">Team ID</label>
+
+          <input id="team-id" name="team-id" />
+        </div>
+
+        <button>Submit</button>
+      </form>
+    </section>
+
+    <script>
+      // Hash changes.
+      function toggleSections(shownSectionId) {
+        const idWithoutHash = shownSectionId.startsWith("#")
+          ? shownSectionId.slice(1)
+          : shownSectionId;
+        const allSections = document.getElementsByTagName("section");
+
+        for (let i = 0; i < allSections.length; i++) {
+          const section = allSections.item(i);
+
+          section.hidden = section.id !== idWithoutHash;
+        }
+      }
+
+      const currentHash = window.location.hash;
+      if (!currentHash) {
+        window.location.hash = "users";
+      }
+      toggleSections(window.location.hash);
+
+      window.addEventListener("hashchange", () => {
+        toggleSections(window.location.hash);
+      });
+    </script>
+
+    <script>
+      // Form submits.
+      const allForms = document.getElementsByTagName("form");
+
+      for (let i = 0; i < allForms.length; i++) {
+        const form = allForms.item(i);
+
+        form.addEventListener("submit", function handleSubmit(e) {
+          e.preventDefault();
+
+          const formData = Object.fromEntries(new FormData(e.target));
+          console.info(new FormData(e.target), formData);
+
+          const output = document.getElementById(e.target.dataset.outputId);
+          if (!output) return;
+
+          output.innerHTML = JSON.stringify(formData, null, 2);
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,47 +1,30 @@
-import assert from "node:assert";
-import { chromium } from "playwright";
-import { expect } from "@playwright/test";
-import { parse } from "./parser";
-
-interface TestAction {
-  action: string;
-}
-
-interface TestExpectation {
-  expect: string;
-}
+import { expect } from '@playwright/test';
+import { readFile } from 'fs/promises';
+import path from 'path';
+import { chromium } from 'playwright';
+import { parse } from './parser';
 
 type MaybeAsyncFn<T = any> = (() => T) | (() => Promise<T>);
 
 async function runPlaywrightExample() {
+  const file = await readFile(
+    path.join(process.cwd(), 'assets/test/index.html'),
+    'utf-8'
+  );
+
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.setContent(`
-<html>
-  <body>
-    <nav>
-      <ul>
-        <li>
-          <a href="#">Users</a>
-        </li>
-      </ul>
-    </nav>
-    
-    <button>Create User</button>
-  </body>
-</html>
-  `);
+  await page.setContent(file);
 
-  // console.info(await page.innerHTML("body"));
-
-  const parsed = parse('Click "Users" link, then click "Create User" button.');
+  const parsed = parse('Click "Teams" link, then click "Submit" button.');
   for (const command of parsed) {
     const { action, elementType, object } = command;
 
-    if (action === "click") {
+    if (action === 'click') {
       const element = page.getByRole(elementType, { name: object });
       await expect(element).toBeVisible();
+      await element.click();
     }
   }
 
@@ -60,7 +43,7 @@ async function waitFor(
   let isPassed = false;
 
   while (!isPassed) {
-    if (timeout < 0) throw new Error("");
+    if (timeout < 0) throw new Error('');
 
     isPassed = await new Promise((res) => {
       setTimeout(async () => {
