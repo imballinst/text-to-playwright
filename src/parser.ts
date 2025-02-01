@@ -2,10 +2,10 @@ import nlp from 'compromise';
 import { AriaRoles } from './types/aria';
 
 interface Command {
-  // TODO: need an action to fill inputs.
   action: 'click';
   object: string;
   elementType: AriaRoles;
+  value?: string;
 }
 
 interface PartOfSpeech {
@@ -27,7 +27,7 @@ export function parse(sentence: string) {
         return obj;
       }, {});
 
-    return nlp(clause, { ...lexicon, click: 'Verb' }).out('json');
+    return nlp(clause, { click: 'Verb', link: 'Noun', ...lexicon }).out('json');
   });
 
   const output: Command[] = [];
@@ -36,12 +36,42 @@ export function parse(sentence: string) {
     for (const clause of clauses) {
       const cur: PartOfSpeech[] = [];
       let prev: PartOfSpeech | undefined;
+      let isWithinQuote = false;
 
-      for (const term of clause.terms) {
-        if (!['Verb', 'Noun'].includes(term.chunk)) continue;
-
+      for (let i = 0; i < clause.terms.length; i++) {
+        const term = clause.terms[i];
         const text = (term.pre + term.text + term.post).trim();
+
         const endsWithQuote = text.endsWith('"');
+        const shouldJustPush = isWithinQuote;
+
+        isWithinQuote =
+          (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
+
+        if (isWithinQuote) {
+          term.chunk = 'Noun';
+        }
+
+        if (shouldJustPush && prev) {
+          // If the text is still within quote, just push it.
+          prev.words.push(text);
+
+          if (endsWithQuote) {
+            prev = undefined;
+          }
+
+          continue;
+        }
+
+        if (term.chunk === 'Pivot' && text === 'with') {
+          prev = {
+            type: 'Noun',
+            words: [text]
+          };
+          cur.push(prev);
+        }
+
+        if (!['Verb', 'Noun'].includes(term.chunk)) continue;
 
         if (!prev || prev.type !== term.chunk) {
           prev = {
@@ -58,14 +88,25 @@ export function parse(sentence: string) {
         }
       }
 
-      const [action, object, elementType] = cur;
+      const [action, object, elementType, value] = cur;
 
-      output.push({
+      // TODO: validate with zod.
+      const command = {
         action: action.words.join(' ').toLowerCase(),
         object: object.words.join(' ').replace(/"/g, ''),
         elementType: elementType.words.join(' ').replace(/[\.,]/g, '')
-        // TODO: validate with zod.
-      } as Command);
+      } as Command;
+
+      if (value) {
+        const valueWords = value.words.join(' ');
+
+        command.value = valueWords.slice(
+          valueWords.indexOf('"') + 1,
+          valueWords.lastIndexOf('"')
+        );
+      }
+
+      output.push(command);
     }
   }
 

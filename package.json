@@ -3,7 +3,8 @@
   "packageManager": "yarn@4.5.1",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "html": "serve assets/test"
+    "html": "serve assets/test",
+    "test": "vitest"
   },
   "dependencies": {
     "compromise": "14.14.2"
@@ -15,6 +16,8 @@
     "prettier-plugin-organize-imports": "4.1.0",
     "serve": "14.2.4",
     "tsx": "4.19.2",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vite": "6.0.11",
+    "vitest": "3.0.4"
   }
 }
