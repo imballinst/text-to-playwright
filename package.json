@@ -7,7 +7,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "compromise": "14.14.2"
+    "compromise": "14.14.2",
+    "zod": "3.24.1"
   },
   "devDependencies": {
     "@playwright/test": "1.49.1",

@@ -1,83 +1,92 @@
-export type AriaRoles =
-  | 'alert'
-  | 'alertdialog'
-  | 'application'
-  | 'article'
-  | 'banner'
-  | 'blockquote'
-  | 'button'
-  | 'caption'
-  | 'cell'
-  | 'checkbox'
-  | 'code'
-  | 'columnheader'
-  | 'combobox'
-  | 'complementary'
-  | 'contentinfo'
-  | 'definition'
-  | 'deletion'
-  | 'dialog'
-  | 'directory'
-  | 'document'
-  | 'emphasis'
-  | 'feed'
-  | 'figure'
-  | 'form'
-  | 'generic'
-  | 'grid'
-  | 'gridcell'
-  | 'group'
-  | 'heading'
-  | 'img'
-  | 'insertion'
-  | 'link'
-  | 'list'
-  | 'listbox'
-  | 'listitem'
-  | 'log'
-  | 'main'
-  | 'marquee'
-  | 'math'
-  | 'meter'
-  | 'menu'
-  | 'menubar'
-  | 'menuitem'
-  | 'menuitemcheckbox'
-  | 'menuitemradio'
-  | 'navigation'
-  | 'none'
-  | 'note'
-  | 'option'
-  | 'paragraph'
-  | 'presentation'
-  | 'progressbar'
-  | 'radio'
-  | 'radiogroup'
-  | 'region'
-  | 'row'
-  | 'rowgroup'
-  | 'rowheader'
-  | 'scrollbar'
-  | 'search'
-  | 'searchbox'
-  | 'separator'
-  | 'slider'
-  | 'spinbutton'
-  | 'status'
-  | 'strong'
-  | 'subscript'
-  | 'superscript'
-  | 'switch'
-  | 'tab'
-  | 'table'
-  | 'tablist'
-  | 'tabpanel'
-  | 'term'
-  | 'textbox'
-  | 'time'
-  | 'timer'
-  | 'toolbar'
-  | 'tooltip'
-  | 'tree'
-  | 'treegrid'
-  | 'treeitem';
+import { z } from 'zod';
+
+export const AriaRoles = z.enum([
+  'alert',
+  'alertdialog',
+  'application',
+  'article',
+  'banner',
+  'blockquote',
+  'button',
+  'caption',
+  'cell',
+  'checkbox',
+  'code',
+  'columnheader',
+  'combobox',
+  'complementary',
+  'contentinfo',
+  'definition',
+  'deletion',
+  'dialog',
+  'directory',
+  'document',
+  'emphasis',
+  'feed',
+  'figure',
+  'form',
+  'generic',
+  'grid',
+  'gridcell',
+  'group',
+  'heading',
+  'img',
+  'insertion',
+  'link',
+  'list',
+  'listbox',
+  'listitem',
+  'log',
+  'main',
+  'marquee',
+  'math',
+  'meter',
+  'menu',
+  'menubar',
+  'menuitem',
+  'menuitemcheckbox',
+  'menuitemradio',
+  'navigation',
+  'none',
+  'note',
+  'option',
+  'paragraph',
+  'presentation',
+  'progressbar',
+  'radio',
+  'radiogroup',
+  'region',
+  'row',
+  'rowgroup',
+  'rowheader',
+  'scrollbar',
+  'search',
+  'searchbox',
+  'separator',
+  'slider',
+  'spinbutton',
+  'status',
+  'strong',
+  'subscript',
+  'superscript',
+  'switch',
+  'tab',
+  'table',
+  'tablist',
+  'tabpanel',
+  'term',
+  'textbox',
+  'time',
+  'timer',
+  'toolbar',
+  'tooltip',
+  'tree',
+  'treegrid',
+  'treeitem'
+]);
+
+export type AriaRoles = z.infer<typeof AriaRoles>;
+
+export const ARIA_ALIAS_RECORD: Record<string, string> = {
+  input: 'textbox'
+};

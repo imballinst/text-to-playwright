@@ -1,12 +1,26 @@
 import nlp from 'compromise';
-import { AriaRoles } from './types/aria';
+import { z } from 'zod';
+import { ARIA_ALIAS_RECORD, AriaRoles } from './types/aria';
 
-interface Command {
-  action: 'click';
-  object: string;
-  elementType: AriaRoles;
-  value?: string;
-}
+const Command = z
+  .object({
+    action: z.union([
+      z.literal('click'),
+      z.literal('hover'),
+      z.literal('fill')
+    ]),
+    object: z.string(),
+    elementType: AriaRoles,
+    specifier: z.string().optional(),
+    value: z.string().optional()
+  })
+  .transform((v) => {
+    for (const key in v) {
+      if (v[key] === undefined) delete v[key];
+    }
+    return v;
+  });
+interface Command extends z.infer<typeof Command> {}
 
 interface PartOfSpeech {
   type: 'Verb' | 'Noun';
@@ -27,10 +41,19 @@ export function parse(sentence: string) {
         return obj;
       }, {});
 
-    return nlp(clause, { click: 'Verb', link: 'Noun', ...lexicon }).out('json');
+    return nlp(clause, {
+      hover: 'Verb',
+      click: 'Verb',
+      link: 'Noun',
+      ...lexicon
+    }).out('json');
   });
 
   const output: Command[] = [];
+  let conditionalInformationRecord = {
+    value: '',
+    elementContainer: ''
+  };
 
   for (const clauses of result) {
     for (const clause of clauses) {
@@ -48,10 +71,6 @@ export function parse(sentence: string) {
         isWithinQuote =
           (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
 
-        if (isWithinQuote) {
-          term.chunk = 'Noun';
-        }
-
         if (shouldJustPush && prev) {
           // If the text is still within quote, just push it.
           prev.words.push(text);
@@ -63,7 +82,11 @@ export function parse(sentence: string) {
           continue;
         }
 
-        if (term.chunk === 'Pivot' && text === 'with') {
+        if (isWithinQuote) {
+          term.chunk = 'Noun';
+        }
+
+        if (term.chunk === 'Pivot') {
           prev = {
             type: 'Noun',
             words: [text]
@@ -88,25 +111,59 @@ export function parse(sentence: string) {
         }
       }
 
-      const [action, object, elementType, value] = cur;
+      const record = {
+        action: '',
+        object: '',
+        elementType: '',
+        specifier: undefined as string | undefined,
+        value: undefined as string | undefined
+      };
+      const order = Object.keys(record) as Array<keyof typeof record>;
+      let idx = 0;
 
-      // TODO: validate with zod.
-      const command = {
-        action: action.words.join(' ').toLowerCase(),
-        object: object.words.join(' ').replace(/"/g, ''),
-        elementType: elementType.words.join(' ').replace(/[\.,]/g, '')
-      } as Command;
+      for (const rawCommand of cur) {
+        switch (rawCommand.words[0]) {
+          case 'on': {
+            let specifier = rawCommand.words.slice(2).join(' ');
 
-      if (value) {
-        const valueWords = value.words.join(' ');
+            if (specifier[0] === specifier[0].toUpperCase()) {
+              // Means a name. Do nothing.
+            } else {
+              // Means generic.
+              if (['navbar', 'sidebar'].includes(specifier)) {
+                specifier = 'nav';
+              }
+            }
 
-        command.value = valueWords.slice(
-          valueWords.indexOf('"') + 1,
-          valueWords.lastIndexOf('"')
-        );
+            record.specifier = specifier;
+
+            break;
+          }
+          case 'with': {
+            const valueWords = rawCommand.words.slice(2).join(' ');
+            record.value = valueWords.replace(/"/g, '');
+
+            break;
+          }
+          default: {
+            if (order[idx] === 'action') {
+              record[order[idx]] = rawCommand.words.join(' ').toLowerCase();
+            } else if (order[idx] === 'object') {
+              record[order[idx]] = rawCommand.words.join(' ').replace(/"/g, '');
+            } else {
+              let effectiveObject = rawCommand.words.join(' ');
+              effectiveObject =
+                ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
+
+              record[order[idx]] = effectiveObject;
+            }
+          }
+        }
+
+        idx++;
       }
 
-      output.push(command);
+      output.push(Command.parse(record));
     }
   }
 
