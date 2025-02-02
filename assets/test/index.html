@@ -14,17 +14,37 @@
     <section id="users">
       <h2>Users</h2>
 
-      <pre id="user-output"></pre>
+      <section>
+        <h3>Real Users Section</h3>
 
-      <form data-output-id="user-output">
-        <div>
-          <label for="user-id">User ID</label>
+        <pre id="user-output"></pre>
 
-          <input id="user-id" name="user-id" />
-        </div>
+        <form data-output-id="user-output">
+          <div>
+            <label for="user-id">User ID</label>
 
-        <button>Submit</button>
-      </form>
+            <input id="user-id" name="user-id" />
+          </div>
+
+          <button>Submit</button>
+        </form>
+      </section>
+
+      <section>
+        <h3>Fake Users Section</h3>
+
+        <pre id="fake-user-output"></pre>
+
+        <form data-output-id="fake-user-output">
+          <div>
+            <label for="fake-user-id">User ID</label>
+
+            <input id="fake-user-id" name="user-id" />
+          </div>
+
+          <button>Submit</button>
+        </form>
+      </section>
     </section>
 
     <section id="teams">
@@ -46,37 +66,42 @@
     <script>
       // Hash changes.
       function toggleSections(shownSectionId) {
-        const idWithoutHash = shownSectionId.startsWith("#")
+        const idWithoutHash = shownSectionId.startsWith('#')
           ? shownSectionId.slice(1)
           : shownSectionId;
-        const allSections = document.getElementsByTagName("section");
+        const allSections = document.getElementsByTagName('section');
 
         for (let i = 0; i < allSections.length; i++) {
           const section = allSections.item(i);
+          const isRootSection = section.contains(
+            section.getElementsByTagName('h2').item(0)
+          );
 
-          section.hidden = section.id !== idWithoutHash;
+          if (isRootSection) {
+            section.hidden = section.id !== idWithoutHash;
+          }
         }
       }
 
       const currentHash = window.location.hash;
       if (!currentHash) {
-        window.location.hash = "users";
+        window.location.hash = 'users';
       }
       toggleSections(window.location.hash);
 
-      window.addEventListener("hashchange", () => {
+      window.addEventListener('hashchange', () => {
         toggleSections(window.location.hash);
       });
     </script>
 
     <script>
       // Form submits.
-      const allForms = document.getElementsByTagName("form");
+      const allForms = document.getElementsByTagName('form');
 
       for (let i = 0; i < allForms.length; i++) {
         const form = allForms.item(i);
 
-        form.addEventListener("submit", function handleSubmit(e) {
+        form.addEventListener('submit', function handleSubmit(e) {
           e.preventDefault();
 
           const formData = Object.fromEntries(new FormData(e.target));

@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import path from 'path';
-import { chromium } from 'playwright';
+import { chromium, Locator } from 'playwright';
 import { parse } from './parser';
 
 type MaybeAsyncFn<T = any> = (() => T) | (() => Promise<T>);
@@ -17,14 +17,65 @@ async function runPlaywrightExample() {
 
   await page.setContent(file);
 
-  const parsed = parse('Click "Teams" link, then click "Submit" button.');
-  for (const command of parsed) {
-    const { action, elementType, object } = command;
+  const commands = [
+    'Click "Teams" link, then click "Submit" button.',
+    'Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".',
+    'Click "Submit" button on the Real Users Section.'
+  ];
 
-    if (action === 'click') {
-      const element = page.getByRole(elementType, { name: object });
-      await expect(element).toBeVisible();
-      await element.click();
+  for (const command of commands) {
+    const parsedCommands = parse(command);
+
+    for (const parsedCommand of parsedCommands) {
+      const { action, elementType, object, specifier, value } = parsedCommand;
+
+      if (action === 'click') {
+        let locator: Locator;
+
+        if (specifier) {
+          if (/section/i.test(specifier)) {
+            locator = page
+              .locator('section', {
+                has: page.getByRole('heading', { name: specifier })
+              })
+              .getByRole(elementType, { name: object })
+              .first();
+          } else {
+            locator = page
+              .getByLabel(specifier)
+              .getByRole(elementType, { name: object })
+              .first();
+          }
+        } else {
+          locator = page.getByRole(elementType, { name: object });
+        }
+
+        await expect(locator).toBeVisible();
+        await locator.click();
+      } else if (action === 'fill') {
+        let locator: Locator;
+
+        if (specifier) {
+          if (/section/i.test(specifier)) {
+            locator = page
+              .locator('section', {
+                has: page.getByRole('heading', { name: specifier })
+              })
+              .getByRole(elementType, { name: object })
+              .first();
+          } else {
+            locator = page
+              .getByLabel(specifier)
+              .getByRole(elementType, { name: object })
+              .first();
+          }
+        } else {
+          locator = page.getByRole(elementType, { name: object });
+        }
+
+        await expect(locator).toBeVisible();
+        await locator.fill(value!);
+      }
     }
   }
 

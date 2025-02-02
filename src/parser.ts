@@ -50,10 +50,6 @@ export function parse(sentence: string) {
   });
 
   const output: Command[] = [];
-  let conditionalInformationRecord = {
-    value: '',
-    elementContainer: ''
-  };
 
   for (const clauses of result) {
     for (const clause of clauses) {
@@ -86,7 +82,7 @@ export function parse(sentence: string) {
           term.chunk = 'Noun';
         }
 
-        if (term.chunk === 'Pivot') {
+        if (term.chunk === 'Pivot' && ['with', 'on'].includes(text)) {
           prev = {
             type: 'Noun',
             words: [text]
@@ -124,7 +120,10 @@ export function parse(sentence: string) {
       for (const rawCommand of cur) {
         switch (rawCommand.words[0]) {
           case 'on': {
-            let specifier = rawCommand.words.slice(2).join(' ');
+            let specifier = rawCommand.words
+              .slice(2)
+              .join(' ')
+              .replace(/[\.,"]/g, '');
 
             if (specifier[0] === specifier[0].toUpperCase()) {
               // Means a name. Do nothing.
@@ -141,7 +140,7 @@ export function parse(sentence: string) {
           }
           case 'with': {
             const valueWords = rawCommand.words.slice(2).join(' ');
-            record.value = valueWords.replace(/"/g, '');
+            record.value = valueWords.replace(/[\.,"]/g, '');
 
             break;
           }
@@ -149,9 +148,13 @@ export function parse(sentence: string) {
             if (order[idx] === 'action') {
               record[order[idx]] = rawCommand.words.join(' ').toLowerCase();
             } else if (order[idx] === 'object') {
-              record[order[idx]] = rawCommand.words.join(' ').replace(/"/g, '');
+              record[order[idx]] = rawCommand.words
+                .join(' ')
+                .replace(/[\.,"]/g, '');
             } else {
-              let effectiveObject = rawCommand.words.join(' ');
+              let effectiveObject = rawCommand.words
+                .join(' ')
+                .replace(/[\.,"]/g, '');
               effectiveObject =
                 ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
 
