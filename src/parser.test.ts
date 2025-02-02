@@ -73,6 +73,27 @@ describe('Click', () => {
       specifier: 'Sidebar Navigation'
     });
   });
+
+  test('Edge cases objects and specifiers', () => {
+    let result = parse('Click "Continue on studying" button');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'click',
+      elementType: 'button',
+      object: 'Continue on studying'
+    });
+
+    result = parse('Click "Continue on studying" button on the navbar');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'click',
+      elementType: 'button',
+      object: 'Continue on studying',
+      specifier: 'nav'
+    });
+  });
 });
 
 describe('Fill input', () => {

@@ -29,10 +29,14 @@ interface PartOfSpeech {
 
 export function parse(sentence: string) {
   const doc = nlp(sentence);
-  const clauses: string[] = doc.clauses().out('array');
-  // print(clauses);
+  const clauses = doc.document;
+
   const result = clauses.map((clause) => {
-    const lexicon = nlp(clause)
+    const sentence = clause
+      .map(({ pre, post, text }) => `${pre}${text}${post}`)
+      .join('');
+
+    const lexicon = nlp(sentence)
       .quotations()
       .out('array')
       .map((el) => (el.endsWith('"') ? el.slice(1, -1) : el.slice(0, -1)))
@@ -41,7 +45,9 @@ export function parse(sentence: string) {
         return obj;
       }, {});
 
-    return nlp(clause, {
+    console.info(lexicon);
+
+    return nlp(sentence, {
       hover: 'Verb',
       click: 'Verb',
       link: 'Noun',
@@ -116,6 +122,8 @@ export function parse(sentence: string) {
       };
       const order = Object.keys(record) as Array<keyof typeof record>;
       let idx = 0;
+
+      console.info(cur);
 
       for (const rawCommand of cur) {
         switch (rawCommand.words[0]) {
