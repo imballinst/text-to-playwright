@@ -7,10 +7,7 @@ import { parse } from './parser';
 type MaybeAsyncFn<T = any> = (() => T) | (() => Promise<T>);
 
 async function runPlaywrightExample() {
-  const file = await readFile(
-    path.join(process.cwd(), 'assets/test/index.html'),
-    'utf-8'
-  );
+  const file = await readFile(path.join(process.cwd(), 'assets/test/index.html'), 'utf-8');
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -41,10 +38,7 @@ async function runPlaywrightExample() {
               .getByRole(elementType, { name: object })
               .first();
           } else {
-            locator = page
-              .getByLabel(specifier)
-              .getByRole(elementType, { name: object })
-              .first();
+            locator = page.getByLabel(specifier).getByRole(elementType, { name: object }).first();
           }
         } else {
           locator = page.getByRole(elementType, { name: object });
@@ -64,10 +58,7 @@ async function runPlaywrightExample() {
               .getByRole(elementType, { name: object })
               .first();
           } else {
-            locator = page
-              .getByLabel(specifier)
-              .getByRole(elementType, { name: object })
-              .first();
+            locator = page.getByLabel(specifier).getByRole(elementType, { name: object }).first();
           }
         } else {
           locator = page.getByRole(elementType, { name: object });

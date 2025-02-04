@@ -105,12 +105,11 @@
           e.preventDefault();
 
           const formData = Object.fromEntries(new FormData(e.target));
-          console.info(new FormData(e.target), formData);
 
           const output = document.getElementById(e.target.dataset.outputId);
           if (!output) return;
 
-          output.innerHTML = JSON.stringify(formData, null, 2);
+          output.innerHTML = JSON.stringify(formData['user-id'], null, 2);
         });
       }
     </script>

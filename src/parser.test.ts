@@ -122,9 +122,7 @@ describe('Fill input', () => {
   });
 
   test('Objects with specifiers', () => {
-    const result = parse(
-      'Fill "Display Name" input on the User section with value "Hello World"'
-    );
+    const result = parse('Fill "Display Name" input on the User section with value "Hello World"');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -168,6 +166,48 @@ describe('Hover element', () => {
       action: 'hover',
       elementType: 'textbox',
       object: 'Display Name',
+      specifier: 'User section'
+    });
+  });
+});
+
+describe('Ensure value', () => {
+  test('Object with 1 word', () => {
+    const result = parse('Ensure "Name" input to have value "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Name',
+      assertBehavior: 'exact',
+      value: 'hello'
+    });
+  });
+
+  test('Object with 2 words', () => {
+    const result = parse('Ensure "Display Name" input to have value "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Display Name',
+      assertBehavior: 'exact',
+      value: 'hello'
+    });
+  });
+
+  test('Objects with specifiers', () => {
+    const result = parse('Ensure "Display Name" input on the User section to have value "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Display Name',
+      assertBehavior: 'exact',
+      value: 'hello',
       specifier: 'User section'
     });
   });

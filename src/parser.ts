@@ -1,17 +1,15 @@
 import nlp from 'compromise';
 import { z } from 'zod';
 import { ARIA_ALIAS_RECORD, AriaRoles } from './types/aria';
+import { ASSERT_BEHAVIOR_ALIAS } from './types/assertions';
 
 const Command = z
   .object({
-    action: z.union([
-      z.literal('click'),
-      z.literal('hover'),
-      z.literal('fill')
-    ]),
+    action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure')]),
     object: z.string(),
     elementType: AriaRoles,
     specifier: z.string().optional(),
+    assertBehavior: z.union([z.literal('exact'), z.literal('contain')]).optional(),
     value: z.string().optional()
   })
   .transform((v) => {
@@ -32,9 +30,7 @@ export function parse(sentence: string) {
   const clauses = doc.document;
 
   const result = clauses.map((clause) => {
-    const sentence = clause
-      .map(({ pre, post, text }) => `${pre}${text}${post}`)
-      .join('');
+    const sentence = clause.map(({ pre, post, text }) => `${pre}${text}${post}`).join('');
 
     const lexicon = nlp(sentence)
       .quotations()
@@ -44,8 +40,6 @@ export function parse(sentence: string) {
         obj[cur] = 'Noun';
         return obj;
       }, {});
-
-    console.info(lexicon);
 
     return nlp(sentence, {
       hover: 'Verb',
@@ -70,8 +64,7 @@ export function parse(sentence: string) {
         const endsWithQuote = text.endsWith('"');
         const shouldJustPush = isWithinQuote;
 
-        isWithinQuote =
-          (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
+        isWithinQuote = (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
 
         if (shouldJustPush && prev) {
           // If the text is still within quote, just push it.
@@ -84,11 +77,11 @@ export function parse(sentence: string) {
           continue;
         }
 
-        if (isWithinQuote) {
+        if (isWithinQuote || (prev?.type === 'Noun' && prev.words[0] === 'to')) {
           term.chunk = 'Noun';
         }
 
-        if (term.chunk === 'Pivot' && ['with', 'on'].includes(text)) {
+        if (term.chunk === 'Pivot' && ['with', 'on', 'to'].includes(text)) {
           prev = {
             type: 'Noun',
             words: [text]
@@ -117,21 +110,17 @@ export function parse(sentence: string) {
         action: '',
         object: '',
         elementType: '',
+        assertBehavior: undefined as string | undefined,
         specifier: undefined as string | undefined,
         value: undefined as string | undefined
       };
       const order = Object.keys(record) as Array<keyof typeof record>;
       let idx = 0;
 
-      console.info(cur);
-
       for (const rawCommand of cur) {
         switch (rawCommand.words[0]) {
           case 'on': {
-            let specifier = rawCommand.words
-              .slice(2)
-              .join(' ')
-              .replace(/[\.,"]/g, '');
+            let specifier = removePunctuations(rawCommand.words.slice(2).join(' '));
 
             if (specifier[0] === specifier[0].toUpperCase()) {
               // Means a name. Do nothing.
@@ -148,7 +137,16 @@ export function parse(sentence: string) {
           }
           case 'with': {
             const valueWords = rawCommand.words.slice(2).join(' ');
-            record.value = valueWords.replace(/[\.,"]/g, '');
+            record.value = removePunctuations(valueWords);
+
+            break;
+          }
+          case 'to': {
+            const [assertBehavior, _value, ...rest] = rawCommand.words.slice(1);
+            const valueWords = rest.join(' ');
+
+            record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
+            record.value = removePunctuations(valueWords);
 
             break;
           }
@@ -156,15 +154,10 @@ export function parse(sentence: string) {
             if (order[idx] === 'action') {
               record[order[idx]] = rawCommand.words.join(' ').toLowerCase();
             } else if (order[idx] === 'object') {
-              record[order[idx]] = rawCommand.words
-                .join(' ')
-                .replace(/[\.,"]/g, '');
+              record[order[idx]] = rawCommand.words.join(' ').slice(1, -1);
             } else {
-              let effectiveObject = rawCommand.words
-                .join(' ')
-                .replace(/[\.,"]/g, '');
-              effectiveObject =
-                ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
+              let effectiveObject = removePunctuations(rawCommand.words.join(' '));
+              effectiveObject = ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
 
               record[order[idx]] = effectiveObject;
             }
@@ -179,4 +172,9 @@ export function parse(sentence: string) {
   }
 
   return output;
+}
+
+// Helper functions.
+function removePunctuations(value: string) {
+  return value.replace(/[\.,"]/g, '');
 }
