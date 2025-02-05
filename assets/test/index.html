@@ -17,7 +17,7 @@
       <section>
         <h3>Real Users Section</h3>
 
-        <pre id="user-output"></pre>
+        <pre id="user-output" aria-label="Real output"></pre>
 
         <form data-output-id="user-output">
           <div>
@@ -66,16 +66,12 @@
     <script>
       // Hash changes.
       function toggleSections(shownSectionId) {
-        const idWithoutHash = shownSectionId.startsWith('#')
-          ? shownSectionId.slice(1)
-          : shownSectionId;
+        const idWithoutHash = shownSectionId.startsWith('#') ? shownSectionId.slice(1) : shownSectionId;
         const allSections = document.getElementsByTagName('section');
 
         for (let i = 0; i < allSections.length; i++) {
           const section = allSections.item(i);
-          const isRootSection = section.contains(
-            section.getElementsByTagName('h2').item(0)
-          );
+          const isRootSection = section.contains(section.getElementsByTagName('h2').item(0));
 
           if (isRootSection) {
             section.hidden = section.id !== idWithoutHash;
@@ -109,7 +105,7 @@
           const output = document.getElementById(e.target.dataset.outputId);
           if (!output) return;
 
-          output.innerHTML = JSON.stringify(formData['user-id'], null, 2);
+          output.innerHTML = formData['user-id'];
         });
       }
     </script>

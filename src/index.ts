@@ -1,8 +1,9 @@
-import { expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { chromium, Locator } from 'playwright';
 import { parse } from './parser';
+import { AriaRole } from './types/aria';
 
 type MaybeAsyncFn<T = any> = (() => T) | (() => Promise<T>);
 
@@ -17,46 +18,41 @@ async function runPlaywrightExample() {
   const commands = [
     'Click "Teams" link, then click "Submit" button.',
     'Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".',
-    'Click "Submit" button on the Real Users Section.'
+    'Click "Submit" button on the Real Users Section.',
+    'Ensure "Real output" element on the Real Users Section to have value "\"123\"".'
   ];
 
   for (const command of commands) {
     const parsedCommands = parse(command);
 
     for (const parsedCommand of parsedCommands) {
-      const { action, elementType, object, specifier, value } = parsedCommand;
+      const { action, elementType, object, specifier, assertBehavior, value } = parsedCommand;
 
       if (action === 'click') {
-        let locator: Locator;
-
-        if (specifier) {
-          if (/section/i.test(specifier)) {
-            locator = page
-              .locator('section', {
-                has: page.getByRole('heading', { name: specifier })
-              })
-              .getByRole(elementType, { name: object })
-              .first();
-          } else {
-            locator = page.getByLabel(specifier).getByRole(elementType, { name: object }).first();
-          }
-        } else {
-          locator = page.getByRole(elementType, { name: object });
-        }
+        const locator = getLocator(page, elementType, object, { specifier });
 
         await expect(locator).toBeVisible();
         await locator.click();
       } else if (action === 'fill') {
+        const locator = getLocator(page, elementType, object, { specifier });
+
+        await expect(locator).toBeVisible();
+        await locator.fill(value!);
+      } else if (action === 'ensure') {
         let locator: Locator;
 
         if (specifier) {
           if (/section/i.test(specifier)) {
-            locator = page
-              .locator('section', {
-                has: page.getByRole('heading', { name: specifier })
-              })
-              .getByRole(elementType, { name: object })
-              .first();
+            locator = page.locator('section', {
+              has: page.getByRole('heading', { name: specifier })
+            });
+
+            if (elementType === 'generic') {
+              // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
+              locator = locator.getByLabel(object).first();
+            } else {
+              locator = locator.getByRole(elementType, { name: object }).first();
+            }
           } else {
             locator = page.getByLabel(specifier).getByRole(elementType, { name: object }).first();
           }
@@ -65,7 +61,12 @@ async function runPlaywrightExample() {
         }
 
         await expect(locator).toBeVisible();
-        await locator.fill(value!);
+
+        if (assertBehavior === 'contain') {
+          await expect(locator).toContainText(value!);
+        } else if (assertBehavior === 'exact') {
+          await expect(locator).toHaveText(value!);
+        }
       }
     }
   }
@@ -73,33 +74,26 @@ async function runPlaywrightExample() {
   await browser.close();
 }
 
-async function waitFor(
-  cb: MaybeAsyncFn,
-  options?: {
-    interval?: number;
-    timeout?: number;
+function getLocator(page: Page, elementType: AriaRole, name: string, opts?: { specifier?: string }) {
+  const { specifier } = opts ?? {};
+  let locator: Locator;
+
+  if (specifier) {
+    if (/section/i.test(specifier)) {
+      locator = page
+        .locator('section', {
+          has: page.getByRole('heading', { name: specifier })
+        })
+        .getByRole(elementType, { name })
+        .first();
+    } else {
+      locator = page.getByLabel(specifier).getByRole(elementType, { name }).first();
+    }
+  } else {
+    locator = page.getByRole(elementType, { name });
   }
-) {
-  const interval = options?.interval ?? 1000;
-  let timeout = options?.timeout ?? 10_000;
-  let isPassed = false;
 
-  while (!isPassed) {
-    if (timeout < 0) throw new Error('');
-
-    isPassed = await new Promise((res) => {
-      setTimeout(async () => {
-        try {
-          await cb();
-          res(true);
-        } catch (err) {
-          res(false);
-        }
-      }, interval);
-    });
-
-    timeout -= interval;
-  }
+  return locator;
 }
 
 runPlaywrightExample();

@@ -1,5 +1,19 @@
 import { describe, expect, test } from 'vitest';
-import { parse } from './parser';
+import { parse, parseSentence } from './parser';
+
+test('parseSentence', () => {
+  let parsed = parseSentence('Click "Teams" link');
+  expect(parsed.length).toBe(1);
+
+  parsed = parseSentence('Click "Teams" link, then click "Submit" button.');
+  expect(parsed.length).toBe(2);
+
+  parsed = parseSentence('Click "Teams" link. then click "Submit" button.');
+  expect(parsed.length).toBe(2);
+
+  parsed = parseSentence('Click "Teams" link\n then click "Submit" button.');
+  expect(parsed.length).toBe(2);
+});
 
 describe('Click', () => {
   test('Objects with 1 word', () => {
@@ -173,7 +187,7 @@ describe('Hover element', () => {
 
 describe('Ensure value', () => {
   test('Object with 1 word', () => {
-    const result = parse('Ensure "Name" input to have value "hello"');
+    let result = parse('Ensure "Name" input to have value "hello"');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -183,10 +197,21 @@ describe('Ensure value', () => {
       assertBehavior: 'exact',
       value: 'hello'
     });
+
+    result = parse('Ensure "Result" element to contain text "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'contain',
+      value: 'hello'
+    });
   });
 
   test('Object with 2 words', () => {
-    const result = parse('Ensure "Display Name" input to have value "hello"');
+    let result = parse('Ensure "Display Name" input to have value "hello"');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -196,10 +221,21 @@ describe('Ensure value', () => {
       assertBehavior: 'exact',
       value: 'hello'
     });
+
+    result = parse('Ensure "Expected Result" element to contain text "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Expected Result',
+      assertBehavior: 'contain',
+      value: 'hello'
+    });
   });
 
   test('Objects with specifiers', () => {
-    const result = parse('Ensure "Display Name" input on the User section to have value "hello"');
+    let result = parse('Ensure "Display Name" input on the User section to have value "hello"');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -207,6 +243,18 @@ describe('Ensure value', () => {
       elementType: 'textbox',
       object: 'Display Name',
       assertBehavior: 'exact',
+      value: 'hello',
+      specifier: 'User section'
+    });
+
+    result = parse('Ensure "Expected Result" element on the User section to contain text "hello"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Expected Result',
+      assertBehavior: 'contain',
       value: 'hello',
       specifier: 'User section'
     });

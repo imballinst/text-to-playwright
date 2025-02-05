@@ -1,13 +1,13 @@
 import nlp from 'compromise';
 import { z } from 'zod';
-import { ARIA_ALIAS_RECORD, AriaRoles } from './types/aria';
+import { ARIA_ALIAS_RECORD, AriaRole } from './types/aria';
 import { ASSERT_BEHAVIOR_ALIAS } from './types/assertions';
 
 const Command = z
   .object({
     action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure')]),
     object: z.string(),
-    elementType: AriaRoles,
+    elementType: AriaRole,
     specifier: z.string().optional(),
     assertBehavior: z.union([z.literal('exact'), z.literal('contain')]).optional(),
     value: z.string().optional()
@@ -25,11 +25,28 @@ interface PartOfSpeech {
   words: string[];
 }
 
-export function parse(sentence: string) {
-  const doc = nlp(sentence);
+export function parseSentence(sentence: string) {
+  let effectiveSentence = sentence;
+  if (effectiveSentence.includes(',')) {
+    // Check if the comma is between quotes or not.
+    let isWithinQuote = false;
+
+    for (let i = 0; i < effectiveSentence.length; i++) {
+      const char = effectiveSentence[i];
+
+      if (char === '"') {
+        isWithinQuote = !isWithinQuote;
+      } else if (char === ',' && !isWithinQuote) {
+        // Replace the comma with a dot, so that it's considered as a new sentence.
+        effectiveSentence = effectiveSentence.slice(0, i) + '.' + effectiveSentence.slice(i + 1);
+      }
+    }
+  }
+
+  const doc = nlp(effectiveSentence);
   const clauses = doc.document;
 
-  const result = clauses.map((clause) => {
+  return clauses.map((clause) => {
     const sentence = clause.map(({ pre, post, text }) => `${pre}${text}${post}`).join('');
 
     const lexicon = nlp(sentence)
@@ -48,7 +65,10 @@ export function parse(sentence: string) {
       ...lexicon
     }).out('json');
   });
+}
 
+export function parse(sentence: string) {
+  const result = parseSentence(sentence);
   const output: Command[] = [];
 
   for (const clauses of result) {
@@ -147,6 +167,12 @@ export function parse(sentence: string) {
 
             record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
             record.value = removePunctuations(valueWords);
+
+            // If the elementType is not valid ARIA, default to generic.
+            const parsedAriaRole = AriaRole.safeParse(record.elementType);
+            if (!parsedAriaRole.success) {
+              record.elementType = 'generic';
+            }
 
             break;
           }

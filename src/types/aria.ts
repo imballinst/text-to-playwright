@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const AriaRoles = z.enum([
+export const AriaRole = z.enum([
   'alert',
   'alertdialog',
   'application',
@@ -85,7 +85,7 @@ export const AriaRoles = z.enum([
   'treeitem'
 ]);
 
-export type AriaRoles = z.infer<typeof AriaRoles>;
+export type AriaRole = z.infer<typeof AriaRole>;
 
 export const ARIA_ALIAS_RECORD: Record<string, string> = {
   input: 'textbox'
