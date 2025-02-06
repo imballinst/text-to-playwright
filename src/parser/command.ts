@@ -1,7 +1,7 @@
 import nlp from 'compromise';
 import { z } from 'zod';
-import { ARIA_ALIAS_RECORD, AriaRole } from './types/aria';
-import { ASSERT_BEHAVIOR_ALIAS } from './types/assertions';
+import { ARIA_ALIAS_RECORD, AriaRole } from '../types/aria';
+import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
 const Command = z
   .object({

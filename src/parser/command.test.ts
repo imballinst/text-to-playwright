@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parse, parseSentence } from './parser';
+import { parse, parseSentence } from './command';
 
 test('parseSentence', () => {
   let parsed = parseSentence('Click "Teams" link');
