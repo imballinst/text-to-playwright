@@ -15,53 +15,35 @@ async function runPlaywrightExample() {
 
   await page.setContent(file);
 
-  const parsedTestFile = parseInputTestFile(testFile)
+  const parsedTestFile = parseInputTestFile(testFile);
 
   for (const testCase of parsedTestFile.tests) {
-    const{ name, steps } = testCase
-    console.info(`Running test: ${name}...`)
-    
+    const { name, steps } = testCase;
+    console.info(`Running test: ${name}...`);
+
     for (const command of steps) {
-      console.info(`  Step: ${command}`)
+      console.info(`  Step: ${command}`);
       const parsedCommands = parse(command);
-  
+
       for (const parsedCommand of parsedCommands) {
         const { action, elementType, object, specifier, assertBehavior, value } = parsedCommand;
-  
+
         if (action === 'click') {
           const locator = getLocator(page, elementType, object, { specifier });
-  
+
           await expect(locator).toBeVisible();
+
           await locator.click();
         } else if (action === 'fill') {
           const locator = getLocator(page, elementType, object, { specifier });
-  
+
           await expect(locator).toBeVisible();
           await locator.fill(value!);
         } else if (action === 'ensure') {
-          let locator: Locator;
-  
-          if (specifier) {
-            if (/section/i.test(specifier)) {
-              locator = page.locator('section', {
-                has: page.getByRole('heading', { name: specifier })
-              });
-  
-              if (elementType === 'generic') {
-                // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
-                locator = locator.getByLabel(object).first();
-              } else {
-                locator = locator.getByRole(elementType, { name: object }).first();
-              }
-            } else {
-              locator = page.getByLabel(specifier).getByRole(elementType, { name: object }).first();
-            }
-          } else {
-            locator = page.getByRole(elementType, { name: object });
-          }
-  
+          const locator = getLocator(page, elementType, object, { specifier });
+
           await expect(locator).toBeVisible();
-  
+
           if (assertBehavior === 'contain') {
             await expect(locator).toContainText(value!);
           } else if (assertBehavior === 'exact') {
@@ -73,21 +55,25 @@ async function runPlaywrightExample() {
   }
 
   await browser.close();
-  console.info(`✅ All tests completed!`)
+  console.info(`✅ All tests completed!`);
 }
 
-function getLocator(page: Page, elementType: AriaRole, name: string, opts?: { specifier?: string }) {
+function getLocator(page: Page | Locator, elementType: AriaRole, name: string, opts?: { specifier?: string }) {
   const { specifier } = opts ?? {};
   let locator: Locator;
 
   if (specifier) {
     if (/section/i.test(specifier)) {
-      locator = page
-        .locator('section', {
-          has: page.getByRole('heading', { name: specifier })
-        })
-        .getByRole(elementType, { name })
-        .first();
+      locator = page.locator('section', {
+        has: page.getByRole('heading', { name: specifier })
+      });
+
+      if (elementType === 'generic') {
+        // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
+        locator = locator.getByLabel(name).first();
+      } else {
+        locator = locator.getByRole(elementType, { name }).first();
+      }
     } else {
       locator = page.getByLabel(specifier).getByRole(elementType, { name }).first();
     }

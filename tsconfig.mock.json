@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@playwright/test": ["./src/mocks/playwright-test.ts"],
+      "playwright": ["./src/mocks/playwright.ts"]
+    }
+  }
+}

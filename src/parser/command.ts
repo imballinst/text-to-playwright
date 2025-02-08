@@ -162,7 +162,7 @@ export function parse(sentence: string) {
             break;
           }
           case 'to': {
-            const [assertBehavior, _value, ...rest] = rawCommand.words.slice(1);
+            const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
             const valueWords = rest.join(' ');
 
             record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
@@ -202,5 +202,5 @@ export function parse(sentence: string) {
 
 // Helper functions.
 function removePunctuations(value: string) {
-  return value.replace(/[\.,"]/g, '');
+  return value.replace(/[.,"]/g, '');
 }
