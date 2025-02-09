@@ -1,8 +1,8 @@
 export const chromium = {
   launch() {
     return {
-      newPage() {
-        const locator = createPageOrLocator();
+      newPage(logger: (typeof console)['log']) {
+        const locator = createPageOrLocator(logger);
         locator.setContent = () => {};
 
         return locator;
@@ -12,13 +12,14 @@ export const chromium = {
   }
 };
 
-function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
+function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: string[], prevAction?: boolean) {
   const obj: Record<string, any> = {
     locatorTextArray: prevLocator ? [...prevLocator] : ['page'],
     isAction: prevAction ?? false,
+    logger,
     setContent() {},
     first() {
-      const newInstance = createPageOrLocator(this.locatorTextArray, this.isAction);
+      const newInstance = createPageOrLocator(logger, this.locatorTextArray, this.isAction);
       newInstance.locatorTextArray.push(`.first()`);
 
       return newInstance;
@@ -36,7 +37,7 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   const addedMethods = ['locator', 'getByLabel', 'getByRole'];
   for (const method of addedMethods) {
     obj[method] = function (element: string, opts?: any) {
-      const newInstance = createPageOrLocator(obj.locatorTextArray, obj.isAction);
+      const newInstance = createPageOrLocator(logger, obj.locatorTextArray, obj.isAction);
       const renderedArgs: string[] = [`"${element}"`];
 
       if (opts) {
@@ -64,7 +65,7 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   for (const action of addedActions) {
     obj[action] = function () {
       const result = this.locatorTextArray.join('');
-      console.log(`    await ${result}.${action}()`);
+      logger(`    await ${result}.${action}()`);
     };
   }
 

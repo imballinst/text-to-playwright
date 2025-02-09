@@ -3,17 +3,17 @@ import { parse } from './parser/command';
 import { parseInputTestFile } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page | Locator, testFileContent: string) {
+export async function runTests(page: Page | Locator, testFileContent: string, logger: (typeof console)['log']) {
   const parsedTestFile = parseInputTestFile(testFileContent);
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
-    console.log(`Running test: ${name}...`);
+    logger(`Running test: ${name}...`);
 
     for (let i = 0; i < steps.length; i++) {
       const command = steps[i];
 
-      console.log(`  Step ${i + 1}: ${command}`);
+      logger(`  Step ${i + 1}: ${command}`);
       const parsedCommands = parse(command);
 
       for (const parsedCommand of parsedCommands) {
