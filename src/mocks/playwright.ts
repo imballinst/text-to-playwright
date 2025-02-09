@@ -37,11 +37,11 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   for (const method of addedMethods) {
     obj[method] = function (element: string, opts?: any) {
       const newInstance = createPageOrLocator(obj.locatorTextArray, obj.isAction);
-      let renderedArgs: string[] = [`"${element}"`];
+      const renderedArgs: string[] = [`"${element}"`];
 
       if (opts) {
         const { has, ...rest } = opts;
-        let renderedOpts: string[] = [];
+        const renderedOpts: string[] = [];
 
         for (const key in rest) {
           renderedOpts.push(`${key}: "${rest[key]}"`);
@@ -63,11 +63,8 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   const addedActions = ['click', 'fill'];
   for (const action of addedActions) {
     obj[action] = function () {
-      const newInstance = createPageOrLocator(obj.locatorTextArray, obj.isAction);
-      newInstance.locatorTextArray.push(`.${action}()`);
-      newInstance.isAction = true;
-
-      return newInstance;
+      const result = this.locatorTextArray.join('');
+      console.log(`    await ${result}.${action}()`);
     };
   }
 
