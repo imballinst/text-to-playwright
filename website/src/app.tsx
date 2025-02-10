@@ -6,8 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { runTests } from '@text-to-test/core';
 import { Moon, Sun } from 'lucide-react';
 import { chromium } from 'playwright';
-import { useLayoutEffect, useState } from 'preact/hooks';
-import { codeToHtml } from 'shiki';
+import { useEffect, useState } from 'preact/hooks';
+import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
 import './app.css';
 
 const DEFAULT_TEST_CASE = `
@@ -25,16 +25,25 @@ interface GroupedTest {
   steps: Array<{ name: string; codeArray: string[] }>;
 }
 
+let highlighter: HighlighterCore | undefined;
+// Initialize the first time.
+getShikiHighlighter();
+
 export function App() {
   const [tests, setTests] = useState<GroupedTest[]>([]);
   const { theme, setTheme } = useTheme();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     async function run() {
       setTests(await processInput(DEFAULT_TEST_CASE));
     }
 
     run();
+
+    return async () => {
+      const highlighter = await getShikiHighlighter();
+      highlighter.dispose();
+    };
   }, []);
 
   return (
@@ -152,19 +161,31 @@ async function processInput(input: string): Promise<GroupedTest[]> {
 
   for (const groupedTest of groupedTests) {
     for (const step of groupedTest.steps) {
-      step.codeArray = [await generateShikiHtmlCode(step.codeArray.join('\n'))];
+      const highlighter = await getShikiHighlighter();
+      step.codeArray = [
+        await highlighter.codeToHtml(step.codeArray.join('\n'), {
+          lang: 'typescript',
+          themes: {
+            light: 'min-light',
+            dark: 'nord'
+          }
+        })
+      ];
     }
   }
 
   return groupedTests;
 }
 
-function generateShikiHtmlCode(code: string) {
-  return codeToHtml(code, {
-    lang: 'typescript',
-    themes: {
-      light: 'min-light',
-      dark: 'nord'
-    }
+async function getShikiHighlighter() {
+  if (highlighter) {
+    return highlighter;
+  }
+
+  highlighter = await createHighlighterCore({
+    themes: [import('@shikijs/themes/nord'), import('@shikijs/themes/min-light')],
+    langs: [import('@shikijs/langs/typescript')],
+    engine: createJavaScriptRegexEngine()
   });
+  return highlighter;
 }
