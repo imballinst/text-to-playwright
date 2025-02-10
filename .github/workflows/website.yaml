@@ -1,0 +1,47 @@
+name: docs
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: yarn
+      - run: corepack enable
+
+      - name: Build
+        working-directory: ./website
+        run: yarn && yarn build
+        env:
+          BASE_PATH: text-to-playwright
+
+      - name: Prepare publishs
+        working-directory: ./
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          mkdir -p ./output/text-to-playwright
+          cp -r website/text-to-playwright/dist/* output/text-to-playwright
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          # Publish only with the latest commit.
+          # Source: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-force-orphan-force_orphan.
+          force_orphan: true
