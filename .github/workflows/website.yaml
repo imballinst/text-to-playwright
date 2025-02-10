@@ -38,8 +38,8 @@ jobs:
         working-directory: ./
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          mkdir -p ./output/text-to-playwright
-          cp -r website/dist/* output/text-to-playwright
+          mkdir -p ./output
+          cp -r website/dist/* output
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
