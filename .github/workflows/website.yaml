@@ -1,4 +1,4 @@
-name: docs
+name: website
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  docs:
+  website:
     runs-on: ubuntu-20.04
     steps:
       - name: Cancel Previous Runs
@@ -22,6 +22,7 @@ jobs:
           node-version: 20
           cache: yarn
       - run: corepack enable
+      - run: yarn set version 4.5.1
 
       - name: Build
         working-directory: ./website
