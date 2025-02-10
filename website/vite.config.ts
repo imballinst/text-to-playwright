@@ -6,7 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [preact(), tsconfigPaths(), tailwindcss()],
+  plugins: [preact(), tsconfigPaths(), ...tailwindcss()],
   resolve: {
     alias: {
       // It's kinda what it is because of the import inside import stuff.
