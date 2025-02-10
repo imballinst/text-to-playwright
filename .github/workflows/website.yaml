@@ -34,12 +34,12 @@ jobs:
         env:
           BASE_PATH: text-to-playwright
 
-      - name: Prepare publishs
+      - name: Prepare publish
         working-directory: ./
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           mkdir -p ./output/text-to-playwright
-          cp -r website/text-to-playwright/dist/* output/text-to-playwright
+          cp -r website/dist/* output/text-to-playwright
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
