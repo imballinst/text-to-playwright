@@ -1,3 +1,4 @@
+import { GitHubIcon } from '@/components/icons';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -6,6 +7,7 @@ import { runTests } from '@text-to-test/core';
 import { Moon, Sun } from 'lucide-react';
 import { chromium } from 'playwright';
 import { useLayoutEffect, useState } from 'preact/hooks';
+import { codeToHtml } from 'shiki';
 import './app.css';
 
 const DEFAULT_TEST_CASE = `
@@ -20,7 +22,7 @@ tests:
 
 interface GroupedTest {
   name: string;
-  steps: string[];
+  steps: Array<{ name: string; codeArray: string[] }>;
 }
 
 export function App() {
@@ -37,12 +39,14 @@ export function App() {
 
   return (
     <>
-      <nav className="px-6 py-2 border-b border-b-border flex justify-between">
-        <ul className="flex items-center">
-          <li>text-to-playwright</li>
-        </ul>
+      <nav className="px-6 py-2 border-b border-b-border flex justify-between items-center sticky top-0 bg-background/90">
+        <div>text-to-playwright</div>
 
-        <div>
+        <div className="flex items-center gap-x-2">
+          <a href="https://github.com/imballinst/text-to-playwright" target="_blank" rel="noreferrer" aria-label="GitHub repository">
+            <GitHubIcon className="w-4 fill-accent-foreground" />
+          </a>
+
           <Button
             variant="outline"
             size="icon"
@@ -59,8 +63,8 @@ export function App() {
         </div>
       </nav>
 
-      <main className="bg-background h-full grid grid-cols-2 xs:grid-cols-1 gap-8 px-6 py-4">
-        <section className="flex flex-col">
+      <main className="bg-background grid md:grid-cols-5 grid-cols-1 gap-8 px-6 py-4 flex-1">
+        <section className="flex flex-col md:col-span-2">
           <h2 className="font-bold mb-4">Input</h2>
 
           <div className="flex flex-col flex-1">
@@ -84,16 +88,29 @@ export function App() {
           </div>
         </section>
 
-        <section className="flex flex-col">
+        <section className="flex flex-col md:col-span-3">
           <h2 className="font-bold mb-4">Output</h2>
 
-          <ol className="flex flex-col gap-y-2">
+          <ol className="flex flex-col gap-y-4">
             {tests.map((test, idx) => (
               <li key={`${test.name}-${idx}`}>
                 <article className="flex flex-col gap-y-2">
                   <h3>{test.name}</h3>
 
-                  <pre className="border border-border flex-1 rounded-md text-sm p-2 whitespace-pre-wrap">{test.steps.join('\n')}</pre>
+                  <ol className="flex flex-col gap-y-2 pl-4">
+                    {test.steps.map((step, idx) => (
+                      <li className="flex flex-col gap-y-2">
+                        <h4 key={`${step.name}-${idx}`}>{step.name}</h4>
+
+                        <div
+                          className="text-sm"
+                          dangerouslySetInnerHTML={{
+                            __html: step.codeArray[0]
+                          }}
+                        />
+                      </li>
+                    ))}
+                  </ol>
                 </article>
               </li>
             ))}
@@ -104,7 +121,7 @@ export function App() {
   );
 }
 
-async function processInput(input: string) {
+async function processInput(input: string): Promise<GroupedTest[]> {
   const output: string[] = [];
   const logger = (msg: string) => {
     output.push(msg);
@@ -113,21 +130,41 @@ async function processInput(input: string) {
   const page = chromium.launch().newPage(logger);
   await runTests(page, input, logger);
 
-  const groupedTests: Array<{ name: string; steps: string[] }> = [];
-  let prev: (typeof groupedTests)[number] | undefined;
+  const groupedTests: Array<GroupedTest> = [];
+  let prevGroup: GroupedTest | undefined;
+  let prevTest: GroupedTest['steps'][number] | undefined;
 
   for (const line of output) {
-    if (line.startsWith('    ') && prev) {
-      prev.steps.push(line.trim());
+    if (line.startsWith('    ') && prevTest) {
+      prevTest.codeArray.push(line.trim());
       continue;
     }
 
-    if (line.startsWith('  ')) {
-      prev = { name: line.trim(), steps: [] };
-      groupedTests.push(prev);
+    if (line.startsWith('  ') && prevGroup) {
+      prevTest = { name: line.trim(), codeArray: [] };
+      prevGroup.steps.push(prevTest);
       continue;
+    }
+
+    prevGroup = { name: line.trim(), steps: [] };
+    groupedTests.push(prevGroup);
+  }
+
+  for (const groupedTest of groupedTests) {
+    for (const step of groupedTest.steps) {
+      step.codeArray = [await generateShikiHtmlCode(step.codeArray.join('\n'))];
     }
   }
 
   return groupedTests;
+}
+
+function generateShikiHtmlCode(code: string) {
+  return codeToHtml(code, {
+    lang: 'typescript',
+    themes: {
+      light: 'min-light',
+      dark: 'nord'
+    }
+  });
 }

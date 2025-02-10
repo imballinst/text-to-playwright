@@ -6,16 +6,18 @@
 
 ## Requirements
 
-- Node.js 18+
-- Yarn berry
+- Node.js 20+
+- Yarn berry 4.5.1+
+- Corepack
 
 ## Development
 
 There are 3 commands that are useful for development:
 
+1. `corepack enable` -- this will fetch the Yarn version to your machine, so we don't have to store binary in the repository.
 1. `yarn` -- install dependencies like usual.
-2. `yarn test` -- run the test cases.
-3. `yarn dev` -- run the example test file, imitating end-to-end flow.
+1. `yarn test` -- run the test cases.
+1. `yarn dev` -- run the example test file, imitating end-to-end flow.
 
 ## Getting started
 

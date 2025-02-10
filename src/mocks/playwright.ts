@@ -27,8 +27,10 @@ function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: stri
   };
   Object.setPrototypeOf(obj, {
     toString: function () {
-      const result = this.locatorTextArray.join('');
-      if (!this.isAction) return result;
+      const thisObject = this as any;
+
+      const result = thisObject.locatorTextArray.join('');
+      if (!thisObject.isAction) return result;
 
       return `await ${result}`;
     }

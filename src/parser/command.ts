@@ -14,7 +14,9 @@ const Command = z
   })
   .transform((v) => {
     for (const key in v) {
-      if (v[key] === undefined) delete v[key];
+      const typedKey = key as keyof typeof v;
+
+      if (v[typedKey] === undefined) delete v[typedKey];
     }
     return v;
   });
@@ -49,14 +51,15 @@ export function parseSentence(sentence: string) {
   return clauses.map((clause) => {
     const sentence = clause.map(({ pre, post, text }) => `${pre}${text}${post}`).join('');
 
-    const lexicon = nlp(sentence)
-      .quotations()
-      .out('array')
+    const lexicon = (nlp(sentence).quotations().out('array') as string[])
       .map((el) => (el.endsWith('"') ? el.slice(1, -1) : el.slice(0, -1)))
-      .reduce((obj, cur) => {
-        obj[cur] = 'Noun';
-        return obj;
-      }, {});
+      .reduce(
+        (obj, cur) => {
+          obj[cur] = 'Noun';
+          return obj;
+        },
+        {} as Record<string, string>
+      );
 
     return nlp(sentence, {
       hover: 'Verb',

@@ -8,7 +8,7 @@ export async function runTests(page: Page | Locator, testFileContent: string, lo
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
-    logger(`Running test: ${name}...`);
+    logger(name);
 
     for (let i = 0; i < steps.length; i++) {
       const command = steps[i];

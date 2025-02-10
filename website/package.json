@@ -15,6 +15,7 @@
     "clsx": "2.1.1",
     "lucide-react": "0.475.0",
     "preact": "10.25.4",
+    "shiki": "2.3.2",
     "tailwind-merge": "3.0.1",
     "tailwindcss-animate": "1.0.7"
   },
@@ -25,5 +26,6 @@
     "typescript": "~5.7.2",
     "vite": "6.1.0",
     "vite-tsconfig-paths": "5.1.4"
-  }
+  },
+  "packageManager": "yarn@4.6.0"
 }

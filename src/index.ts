@@ -12,7 +12,7 @@ async function runPlaywrightExample() {
 
   await page.setContent(fileContent);
 
-  await runTests(page, testFileContent);
+  await runTests(page, testFileContent, console.log);
 
   await browser.close();
   console.info(`✅ All tests completed!`);
