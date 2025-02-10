@@ -24,6 +24,10 @@ jobs:
           cache: yarn
       - run: yarn set version 4.5.1
 
+      # Install the top-level packages.
+      - run: yarn
+
+      # Install the website packages.
       - name: Build
         working-directory: ./website
         run: yarn && yarn build
