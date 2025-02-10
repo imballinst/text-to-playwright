@@ -2,6 +2,7 @@
   "name": "website",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "yarn@4.5.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,6 +27,5 @@
     "typescript": "~5.7.2",
     "vite": "6.1.0",
     "vite-tsconfig-paths": "5.1.4"
-  },
-  "packageManager": "yarn@4.6.0"
+  }
 }
