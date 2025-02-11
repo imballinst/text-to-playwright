@@ -65,9 +65,11 @@ function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: stri
 
   const addedActions = ['click', 'fill'];
   for (const action of addedActions) {
-    obj[action] = function () {
+    obj[action] = function (...args) {
+      const param = action === 'fill' ? `"${args[0]}"` : '';
+
       const result = this.locatorTextArray.join('');
-      logger(`    await ${result}.${action}()`);
+      logger(`    await ${result}.${action}(${param})`);
     };
   }
 
