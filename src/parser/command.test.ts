@@ -208,6 +208,18 @@ describe('Ensure value', () => {
       assertBehavior: 'contain',
       value: 'hello'
     });
+
+    // TODO: add more tests regarding the pattern.
+    result = parse('Ensure "Result" element to match pattern "$\\d{4}"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '/$\\d{4}/'
+    });
   });
 
   test('Object with 2 words', () => {

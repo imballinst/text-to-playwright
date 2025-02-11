@@ -9,7 +9,7 @@ const Command = z
     object: z.string(),
     elementType: AriaRole,
     specifier: z.string().optional(),
-    assertBehavior: z.union([z.literal('exact'), z.literal('contain')]).optional(),
+    assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
     value: z.string().optional()
   })
   .transform((v) => {
@@ -170,6 +170,10 @@ export function parse(sentence: string) {
 
             record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
             record.value = removePunctuations(valueWords);
+
+            if (record.assertBehavior === 'match') {
+              record.value = `/${record.value}/`;
+            }
 
             // If the elementType is not valid ARIA, default to generic.
             const parsedAriaRole = AriaRole.safeParse(record.elementType);
