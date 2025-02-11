@@ -1,16 +1,18 @@
+import { LoggerSingleton } from '../logger';
+
 export type Locator = any;
 export type Page = any;
 
 export function expect(locator: any) {
   return {
     toBeVisible: () => {
-      locator.logger(`    await ${locator}.toBeVisible()`);
+      LoggerSingleton.log(`    await ${locator}.toBeVisible()`);
     },
     toContainText: (value: any) => {
-      locator.logger(`    await ${locator}.toContainText('${value}')`);
+      LoggerSingleton.log(`    await ${locator}.toContainText('${value}')`);
     },
     toHaveText: (value: any) => {
-      locator.logger(`    await ${locator}.toHaveText('${value}')`);
+      LoggerSingleton.log(`    await ${locator}.toHaveText('${value}')`);
     }
   };
 }

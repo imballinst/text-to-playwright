@@ -1,25 +1,25 @@
+import { LoggerSingleton } from '../logger';
+
 export const chromium = {
   launch() {
     return {
-      newPage(logger: (typeof console)['log']) {
-        const locator = createPageOrLocator(logger);
-        locator.setContent = () => {};
-
-        return locator;
+      newPage() {
+        return createPageOrLocator();
       },
       close() {}
     };
   }
 };
 
-function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: string[], prevAction?: boolean) {
+export { LoggerSingleton };
+
+function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   const obj: Record<string, any> = {
     locatorTextArray: prevLocator ? [...prevLocator] : ['page'],
     isAction: prevAction ?? false,
-    logger,
     setContent() {},
     first() {
-      const newInstance = createPageOrLocator(logger, this.locatorTextArray, this.isAction);
+      const newInstance = createPageOrLocator(this.locatorTextArray, this.isAction);
       newInstance.locatorTextArray.push(`.first()`);
 
       return newInstance;
@@ -39,7 +39,7 @@ function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: stri
   const addedMethods = ['locator', 'getByLabel', 'getByRole'];
   for (const method of addedMethods) {
     obj[method] = function (element: string, opts?: any) {
-      const newInstance = createPageOrLocator(logger, obj.locatorTextArray, obj.isAction);
+      const newInstance = createPageOrLocator(obj.locatorTextArray, obj.isAction);
       const renderedArgs: string[] = [`"${element}"`];
 
       if (opts) {
@@ -69,7 +69,7 @@ function createPageOrLocator(logger: (typeof console)['log'], prevLocator?: stri
       const param = action === 'fill' ? `"${args[0]}"` : '';
 
       const result = this.locatorTextArray.join('');
-      logger(`    await ${result}.${action}(${param})`);
+      LoggerSingleton.log(`    await ${result}.${action}(${param})`);
     };
   }
 
