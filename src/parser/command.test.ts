@@ -260,3 +260,27 @@ describe('Ensure value', () => {
     });
   });
 });
+
+describe('Store value', () => {
+  test('Object with 1 word', () => {
+    let result = parse('Store the value of "Name" input into variable "inputValue"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'store',
+      elementType: 'textbox',
+      object: 'Name',
+      variableName: 'inputValue'
+    });
+
+    result = parse('Store the value of "Name" input to variable "inputValue"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'store',
+      elementType: 'textbox',
+      object: 'Name',
+      variableName: 'inputValue'
+    });
+  });
+});

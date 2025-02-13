@@ -5,11 +5,12 @@ import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
 const Command = z
   .object({
-    action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure')]),
+    action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store')]),
     object: z.string(),
     elementType: AriaRole,
     specifier: z.string().optional(),
     assertBehavior: z.union([z.literal('exact'), z.literal('contain')]).optional(),
+    variableName: z.string().optional(),
     value: z.string().optional()
   })
   .transform((v) => {
@@ -51,15 +52,13 @@ export function parseSentence(sentence: string) {
   return clauses.map((clause) => {
     const sentence = clause.map(({ pre, post, text }) => `${pre}${text}${post}`).join('');
 
-    const lexicon = (nlp(sentence).quotations().out('array') as string[])
-      .map((el) => (el.endsWith('"') ? el.slice(1, -1) : el.slice(0, -1)))
-      .reduce(
-        (obj, cur) => {
-          obj[cur] = 'Noun';
-          return obj;
-        },
-        {} as Record<string, string>
-      );
+    const lexicon = (nlp(sentence).quotations().out('array') as string[]).map(removeQuotes).reduce(
+      (obj, cur) => {
+        obj[cur] = 'Noun';
+        return obj;
+      },
+      {} as Record<string, string>
+    );
 
     return nlp(sentence, {
       hover: 'Verb',
@@ -84,6 +83,8 @@ export function parse(sentence: string) {
         const term = clause.terms[i];
         const text = (term.pre + term.text + term.post).trim();
 
+        console.info(text, term.chunk);
+
         const endsWithQuote = text.endsWith('"');
         const shouldJustPush = isWithinQuote;
 
@@ -104,7 +105,7 @@ export function parse(sentence: string) {
           term.chunk = 'Noun';
         }
 
-        if (term.chunk === 'Pivot' && ['with', 'on', 'to'].includes(text)) {
+        if (term.chunk === 'Pivot' && ['with', 'on', 'to', 'into'].includes(text)) {
           prev = {
             type: 'Noun',
             words: [text]
@@ -135,6 +136,7 @@ export function parse(sentence: string) {
         elementType: '',
         assertBehavior: undefined as string | undefined,
         specifier: undefined as string | undefined,
+        variableName: undefined as string | undefined,
         value: undefined as string | undefined
       };
       const order = Object.keys(record) as Array<keyof typeof record>;
@@ -164,7 +166,14 @@ export function parse(sentence: string) {
 
             break;
           }
+          case 'into':
           case 'to': {
+            if (record.action === 'store') {
+              console.info(rawCommand.words);
+              record.variableName = removeQuotes(rawCommand.words.at(-1));
+              break;
+            }
+
             const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
             const valueWords = rest.join(' ');
 
@@ -181,9 +190,15 @@ export function parse(sentence: string) {
           }
           default: {
             if (order[idx] === 'action') {
-              record[order[idx]] = rawCommand.words.join(' ').toLowerCase();
+              record.action = rawCommand.words.join(' ').toLowerCase();
             } else if (order[idx] === 'object') {
-              record[order[idx]] = rawCommand.words.join(' ').slice(1, -1);
+              const joined = rawCommand.words.join(' ');
+
+              if (record.action === 'store') {
+                record.object = joined.slice(joined.indexOf('"') + 1, joined.lastIndexOf('"'));
+              } else {
+                record.object = removeQuotes(joined);
+              }
             } else {
               let effectiveObject = removePunctuations(rawCommand.words.join(' '));
               effectiveObject = ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
@@ -196,6 +211,8 @@ export function parse(sentence: string) {
         idx++;
       }
 
+      console.info(record);
+
       output.push(Command.parse(record));
     }
   }
@@ -206,4 +223,8 @@ export function parse(sentence: string) {
 // Helper functions.
 function removePunctuations(value: string) {
   return value.replace(/[.,"]/g, '');
+}
+
+function removeQuotes(value: string) {
+  return value.replace(/"/g, '');
 }
