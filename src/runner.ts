@@ -15,9 +15,10 @@ export async function runTests(page: Page | Locator, testFileContent: string, lo
 
       logger(`  Step ${i + 1}: ${command}`);
       const parsedCommands = parse(command);
+      const variables: Record<string, string> = {};
 
       for (const parsedCommand of parsedCommands) {
-        const { action, elementType, object, specifier, assertBehavior, value } = parsedCommand;
+        const { action, elementType, object, specifier, assertBehavior, variableName, value } = parsedCommand;
 
         if (action === 'click') {
           const locator = getLocator(page, elementType, object, { specifier });
@@ -40,6 +41,10 @@ export async function runTests(page: Page | Locator, testFileContent: string, lo
           } else if (assertBehavior === 'exact') {
             await expect(locator).toHaveText(value!);
           }
+        } else if (action === 'store') {
+          const locator = getLocator(page, elementType, object, { specifier });
+
+          variables[variableName] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
         }
       }
     }
@@ -57,18 +62,22 @@ function getLocator(page: Page | Locator, elementType: AriaRole, name: string, o
         has: page.getByRole('heading', { name: specifier })
       });
 
-      if (elementType === 'generic') {
-        // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
-        locator = locator.getByLabel(name).first();
-      } else {
-        locator = locator.getByRole(elementType, { name }).first();
-      }
+      locator = getLocatorByElementType(locator, elementType, name);
     } else {
       locator = page.getByLabel(specifier).getByRole(elementType, { name }).first();
     }
   } else {
-    locator = page.getByRole(elementType, { name });
+    locator = getLocatorByElementType(page, elementType, name);
   }
 
   return locator;
+}
+
+function getLocatorByElementType(locator: Page | Locator, elementType: AriaRole, name: string) {
+  if (elementType === 'generic') {
+    // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
+    return locator.getByLabel(name).first();
+  }
+
+  return locator.getByRole(elementType, { name }).first();
 }

@@ -283,4 +283,28 @@ describe('Store value', () => {
       variableName: 'inputValue'
     });
   });
+
+  test.only('Object with specifiers', () => {
+    let result = parse('Store the value of "Name" input on the User section into variable "inputValue"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'store',
+      elementType: 'textbox',
+      object: 'Name',
+      specifier: 'User section',
+      variableName: 'inputValue'
+    });
+
+    result = parse('Store the value of "Name" input on the User section to variable "inputValue"');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'store',
+      elementType: 'textbox',
+      object: 'Name',
+      specifier: 'User section',
+      variableName: 'inputValue'
+    });
+  });
 });

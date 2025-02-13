@@ -83,8 +83,6 @@ export function parse(sentence: string) {
         const term = clause.terms[i];
         const text = (term.pre + term.text + term.post).trim();
 
-        console.info(text, term.chunk);
-
         const endsWithQuote = text.endsWith('"');
         const shouldJustPush = isWithinQuote;
 
@@ -168,9 +166,15 @@ export function parse(sentence: string) {
           }
           case 'into':
           case 'to': {
+            // If the elementType is not valid ARIA, default to generic.
+            const parsedAriaRole = AriaRole.safeParse(record.elementType);
+            if (!parsedAriaRole.success) {
+              record.elementType = 'generic';
+            }
+
+            // Process either "store" or "ensure".
             if (record.action === 'store') {
-              console.info(rawCommand.words);
-              record.variableName = removeQuotes(rawCommand.words.at(-1));
+              record.variableName = removePunctuations(rawCommand.words.at(-1));
               break;
             }
 
@@ -179,12 +183,6 @@ export function parse(sentence: string) {
 
             record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
             record.value = removePunctuations(valueWords);
-
-            // If the elementType is not valid ARIA, default to generic.
-            const parsedAriaRole = AriaRole.safeParse(record.elementType);
-            if (!parsedAriaRole.success) {
-              record.elementType = 'generic';
-            }
 
             break;
           }
@@ -210,8 +208,6 @@ export function parse(sentence: string) {
 
         idx++;
       }
-
-      console.info(record);
 
       output.push(Command.parse(record));
     }
