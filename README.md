@@ -35,7 +35,7 @@ tests:
       - Ensure "Real output" element on the Real Users Section to have value {hello}.
 ```
 
-The YAML above means there is 1 test case and the test case contains 4 steps. The library will then do the rest, which it will do the following.
+The YAML above means there is 1 test case and the test case contains a number of steps. The library will then do the rest, which it will do the following.
 
 ```
 Example test case
