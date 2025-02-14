@@ -64,7 +64,7 @@ function createPageOrLocator(prevLocator?: string[]) {
 
   const addedActions = ['click', 'fill', 'innerText'];
   for (const action of addedActions) {
-    obj[action] = function (...args) {
+    obj[action] = function (...args: any[]) {
       const result = this.locatorTextArray.join('');
       let param = '';
 

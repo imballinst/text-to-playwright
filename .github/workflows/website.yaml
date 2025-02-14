@@ -26,6 +26,8 @@ jobs:
 
       # Install the top-level packages.
       - run: yarn
+      # The dev:mock is a foundation of the website stuff. So we have to try it as well.
+      - run: yarn dev:mock
 
       # Install the website packages.
       - name: Build
