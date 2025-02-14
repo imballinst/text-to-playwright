@@ -259,11 +259,37 @@ describe('Ensure value', () => {
       specifier: 'User section'
     });
   });
+
+  test('Comparing value to variables', () => {
+    let result = parse('Ensure "Display Name" input on the User section to have value {hello}');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Display Name',
+      assertBehavior: 'exact',
+      specifier: 'User section',
+      variableName: 'hello'
+    });
+
+    result = parse('Ensure "Expected Result" element on the User section to contain text {hello}');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Expected Result',
+      assertBehavior: 'contain',
+      specifier: 'User section',
+      variableName: 'hello'
+    });
+  });
 });
 
 describe('Store value', () => {
   test('Object with 1 word', () => {
-    let result = parse('Store the value of "Name" input into variable "inputValue"');
+    let result = parse('Store the value of "Name" input into variable {inputValue}');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -273,7 +299,7 @@ describe('Store value', () => {
       variableName: 'inputValue'
     });
 
-    result = parse('Store the value of "Name" input to variable "inputValue"');
+    result = parse('Store the value of "Name" input to variable {inputValue}');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -284,8 +310,8 @@ describe('Store value', () => {
     });
   });
 
-  test.only('Object with specifiers', () => {
-    let result = parse('Store the value of "Name" input on the User section into variable "inputValue"');
+  test('Object with specifiers', () => {
+    let result = parse('Store the value of "Name" input on the User section into variable {inputValue}');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -296,7 +322,7 @@ describe('Store value', () => {
       variableName: 'inputValue'
     });
 
-    result = parse('Store the value of "Name" input on the User section to variable "inputValue"');
+    result = parse('Store the value of "Name" input on the User section to variable {inputValue}');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({

@@ -33,13 +33,14 @@ export async function runTests(page: Page | Locator, testFileContent: string, lo
           await locator.fill(value!);
         } else if (action === 'ensure') {
           const locator = getLocator(page, elementType, object, { specifier });
+          const expectedValue = variableName ?? value;
 
           await expect(locator).toBeVisible();
 
           if (assertBehavior === 'contain') {
-            await expect(locator).toContainText(value!);
+            await expect(locator).toContainText(expectedValue!);
           } else if (assertBehavior === 'exact') {
-            await expect(locator).toHaveText(value!);
+            await expect(locator).toHaveText(expectedValue!);
           }
         } else if (action === 'store') {
           const locator = getLocator(page, elementType, object, { specifier });

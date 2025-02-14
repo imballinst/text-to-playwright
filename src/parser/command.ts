@@ -174,7 +174,7 @@ export function parse(sentence: string) {
 
             // Process either "store" or "ensure".
             if (record.action === 'store') {
-              record.variableName = removePunctuations(rawCommand.words.at(-1));
+              record.variableName = removeCurlyBraces(rawCommand.words.at(-1));
               break;
             }
 
@@ -182,7 +182,12 @@ export function parse(sentence: string) {
             const valueWords = rest.join(' ');
 
             record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
-            record.value = removePunctuations(valueWords);
+
+            if (valueWords.startsWith('{') && valueWords.endsWith('}')) {
+              record.variableName = removeCurlyBraces(valueWords);
+            } else {
+              record.value = removePunctuations(valueWords);
+            }
 
             break;
           }
@@ -219,6 +224,10 @@ export function parse(sentence: string) {
 // Helper functions.
 function removePunctuations(value: string) {
   return value.replace(/[.,"]/g, '');
+}
+
+function removeCurlyBraces(value: string) {
+  return value.replace(/[{}]/g, '');
 }
 
 function removeQuotes(value: string) {
