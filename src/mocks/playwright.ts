@@ -13,13 +13,14 @@ export const chromium = {
 
 export { LoggerSingleton };
 
-function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
+const locatorContents: Record<string, string> = {};
+
+function createPageOrLocator(prevLocator?: string[]) {
   const obj: Record<string, any> = {
     locatorTextArray: prevLocator ? [...prevLocator] : ['page'],
-    isAction: prevAction ?? false,
     setContent() {},
     first() {
-      const newInstance = createPageOrLocator(this.locatorTextArray, this.isAction);
+      const newInstance = createPageOrLocator(this.locatorTextArray);
       newInstance.locatorTextArray.push(`.first()`);
 
       return newInstance;
@@ -28,18 +29,16 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
   Object.setPrototypeOf(obj, {
     toString: function () {
       const thisObject = this as any;
-
       const result = thisObject.locatorTextArray.join('');
-      if (!thisObject.isAction) return result;
 
-      return `await ${result}`;
+      return result;
     }
   });
 
   const addedMethods = ['locator', 'getByLabel', 'getByRole'];
   for (const method of addedMethods) {
     obj[method] = function (element: string, opts?: any) {
-      const newInstance = createPageOrLocator(obj.locatorTextArray, obj.isAction);
+      const newInstance = createPageOrLocator(obj.locatorTextArray);
       const renderedArgs: string[] = [`"${element}"`];
 
       if (opts) {
@@ -63,12 +62,17 @@ function createPageOrLocator(prevLocator?: string[], prevAction?: boolean) {
     };
   }
 
-  const addedActions = ['click', 'fill'];
+  const addedActions = ['click', 'fill', 'innerText'];
   for (const action of addedActions) {
     obj[action] = function (...args) {
-      const param = action === 'fill' ? `"${args[0]}"` : '';
-
       const result = this.locatorTextArray.join('');
+      let param = '';
+
+      if (action === 'fill') {
+        locatorContents[result] = args[0];
+        param = `"${args[0]}"`;
+      }
+
       LoggerSingleton.log(`    await ${result}.${action}(${param})`);
     };
   }

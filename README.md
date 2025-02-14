@@ -31,9 +31,37 @@ tests:
       - Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".
       - Click "Submit" button on the Real Users Section.
       - Ensure "Real output" element on the Real Users Section to have value "123".
+      - Store the value of "Real output" element on the Real Users Section to variable {hello}.
+      - Ensure "Real output" element on the Real Users Section to have value {hello}.
 ```
 
-The YAML above means there is 1 test case and the test case contains 4 steps. The library will then do the rest.
+The YAML above means there is 1 test case and the test case contains 4 steps. The library will then do the rest, which it will do the following.
+
+```
+Example test case
+  Step 1: Click "Teams" link, then click "Submit" button.
+    await page.getByRole("link", { name: "Teams" }).first().toBeVisible()
+    await page.getByRole("link", { name: "Teams" }).first().click()
+    await page.getByRole("button", { name: "Submit" }).first().toBeVisible()
+    await page.getByRole("button", { name: "Submit" }).first().click()
+  Step 2: Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".
+    await page.getByRole("link", { name: "Users" }).first().toBeVisible()
+    await page.getByRole("link", { name: "Users" }).first().click()
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByRole("textbox", { name: "User ID" }).first().toBeVisible()
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByRole("textbox", { name: "User ID" }).first().fill("123")
+  Step 3: Click "Submit" button on the Real Users Section.
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByRole("button", { name: "Submit" }).first().toBeVisible()
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByRole("button", { name: "Submit" }).first().click()
+  Step 4: Ensure "Real output" element on the Real Users Section to have value "123".
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByLabel("Real output").first().toBeVisible()
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByLabel("Real output").first().toHaveText("123")
+  Step 5: Store the value of "Real output" element on the Real Users Section to variable {hello}.
+    let hello = await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByLabel("Real output").first().innerText()
+  Step 6: Ensure "Real output" element on the Real Users Section to have value {hello}.
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByLabel("Real output").first().toBeVisible()
+    await page.locator("section", { has: page.getByRole("heading", { name: "Real Users Section" }) }).getByLabel("Real output").first().toHaveText(hello)
+✅ All tests completed!
+```
 
 ## How it works
 

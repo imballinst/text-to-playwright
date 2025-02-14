@@ -6,6 +6,7 @@ import { AriaRole } from './types/aria';
 
 export async function runTests(page: Page | Locator, testFileContent: string) {
   const parsedTestFile = parseInputTestFile(testFileContent);
+  const variables: Record<string, string> = {};
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
@@ -16,7 +17,6 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
 
       LoggerSingleton.log(`  Step ${i + 1}: ${command}`);
       const parsedCommands = parse(command);
-      const variables: Record<string, string> = {};
 
       for (const parsedCommand of parsedCommands) {
         const { action, elementType, object, specifier, assertBehavior, variableName, value } = parsedCommand;
@@ -34,19 +34,20 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
           await locator.fill(value!);
         } else if (action === 'ensure') {
           const locator = getLocator(page, elementType, object, { specifier });
-          const expectedValue = variableName ?? value;
+          const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
 
           await expect(locator).toBeVisible();
 
           if (assertBehavior === 'contain') {
-            await expect(locator).toContainText(expectedValue!);
+            await expect(locator).toContainText(expectedValue);
           } else if (assertBehavior === 'exact') {
-            await expect(locator).toHaveText(expectedValue!);
+            await expect(locator).toHaveText(expectedValue);
           }
         } else if (action === 'store') {
+          LoggerSingleton.setPreText(`    let ${variableName} = `);
           const locator = getLocator(page, elementType, object, { specifier });
 
-          variables[variableName] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
+          variables[variableName!] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
         }
       }
     }
@@ -82,4 +83,12 @@ function getLocatorByElementType(locator: Page | Locator, elementType: AriaRole,
   }
 
   return locator.getByRole(elementType, { name }).first();
+}
+
+function getAssertedValueDependingOnEnv(variables: Record<string, string>, variableName?: string, value?: string) {
+  if (process.env.MOCK) {
+    return variableName ? variableName : `"${value}"`;
+  }
+
+  return variableName ? variables[variableName] : value!;
 }

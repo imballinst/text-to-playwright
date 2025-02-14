@@ -9,10 +9,10 @@ export function expect(locator: any) {
       LoggerSingleton.log(`    await ${locator}.toBeVisible()`);
     },
     toContainText: (value: any) => {
-      LoggerSingleton.log(`    await ${locator}.toContainText('${value}')`);
+      LoggerSingleton.log(`    await ${locator}.toContainText(${value})`);
     },
     toHaveText: (value: any) => {
-      LoggerSingleton.log(`    await ${locator}.toHaveText('${value}')`);
+      LoggerSingleton.log(`    await ${locator}.toHaveText(${value})`);
     }
   };
 }

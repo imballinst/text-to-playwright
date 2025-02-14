@@ -3,7 +3,7 @@
   "packageManager": "yarn@4.5.1",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "dev:mock": "tsx --tsconfig tsconfig.mock.json src/index.ts",
+    "dev:mock": "MOCK=true tsx --tsconfig tsconfig.mock.json src/index.ts",
     "html": "serve assets/test",
     "test": "vitest"
   },

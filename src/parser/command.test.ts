@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { parse, parseSentence } from './command';
 
 test('parseSentence', () => {
-  let parsed = parseSentence('Click "Teams" link');
+  let parsed = parseSentence('Click "Teams" link.');
   expect(parsed.length).toBe(1);
 
   parsed = parseSentence('Click "Teams" link, then click "Submit" button.');
@@ -17,7 +17,7 @@ test('parseSentence', () => {
 
 describe('Click', () => {
   test('Objects with 1 word', () => {
-    let result = parse('Click "Users" link');
+    let result = parse('Click "Users" link.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -26,7 +26,7 @@ describe('Click', () => {
       object: 'Users'
     });
 
-    result = parse('Click "Submit" button');
+    result = parse('Click "Submit" button.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -37,7 +37,7 @@ describe('Click', () => {
   });
 
   test('Objects with more than 1 word', () => {
-    let result = parse('Click "Create User" button');
+    let result = parse('Click "Create User" button.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -46,7 +46,7 @@ describe('Click', () => {
       object: 'Create User'
     });
 
-    result = parse('Click "Click me" button');
+    result = parse('Click "Click me" button.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -57,7 +57,7 @@ describe('Click', () => {
   });
 
   test('Objects with specifiers', () => {
-    let result = parse('Click "Create User" button on the navbar');
+    let result = parse('Click "Create User" button on the navbar.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -67,7 +67,7 @@ describe('Click', () => {
       specifier: 'nav'
     });
 
-    result = parse('Click "Create User" button on the Main Navigation');
+    result = parse('Click "Create User" button on the Main Navigation.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -77,7 +77,7 @@ describe('Click', () => {
       specifier: 'Main Navigation'
     });
 
-    result = parse('Click "Create User" button on the Sidebar Navigation');
+    result = parse('Click "Create User" button on the Sidebar Navigation.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -89,7 +89,7 @@ describe('Click', () => {
   });
 
   test('Edge cases objects and specifiers', () => {
-    let result = parse('Click "Continue on studying" button');
+    let result = parse('Click "Continue on studying" button.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -98,7 +98,7 @@ describe('Click', () => {
       object: 'Continue on studying'
     });
 
-    result = parse('Click "Continue on studying" button on the navbar');
+    result = parse('Click "Continue on studying" button on the navbar.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -112,7 +112,7 @@ describe('Click', () => {
 
 describe('Fill input', () => {
   test('Object with 1 word', () => {
-    const result = parse('Fill "Name" input with value "Hello World"');
+    const result = parse('Fill "Name" input with value "Hello World".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -124,7 +124,7 @@ describe('Fill input', () => {
   });
 
   test('Object with 2 words', () => {
-    const result = parse('Fill "Display Name" input with value "Hello World"');
+    const result = parse('Fill "Display Name" input with value "Hello World".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -136,7 +136,7 @@ describe('Fill input', () => {
   });
 
   test('Objects with specifiers', () => {
-    const result = parse('Fill "Display Name" input on the User section with value "Hello World"');
+    const result = parse('Fill "Display Name" input on the User section with value "Hello World".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -151,7 +151,7 @@ describe('Fill input', () => {
 
 describe('Hover element', () => {
   test('Object with 1 word', () => {
-    const result = parse('Hover "Name" input');
+    const result = parse('Hover "Name" input.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -162,7 +162,7 @@ describe('Hover element', () => {
   });
 
   test('Object with 2 words', () => {
-    const result = parse('Hover "Display Name" input');
+    const result = parse('Hover "Display Name" input.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -173,7 +173,7 @@ describe('Hover element', () => {
   });
 
   test('Objects with specifiers', () => {
-    const result = parse('Hover "Display Name" input on the User section');
+    const result = parse('Hover "Display Name" input on the User section.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -187,7 +187,7 @@ describe('Hover element', () => {
 
 describe('Ensure value', () => {
   test('Object with 1 word', () => {
-    let result = parse('Ensure "Name" input to have value "hello"');
+    let result = parse('Ensure "Name" input to have value "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -198,7 +198,7 @@ describe('Ensure value', () => {
       value: 'hello'
     });
 
-    result = parse('Ensure "Result" element to contain text "hello"');
+    result = parse('Ensure "Result" element to contain text "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -208,22 +208,10 @@ describe('Ensure value', () => {
       assertBehavior: 'contain',
       value: 'hello'
     });
-
-    // TODO: add more tests regarding the pattern.
-    result = parse('Ensure "Result" element to match pattern "$\\d{4}"');
-
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
-      action: 'ensure',
-      elementType: 'generic',
-      object: 'Result',
-      assertBehavior: 'match',
-      value: '/$\\d{4}/'
-    });
   });
 
   test('Object with 2 words', () => {
-    let result = parse('Ensure "Display Name" input to have value "hello"');
+    let result = parse('Ensure "Display Name" input to have value "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -234,7 +222,7 @@ describe('Ensure value', () => {
       value: 'hello'
     });
 
-    result = parse('Ensure "Expected Result" element to contain text "hello"');
+    result = parse('Ensure "Expected Result" element to contain text "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -247,7 +235,7 @@ describe('Ensure value', () => {
   });
 
   test('Objects with specifiers', () => {
-    let result = parse('Ensure "Display Name" input on the User section to have value "hello"');
+    let result = parse('Ensure "Display Name" input on the User section to have value "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -259,7 +247,7 @@ describe('Ensure value', () => {
       specifier: 'User section'
     });
 
-    result = parse('Ensure "Expected Result" element on the User section to contain text "hello"');
+    result = parse('Ensure "Expected Result" element on the User section to contain text "hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -273,7 +261,7 @@ describe('Ensure value', () => {
   });
 
   test('Comparing value to variables', () => {
-    let result = parse('Ensure "Display Name" input on the User section to have value {hello}');
+    let result = parse('Ensure "Display Name" input on the User section to have value {hello}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -285,7 +273,7 @@ describe('Ensure value', () => {
       variableName: 'hello'
     });
 
-    result = parse('Ensure "Expected Result" element on the User section to contain text {hello}');
+    result = parse('Ensure "Expected Result" element on the User section to contain text {hello}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -297,11 +285,36 @@ describe('Ensure value', () => {
       variableName: 'hello'
     });
   });
+
+  test('Comparing value to pattern', () => {
+    // TODO: add more tests regarding the pattern.
+    let result = parse('Ensure "Result" element to match pattern "/$\\d{4}/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '$\\d{4}'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/"Hello world"/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '"Hello world"'
+    });
+  });
 });
 
 describe('Store value', () => {
   test('Object with 1 word', () => {
-    let result = parse('Store the value of "Name" input into variable {inputValue}');
+    let result = parse('Store the value of "Name" input into variable {inputValue}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -311,7 +324,7 @@ describe('Store value', () => {
       variableName: 'inputValue'
     });
 
-    result = parse('Store the value of "Name" input to variable {inputValue}');
+    result = parse('Store the value of "Name" input to variable {inputValue}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -323,7 +336,7 @@ describe('Store value', () => {
   });
 
   test('Object with specifiers', () => {
-    let result = parse('Store the value of "Name" input on the User section into variable {inputValue}');
+    let result = parse('Store the value of "Name" input on the User section into variable {inputValue}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
@@ -334,7 +347,7 @@ describe('Store value', () => {
       variableName: 'inputValue'
     });
 
-    result = parse('Store the value of "Name" input on the User section to variable {inputValue}');
+    result = parse('Store the value of "Name" input on the User section to variable {inputValue}.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({

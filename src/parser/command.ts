@@ -3,25 +3,26 @@ import { z } from 'zod';
 import { ARIA_ALIAS_RECORD, AriaRole } from '../types/aria';
 import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
-const Command = z
-  .object({
-    action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store')]),
-    object: z.string(),
-    elementType: AriaRole,
-    specifier: z.string().optional(),
-    assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
-    variableName: z.string().optional(),
-    value: z.string().optional()
-  })
-  .transform((v) => {
-    for (const key in v) {
-      const typedKey = key as keyof typeof v;
-
-      if (v[typedKey] === undefined) delete v[typedKey];
-    }
-    return v;
-  });
+const Command = z.object({
+  action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store')]),
+  object: z.string(),
+  elementType: AriaRole,
+  specifier: z.string().optional(),
+  assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
+  variableName: z.string().optional(),
+  value: z.string().optional()
+});
 interface Command extends z.infer<typeof Command> {}
+
+interface PreparsedCommand {
+  action: string;
+  object: string;
+  elementType: string;
+  assertBehavior?: string;
+  specifier?: string;
+  variableName?: string;
+  value?: string;
+}
 
 interface PartOfSpeech {
   type: 'Verb' | 'Noun';
@@ -81,7 +82,8 @@ export function parse(sentence: string) {
 
       for (let i = 0; i < clause.terms.length; i++) {
         const term = clause.terms[i];
-        const text = (term.pre + term.text + term.post).trim();
+        const post = term.post.endsWith('.') ? term.post.slice(0, -1) : term.post;
+        const text = (term.pre + term.text + post).trim();
 
         const endsWithQuote = text.endsWith('"');
         const shouldJustPush = isWithinQuote;
@@ -128,14 +130,10 @@ export function parse(sentence: string) {
         }
       }
 
-      const record = {
+      const record: PreparsedCommand = {
         action: '',
         object: '',
-        elementType: '',
-        assertBehavior: undefined as string | undefined,
-        specifier: undefined as string | undefined,
-        variableName: undefined as string | undefined,
-        value: undefined as string | undefined
+        elementType: ''
       };
       const order = Object.keys(record) as Array<keyof typeof record>;
       let idx = 0;
@@ -169,8 +167,6 @@ export function parse(sentence: string) {
             const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
             const valueWords = rest.join(' ');
 
-            record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
-
             // If the elementType is not valid ARIA, default to generic.
             const parsedAriaRole = AriaRole.safeParse(record.elementType);
             if (!parsedAriaRole.success) {
@@ -179,16 +175,19 @@ export function parse(sentence: string) {
 
             // Process either "store" or "ensure".
             if (record.action === 'store') {
-              record.variableName = removeCurlyBraces(rawCommand.words.at(-1));
+              record.variableName = extractVariableName(rawCommand.words.at(-1)!);
               break;
             }
 
+            record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
+
             if (record.assertBehavior === 'match') {
-              // Regex-based assertion.
-              record.value = `/${record.value}/`;
+              // Regex-based assertion. Intended to not use a RegEx replacer function, because we want to make sure
+              // we don't accidentally trim the RegEx content.
+              record.value = extractRegexPattern(valueWords);
             } else if (valueWords.startsWith('{') && valueWords.endsWith('}')) {
               // Compare with the previous stored value.
-              record.variableName = removeCurlyBraces(valueWords);
+              record.variableName = extractVariableName(valueWords);
             } else {
               // Compare with literal value.
               record.value = removePunctuations(valueWords);
@@ -231,10 +230,14 @@ function removePunctuations(value: string) {
   return value.replace(/[.,"]/g, '');
 }
 
-function removeCurlyBraces(value: string) {
-  return value.replace(/[{}]/g, '');
-}
-
 function removeQuotes(value: string) {
   return value.replace(/"/g, '');
+}
+
+function extractVariableName(value: string) {
+  return value.replace(/[{}.]/g, '');
+}
+
+function extractRegexPattern(value: string) {
+  return value.slice(value.indexOf('/') + 1, value.lastIndexOf('/'));
 }
