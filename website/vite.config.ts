@@ -14,5 +14,8 @@ export default defineConfig({
       '@playwright/test': resolve('../src/mocks/playwright-test.ts'),
       playwright: resolve('../src/mocks/playwright.ts')
     }
+  },
+  define: {
+    'process.env': JSON.stringify({ MOCK: true })
   }
 });
