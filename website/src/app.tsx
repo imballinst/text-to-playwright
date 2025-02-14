@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { runTests } from '@text-to-test/core';
 import { Moon, Sun } from 'lucide-react';
-import { chromium } from 'playwright';
+import { chromium, LoggerSingleton } from 'playwright';
 import { useEffect, useState } from 'preact/hooks';
 import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
 import './app.css';
@@ -136,8 +136,10 @@ async function processInput(input: string): Promise<GroupedTest[]> {
     output.push(msg);
   };
 
-  const page = chromium.launch().newPage(logger);
-  await runTests(page, input, logger);
+  const page = chromium.launch().newPage();
+  LoggerSingleton.setLogger(logger);
+
+  await runTests(page, input);
 
   const groupedTests: Array<GroupedTest> = [];
   let prevGroup: GroupedTest | undefined;

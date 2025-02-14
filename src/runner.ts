@@ -1,19 +1,20 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { LoggerSingleton } from './logger';
 import { parse } from './parser/command';
 import { parseInputTestFile } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page | Locator, testFileContent: string, logger: (typeof console)['log']) {
+export async function runTests(page: Page | Locator, testFileContent: string) {
   const parsedTestFile = parseInputTestFile(testFileContent);
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
-    logger(name);
+    LoggerSingleton.log(name);
 
     for (let i = 0; i < steps.length; i++) {
       const command = steps[i];
 
-      logger(`  Step ${i + 1}: ${command}`);
+      LoggerSingleton.log(`  Step ${i + 1}: ${command}`);
       const parsedCommands = parse(command);
       const variables: Record<string, string> = {};
 

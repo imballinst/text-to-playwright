@@ -9,7 +9,7 @@ const Command = z
     object: z.string(),
     elementType: AriaRole,
     specifier: z.string().optional(),
-    assertBehavior: z.union([z.literal('exact'), z.literal('contain')]).optional(),
+    assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
     variableName: z.string().optional(),
     value: z.string().optional()
   })
@@ -166,6 +166,11 @@ export function parse(sentence: string) {
           }
           case 'into':
           case 'to': {
+            const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
+            const valueWords = rest.join(' ');
+
+            record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
+
             // If the elementType is not valid ARIA, default to generic.
             const parsedAriaRole = AriaRole.safeParse(record.elementType);
             if (!parsedAriaRole.success) {
@@ -178,14 +183,14 @@ export function parse(sentence: string) {
               break;
             }
 
-            const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
-            const valueWords = rest.join(' ');
-
-            record.assertBehavior = ASSERT_BEHAVIOR_ALIAS[assertBehavior] ?? assertBehavior;
-
-            if (valueWords.startsWith('{') && valueWords.endsWith('}')) {
+            if (record.assertBehavior === 'match') {
+              // Regex-based assertion.
+              record.value = `/${record.value}/`;
+            } else if (valueWords.startsWith('{') && valueWords.endsWith('}')) {
+              // Compare with the previous stored value.
               record.variableName = removeCurlyBraces(valueWords);
             } else {
+              // Compare with literal value.
               record.value = removePunctuations(valueWords);
             }
 
