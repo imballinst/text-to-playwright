@@ -18,6 +18,8 @@ tests:
       - Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".
       - Click "Submit" button on the Real Users Section.
       - Ensure "Real output" element on the Real Users Section to have value "123".
+      - Store the value of "Real output" element on the Real Users Section to variable {hello}.
+      - Ensure "Real output" element on the Real Users Section to have value {hello}.
 `.trim();
 
 interface GroupedTest {
