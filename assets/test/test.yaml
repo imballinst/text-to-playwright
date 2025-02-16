@@ -7,3 +7,4 @@ tests:
       - Ensure "Real output" element on the Real Users Section to have value "123".
       - Store the value of "Real output" element on the Real Users Section to variable {hello}.
       - Ensure "Real output" element on the Real Users Section to have value {hello}.
+      - Ensure "Real output" element on the Real Users Section to match pattern "/\d{3}/".

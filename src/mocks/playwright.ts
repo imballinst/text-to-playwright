@@ -35,11 +35,11 @@ function createPageOrLocator(prevLocator?: string[]) {
     }
   });
 
-  const addedMethods = ['locator', 'getByLabel', 'getByRole'];
+  const addedMethods = ['locator', 'getByLabel', 'getByRole', 'getByText'];
   for (const method of addedMethods) {
-    obj[method] = function (element: string, opts?: any) {
+    obj[method] = function (element: RegExp | string, opts?: any) {
       const newInstance = createPageOrLocator(obj.locatorTextArray);
-      const renderedArgs: string[] = [`"${element}"`];
+      const renderedArgs: string[] = element instanceof RegExp ? [`${element}`] : [`"${element}"`];
 
       if (opts) {
         const { has, ...rest } = opts;

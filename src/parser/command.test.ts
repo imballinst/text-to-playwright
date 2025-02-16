@@ -287,7 +287,6 @@ describe('Ensure value', () => {
   });
 
   test('Comparing value to pattern', () => {
-    // TODO: add more tests regarding the pattern.
     let result = parse('Ensure "Result" element to match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
@@ -308,6 +307,28 @@ describe('Ensure value', () => {
       object: 'Result',
       assertBehavior: 'match',
       value: '"Hello world"'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/[abc]+/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '[abc]+'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/(abc)+\\/\\//".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '(abc)+\\/\\/'
     });
   });
 });
