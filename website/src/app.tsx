@@ -10,17 +10,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
 import './app.css';
 
-const DEFAULT_TEST_CASE = `
-tests:
-  - name: Example test case
-    steps:
-      - Click "Teams" link, then click "Submit" button.
-      - Click "Users" link, then fill "User ID" input on the Real Users Section with value "123".
-      - Click "Submit" button on the Real Users Section.
-      - Ensure "Real output" element on the Real Users Section to have value "123".
-      - Store the value of "Real output" element on the Real Users Section to variable {hello}.
-      - Ensure "Real output" element on the Real Users Section to have value {hello}.
-`.trim();
+const DEFAULT_TEST_CASE = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
 
 interface GroupedTest {
   name: string;
