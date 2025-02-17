@@ -38,10 +38,21 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
 
           await expect(locator).toBeVisible();
 
-          if (assertBehavior === 'contain') {
-            await expect(locator).toContainText(expectedValue);
-          } else if (assertBehavior === 'exact') {
-            await expect(locator).toHaveText(expectedValue);
+          switch (assertBehavior) {
+            case 'contain': {
+              await expect(locator).toContainText(expectedValue);
+              break;
+            }
+            case 'exact': {
+              await expect(locator).toHaveText(expectedValue);
+              break;
+            }
+            case 'match': {
+              await expect(locator.getByText(new RegExp(value!))).toBeVisible();
+              break;
+            }
+            default:
+              break;
           }
         } else if (action === 'store') {
           LoggerSingleton.setPreText(`    let ${variableName} = `);

@@ -13,6 +13,12 @@ test('parseSentence', () => {
 
   parsed = parseSentence('Click "Teams" link\n then click "Submit" button.');
   expect(parsed.length).toBe(2);
+
+  parsed = parseSentence('Click "Users" link, then fill "User ID" input on the Real Users Section with value "Mr. 123"');
+  expect(parsed.length).toBe(2);
+
+  parsed = parseSentence('Ensure "Real output" element on the Real Users Section to match pattern "/Mr\\. \\d{3}/".');
+  expect(parsed.length).toBe(1);
 });
 
 describe('Click', () => {
@@ -145,6 +151,19 @@ describe('Fill input', () => {
       object: 'Display Name',
       specifier: 'User section',
       value: 'Hello World'
+    });
+  });
+
+  test('Input with periods inside it', () => {
+    const result = parse('Fill "Display Name" input on the User section with value "Hello. World".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'Display Name',
+      specifier: 'User section',
+      value: 'Hello. World'
     });
   });
 });
@@ -287,7 +306,6 @@ describe('Ensure value', () => {
   });
 
   test('Comparing value to pattern', () => {
-    // TODO: add more tests regarding the pattern.
     let result = parse('Ensure "Result" element to match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
@@ -308,6 +326,39 @@ describe('Ensure value', () => {
       object: 'Result',
       assertBehavior: 'match',
       value: '"Hello world"'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/[abc]+/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '[abc]+'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/(abc)+\\/\\//".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: '(abc)+\\/\\/'
+    });
+
+    result = parse('Ensure "Result" element to match pattern "/Mr\\. \\d{3}/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      assertBehavior: 'match',
+      value: 'Mr\\. \\d{3}'
     });
   });
 });
