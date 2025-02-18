@@ -19,7 +19,7 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
       const parsedCommands = parse(command);
 
       for (const parsedCommand of parsedCommands) {
-        const { action, elementType, object, specifier, assertBehavior, variableName, value } = parsedCommand;
+        const { action, elementType, object, specifier, assertBehavior, isNegativeAssertion, variableName, value } = parsedCommand;
 
         if (action === 'click') {
           const locator = getLocator(page, elementType, object, { specifier });
@@ -35,20 +35,25 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
         } else if (action === 'ensure') {
           const locator = getLocator(page, elementType, object, { specifier });
           const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
+          let expectLocator = isNegativeAssertion ? expect(locator).not : expect(locator);
 
           await expect(locator).toBeVisible();
 
           switch (assertBehavior) {
             case 'contain': {
-              await expect(locator).toContainText(expectedValue);
+              await expectLocator.toContainText(expectedValue);
               break;
             }
             case 'exact': {
-              await expect(locator).toHaveText(expectedValue);
+              await expectLocator.toHaveText(expectedValue);
               break;
             }
             case 'match': {
-              await expect(locator.getByText(new RegExp(value!))).toBeVisible();
+              if (isNegativeAssertion) {
+                expectLocator = expect(locator.getByText(new RegExp(value!))).not;
+              }
+
+              await expectLocator.toBeVisible();
               break;
             }
             default:

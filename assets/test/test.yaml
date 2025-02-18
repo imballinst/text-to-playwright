@@ -13,3 +13,4 @@ tests:
       - Ensure "Real output" element on the Real Users Section to have value "Mr. 123".
       - Ensure "Real output" element on the Real Users Section to match pattern "/\d{3}/".
       - Ensure "Real output" element on the Real Users Section to match pattern "/Mr\. \d{3}/".
+      - Ensure "Real output" element on the Real Users Section not to have value "Ms. 123".

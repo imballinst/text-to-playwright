@@ -361,6 +361,71 @@ describe('Ensure value', () => {
       value: 'Mr\\. \\d{3}'
     });
   });
+
+  test('Negative assertions', () => {
+    let result = parse('Ensure "Result" element not to match pattern "/$\\d{4}/".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Result',
+      isNegativeAssertion: true,
+      assertBehavior: 'match',
+      value: '$\\d{4}'
+    });
+
+    result = parse('Ensure "Display Name" input on the User section not to have value "not hello".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Display Name',
+      isNegativeAssertion: true,
+      assertBehavior: 'exact',
+      value: 'not hello',
+      specifier: 'User section'
+    });
+
+    result = parse('Ensure "Expected Result" element on the User section not to contain text "not hello".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Expected Result',
+      isNegativeAssertion: true,
+      assertBehavior: 'contain',
+      value: 'not hello',
+      specifier: 'User section'
+    });
+
+    // Test counter negative assertion.
+    result = parse('Ensure "Display Name" input on the User section to have value "not hello".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'Display Name',
+      assertBehavior: 'exact',
+      value: 'not hello',
+      specifier: 'User section'
+    });
+
+    result = parse('Ensure "Expected Result" element on the User section to contain text "not hello".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'generic',
+      object: 'Expected Result',
+      assertBehavior: 'contain',
+      value: 'not hello',
+      specifier: 'User section'
+    });
+  });
 });
 
 describe('Store value', () => {
