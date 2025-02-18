@@ -4,15 +4,24 @@ export type Locator = any;
 export type Page = any;
 
 export function expect(locator: any) {
-  return {
+  const getExpectations = (isNegative?: boolean) => ({
     toBeVisible: () => {
-      LoggerSingleton.log(`    await ${locator}.toBeVisible()`);
+      LoggerSingleton.log(`    await ${renderLocator(locator, isNegative)}.toBeVisible()`);
     },
     toContainText: (value: any) => {
-      LoggerSingleton.log(`    await ${locator}.toContainText(${value})`);
+      LoggerSingleton.log(`    await ${renderLocator(locator, isNegative)}.toContainText(${value})`);
     },
     toHaveText: (value: any) => {
-      LoggerSingleton.log(`    await ${locator}.toHaveText(${value})`);
+      LoggerSingleton.log(`    await ${renderLocator(locator, isNegative)}.toHaveText(${value})`);
     }
+  });
+
+  return {
+    not: getExpectations(true),
+    ...getExpectations()
   };
+}
+
+function renderLocator(locator: any, isNegative: boolean | undefined) {
+  return locator + (isNegative ? '.not' : '');
 }

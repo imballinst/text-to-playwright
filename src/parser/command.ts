@@ -8,20 +8,17 @@ const Command = z.object({
   object: z.string(),
   elementType: AriaRole,
   specifier: z.string().optional(),
+  isNegativeAssertion: z.boolean().optional(),
   assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
   variableName: z.string().optional(),
   value: z.string().optional()
 });
 interface Command extends z.infer<typeof Command> {}
 
-interface PreparsedCommand {
+interface PreparsedCommand extends Omit<Command, 'action' | 'assertBehavior' | 'elementType'> {
   action: string;
-  object: string;
   elementType: string;
   assertBehavior?: string;
-  specifier?: string;
-  variableName?: string;
-  value?: string;
 }
 
 interface PartOfSpeech {
@@ -121,14 +118,14 @@ export function parse(sentence: string) {
       }
 
       if (term.chunk === 'Pivot' && ['with', 'on', 'to', 'into'].includes(text)) {
-        prev = {
-          type: 'Noun',
-          words: [text]
-        };
-        cur.push(prev);
+        term.chunk = 'Noun';
+        prev = undefined;
+      } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
+        term.chunk = 'Negative';
+        prev = undefined;
       }
 
-      if (!['Verb', 'Noun'].includes(term.chunk)) continue;
+      if (!['Verb', 'Noun', 'Negative'].includes(term.chunk)) continue;
 
       if (!prev || prev.type !== term.chunk) {
         prev = {
@@ -150,11 +147,15 @@ export function parse(sentence: string) {
       object: '',
       elementType: ''
     };
-    const order = Object.keys(record) as Array<keyof typeof record>;
+    const order = Object.keys(record) as Array<keyof PreparsedCommand>;
     let idx = 0;
 
     for (const rawCommand of cur) {
       switch (rawCommand.words[0]) {
+        case 'not': {
+          record.isNegativeAssertion = true;
+          break;
+        }
         case 'on': {
           let specifier = removePunctuations(rawCommand.words.slice(2).join(' '));
 
@@ -211,9 +212,11 @@ export function parse(sentence: string) {
           break;
         }
         default: {
-          if (order[idx] === 'action') {
+          const key = order[idx];
+
+          if (key === 'action') {
             record.action = rawCommand.words.join(' ').toLowerCase();
-          } else if (order[idx] === 'object') {
+          } else if (key === 'object') {
             const joined = rawCommand.words.join(' ');
 
             if (record.action === 'store') {
@@ -221,11 +224,11 @@ export function parse(sentence: string) {
             } else {
               record.object = removeQuotes(joined);
             }
-          } else {
+          } else if (key === 'elementType') {
             let effectiveObject = removePunctuations(rawCommand.words.join(' '));
             effectiveObject = ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
 
-            record[order[idx]] = effectiveObject;
+            record.elementType = effectiveObject;
           }
         }
       }
