@@ -147,7 +147,7 @@ export function parse(sentence: string) {
       object: '',
       elementType: ''
     };
-    const order = Object.keys(record);
+    const order = Object.keys(record) as Array<keyof PreparsedCommand>;
     let idx = 0;
 
     for (const rawCommand of cur) {
@@ -212,9 +212,11 @@ export function parse(sentence: string) {
           break;
         }
         default: {
-          if (order[idx] === 'action') {
+          const key = order[idx];
+
+          if (key === 'action') {
             record.action = rawCommand.words.join(' ').toLowerCase();
-          } else if (order[idx] === 'object') {
+          } else if (key === 'object') {
             const joined = rawCommand.words.join(' ');
 
             if (record.action === 'store') {
@@ -222,11 +224,11 @@ export function parse(sentence: string) {
             } else {
               record.object = removeQuotes(joined);
             }
-          } else {
+          } else if (key === 'elementType') {
             let effectiveObject = removePunctuations(rawCommand.words.join(' '));
             effectiveObject = ARIA_ALIAS_RECORD[effectiveObject] ?? effectiveObject;
 
-            record[order[idx]] = effectiveObject;
+            record.elementType = effectiveObject;
           }
         }
       }
