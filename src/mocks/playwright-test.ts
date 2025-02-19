@@ -13,6 +13,9 @@ export function expect(locator: any) {
     },
     toHaveText: (value: any) => {
       LoggerSingleton.log(`    await ${renderLocator(locator, isNegative)}.toHaveText(${value})`);
+    },
+    toHaveAccessibleDescription: (value: any) => {
+      LoggerSingleton.log(`    await ${renderLocator(locator, isNegative)}.toHaveAccessibleDescription(${value})`);
     }
   });
 

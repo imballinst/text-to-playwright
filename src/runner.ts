@@ -4,9 +4,10 @@ import { parse } from './parser/command';
 import { parseInputTestFile } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page | Locator, testFileContent: string) {
+export async function runTests(page: Page, testFileContent: string) {
   const parsedTestFile = parseInputTestFile(testFileContent);
   const variables: Record<string, string> = {};
+  const innerHtml = await page.innerHTML('html');
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
@@ -19,7 +20,8 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
       const parsedCommands = parse(command);
 
       for (const parsedCommand of parsedCommands) {
-        const { action, elementType, object, specifier, assertBehavior, isNegativeAssertion, variableName, value } = parsedCommand;
+        const { action, elementType, object, specifier, assertBehavior, isNegativeAssertion, variableName, value, valueBehavior } =
+          parsedCommand;
 
         if (action === 'click') {
           const locator = getLocator(page, elementType, object, { specifier });
@@ -45,7 +47,12 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
               break;
             }
             case 'exact': {
-              await expectLocator.toHaveText(expectedValue);
+              if (valueBehavior === 'accessible') {
+                await expectLocator.toHaveAccessibleDescription(expectedValue);
+              } else {
+                await expectLocator.toHaveText(expectedValue);
+              }
+
               break;
             }
             case 'match': {
@@ -64,9 +71,18 @@ export async function runTests(page: Page | Locator, testFileContent: string) {
           const locator = getLocator(page, elementType, object, { specifier });
 
           variables[variableName!] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
+        } else if (action === 'hover') {
+          const locator = getLocator(page, elementType, object, { specifier });
+
+          await expect(locator).toBeVisible();
+          await locator.hover();
         }
       }
     }
+
+    // Reset the state for the next run.
+    await page.reload();
+    await page.setContent(innerHtml);
   }
 }
 

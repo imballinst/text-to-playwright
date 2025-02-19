@@ -11,6 +11,7 @@ const Command = z.object({
   isNegativeAssertion: z.boolean().optional(),
   assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
   variableName: z.string().optional(),
+  valueBehavior: z.union([z.literal('accessible'), z.literal('visible')]).optional(),
   value: z.string().optional()
 });
 interface Command extends z.infer<typeof Command> {}
@@ -180,8 +181,18 @@ export function parse(sentence: string) {
         }
         case 'into':
         case 'to': {
-          const [assertBehavior, , ...rest] = rawCommand.words.slice(1);
-          const valueWords = rest.join(' ');
+          const [assertBehavior, ...rest] = rawCommand.words.slice(1);
+          const valueCriteria = rest.slice(0, 2).join(' ');
+          let valueWords = '';
+
+          if (valueCriteria === 'accessible description') {
+            // Accessible elements.
+            valueWords = rest.slice(2).join(' ');
+            record.valueBehavior = 'accessible';
+          } else {
+            // Normal value.
+            valueWords = rest.slice(1).join(' ');
+          }
 
           // If the elementType is not valid ARIA, default to generic.
           const parsedAriaRole = AriaRole.safeParse(record.elementType);

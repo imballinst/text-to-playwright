@@ -1,4 +1,26 @@
 <html>
+  <head>
+    <style>
+      [role='tooltip'],
+      .hide-tooltip + [role='tooltip'] {
+        visibility: hidden;
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        background: black;
+        color: white;
+      }
+      [aria-describedby]:hover,
+      [aria-describedby]:focus {
+        position: relative;
+      }
+      [aria-describedby]:hover + [role='tooltip'],
+      [aria-describedby]:focus + [role='tooltip'] {
+        visibility: visible;
+      }
+    </style>
+  </head>
+
   <body>
     <nav>
       <ul>
@@ -23,7 +45,13 @@
           <div>
             <label for="user-id">User ID</label>
 
-            <input id="user-id" name="user-id" />
+            <div style="position: relative">
+              <input id="user-id" name="user-id" aria-describedby="id-rules" />
+
+              <div role="tooltip" id="id-rules">
+                <p>The user ID does not have any requirements.</p>
+              </div>
+            </div>
           </div>
 
           <button>Submit</button>
