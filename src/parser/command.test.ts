@@ -426,6 +426,23 @@ describe('Ensure value', () => {
       specifier: 'User section'
     });
   });
+
+  test('Accessible texts', () => {
+    const result = parse(
+      'Ensure "User ID" input on the Real Users Section to have accessible description "The user ID does not have any requirements."'
+    );
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'User ID',
+      specifier: 'Real Users Section',
+      assertBehavior: 'exact',
+      valueBehavior: 'accessible',
+      value: 'The user ID does not have any requirements.'
+    });
+  });
 });
 
 describe('Store value', () => {

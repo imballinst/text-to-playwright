@@ -19,6 +19,8 @@ function createPageOrLocator(prevLocator?: string[]) {
   const obj: Record<string, any> = {
     locatorTextArray: prevLocator ? [...prevLocator] : ['page'],
     setContent() {},
+    reload() {},
+    innerHTML() {},
     first() {
       const newInstance = createPageOrLocator(this.locatorTextArray);
       newInstance.locatorTextArray.push(`.first()`);
@@ -62,7 +64,7 @@ function createPageOrLocator(prevLocator?: string[]) {
     };
   }
 
-  const addedActions = ['click', 'fill', 'innerText'];
+  const addedActions = ['click', 'fill', 'innerText', 'hover'];
   for (const action of addedActions) {
     obj[action] = function (...args: any[]) {
       const result = this.locatorTextArray.join('');
