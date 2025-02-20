@@ -8,6 +8,7 @@ import { Moon, Sun } from 'lucide-react';
 import { chromium, LoggerSingleton } from 'playwright';
 import { useEffect, useState } from 'preact/hooks';
 import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
+import { parseInputTestFile } from '../../src/parser/input';
 import './app.css';
 
 const DEFAULT_TEST_CASE = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
@@ -131,7 +132,8 @@ async function processInput(input: string): Promise<GroupedTest[]> {
   const page = chromium.launch().newPage();
   LoggerSingleton.setLogger(logger);
 
-  await runTests(page, input);
+  const parsedTestFile = parseInputTestFile(input);
+  await runTests(page, parsedTestFile);
 
   const groupedTests: Array<GroupedTest> = [];
   let prevGroup: GroupedTest | undefined;

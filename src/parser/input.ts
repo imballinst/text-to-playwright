@@ -9,6 +9,7 @@ const TestCase = z.object({
 const InputStructure = z.object({
   tests: z.array(TestCase)
 });
+export interface InputStructure extends z.infer<typeof InputStructure> {}
 
 export function parseInputTestFile(fileContent: string) {
   const parsed = yaml.parse(fileContent);
