@@ -1,11 +1,10 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { LoggerSingleton } from './logger';
 import { parse } from './parser/command';
-import { parseInputTestFile } from './parser/input';
+import { InputStructure } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page, testFileContent: string) {
-  const parsedTestFile = parseInputTestFile(testFileContent);
+export async function runTests(page: Page, parsedTestFile: InputStructure) {
   const variables: Record<string, string> = {};
   const innerHtml = await page.innerHTML('html');
 

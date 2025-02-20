@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { chromium } from 'playwright';
+import { parseInputTestFile } from './parser/input';
 import { runTests } from './runner';
 
 async function runPlaywrightExample() {
@@ -12,7 +13,8 @@ async function runPlaywrightExample() {
 
   await page.setContent(fileContent);
 
-  await runTests(page, testFileContent);
+  const parsedTestFile = parseInputTestFile(testFileContent);
+  await runTests(page, parsedTestFile);
 
   await browser.close();
   console.info(`✅ All tests completed!`);
