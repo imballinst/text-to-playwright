@@ -25,4 +25,4 @@ jobs:
       - run: yarn set version 4.5.1
 
       - run: yarn && yarn test
-      - run: yarn playwright install && yarn dev
+      - run: yarn playwright install && yarn dev && yarn dev --selector data-qa-id
