@@ -2,12 +2,16 @@ import { GitHubIcon } from '@/components/icons';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { runTests } from '@text-to-test/core';
+import debounce from 'lodash/debounce';
 import { Moon, Sun } from 'lucide-react';
 import { chromium, LoggerSingleton } from 'playwright';
-import { useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
+import yaml from 'yaml';
+import { parseInputTestFile } from '../../src/parser/input';
 import './app.css';
 
 const DEFAULT_TEST_CASE = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
@@ -23,6 +27,8 @@ getShikiHighlighter();
 
 export function App() {
   const [tests, setTests] = useState<GroupedTest[]>([]);
+  const [selector, setSelector] = useState('default');
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -37,6 +43,19 @@ export function App() {
       highlighter.dispose();
     };
   }, []);
+
+  const syncInputText = useCallback(
+    debounce(async function sync(selector: string) {
+      if (inputRef.current) {
+        const inputTestFile = inputRef.current.value;
+        const output = await getOutput(inputTestFile, selector);
+
+        inputRef.current.value = output.testFile;
+        setTests(output.groupedTests);
+      }
+    }, 1000),
+    []
+  );
 
   return (
     <>
@@ -73,17 +92,37 @@ export function App() {
               Test file content
             </Label>
 
+            <RadioGroup
+              className="flex mb-4"
+              value={selector}
+              onValueChange={async (value) => {
+                setSelector(value);
+                syncInputText(value);
+              }}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="default" id="default" />
+                <Label htmlFor="default">Default</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="data-qa-id" id="data-qa-id" />
+                <Label htmlFor="data-qa-id">Data QA ID</Label>
+              </div>
+            </RadioGroup>
+
             <Textarea
               id="test-file"
               className="flex flex-1 resize-none"
               placeholder="Input your test file content here..."
               defaultValue={DEFAULT_TEST_CASE}
-              onInput={async (e) => {
-                try {
-                  setTests(await processInput(e.currentTarget.value));
-                } catch (err) {
-                  console.error(err);
-                }
+              ref={(preactElement) => {
+                if (!preactElement) return;
+
+                // Preact is weird, we should access the `node.base` because `node` refers to the Preact element.
+                inputRef.current = (preactElement as unknown as { base: HTMLTextAreaElement }).base;
+              }}
+              onInput={async () => {
+                syncInputText(selector);
               }}
             />
           </div>
@@ -131,7 +170,8 @@ async function processInput(input: string): Promise<GroupedTest[]> {
   const page = chromium.launch().newPage();
   LoggerSingleton.setLogger(logger);
 
-  await runTests(page, input);
+  const parsedTestFile = parseInputTestFile(input);
+  await runTests(page, parsedTestFile);
 
   const groupedTests: Array<GroupedTest> = [];
   let prevGroup: GroupedTest | undefined;
@@ -182,4 +222,19 @@ async function getShikiHighlighter() {
     engine: createJavaScriptRegexEngine()
   });
   return highlighter;
+}
+
+async function getOutput(testFile: string, selector: string) {
+  const parsed = parseInputTestFile(testFile);
+  if (selector !== 'default') {
+    parsed.selector = selector as typeof parsed.selector;
+  } else {
+    delete parsed.selector;
+  }
+
+  const stringified = yaml.stringify(parsed, {
+    sortMapEntries: true
+  });
+
+  return { testFile: stringified, groupedTests: await processInput(stringified) };
 }

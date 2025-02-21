@@ -25,10 +25,10 @@
     <nav>
       <ul>
         <li>
-          <a href="#users">Users</a>
+          <a href="#users" data-qa-id="users">Users</a>
         </li>
         <li>
-          <a href="#teams">Teams</a>
+          <a href="#teams" data-qa-id="teams">Teams</a>
         </li>
       </ul>
     </nav>
@@ -39,14 +39,14 @@
       <section>
         <h3>Real Users Section</h3>
 
-        <pre id="user-output" aria-label="Real output"></pre>
+        <pre id="user-output" data-qa-id="real-output" aria-label="Real output"></pre>
 
         <form data-output-id="user-output">
           <div>
             <label for="user-id">User ID</label>
 
             <div style="position: relative">
-              <input id="user-id" name="user-id" aria-describedby="id-rules" />
+              <input id="user-id" name="user-id" aria-describedby="id-rules" data-qa-id="user-id" />
 
               <div role="tooltip" id="id-rules">
                 <p>The user ID does not have any requirements.</p>
@@ -54,7 +54,7 @@
             </div>
           </div>
 
-          <button>Submit</button>
+          <button data-qa-id="submit">Submit</button>
         </form>
       </section>
 
@@ -87,7 +87,7 @@
           <input id="team-id" name="team-id" />
         </div>
 
-        <button>Submit</button>
+        <button data-qa-id="submit-teams">Submit</button>
       </form>
     </section>
 

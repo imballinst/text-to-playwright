@@ -1,16 +1,18 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { LoggerSingleton } from './logger';
 import { parse } from './parser/command';
-import { parseInputTestFile } from './parser/input';
+import { InputStructure, Selector } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page, testFileContent: string) {
-  const parsedTestFile = parseInputTestFile(testFileContent);
+export async function runTests(page: Page, parsedTestFile: InputStructure) {
   const variables: Record<string, string> = {};
   const innerHtml = await page.innerHTML('html');
+  const globalSelector = parsedTestFile.selector;
 
   for (const testCase of parsedTestFile.tests) {
     const { name, steps } = testCase;
+    const testSelector = testCase.selector ?? globalSelector ?? 'label';
+
     LoggerSingleton.log(name);
 
     for (let i = 0; i < steps.length; i++) {
@@ -24,18 +26,18 @@ export async function runTests(page: Page, testFileContent: string) {
           parsedCommand;
 
         if (action === 'click') {
-          const locator = getLocator(page, elementType, object, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
 
           await expect(locator).toBeVisible();
 
           await locator.click();
         } else if (action === 'fill') {
-          const locator = getLocator(page, elementType, object, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
 
           await expect(locator).toBeVisible();
           await locator.fill(value!);
         } else if (action === 'ensure') {
-          const locator = getLocator(page, elementType, object, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
           const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
           let expectLocator = isNegativeAssertion ? expect(locator).not : expect(locator);
 
@@ -68,11 +70,11 @@ export async function runTests(page: Page, testFileContent: string) {
           }
         } else if (action === 'store') {
           LoggerSingleton.setPreText(`    let ${variableName} = `);
-          const locator = getLocator(page, elementType, object, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
 
           variables[variableName!] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
         } else if (action === 'hover') {
-          const locator = getLocator(page, elementType, object, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
 
           await expect(locator).toBeVisible();
           await locator.hover();
@@ -87,7 +89,11 @@ export async function runTests(page: Page, testFileContent: string) {
 }
 
 // Helper functions.
-function getLocator(page: Page | Locator, elementType: AriaRole, name: string, opts?: { specifier?: string }) {
+function getLocator(page: Page | Locator, elementType: AriaRole, name: string, selector: Selector, opts?: { specifier?: string }) {
+  if (selector === 'data-qa-id') {
+    return page.locator(`[${selector}=${name}]`);
+  }
+
   const { specifier } = opts ?? {};
   let locator: Locator;
 
