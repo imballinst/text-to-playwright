@@ -21,6 +21,19 @@ test('parseSentence', () => {
   expect(parsed.length).toBe(1);
 });
 
+describe('One-offs', () => {
+  test('data-qa-id', () => {
+    const result = parse('Click "users-real-section" link.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'click',
+      elementType: 'link',
+      object: 'users-real-section'
+    });
+  });
+});
+
 describe('Click', () => {
   test('Objects with 1 word', () => {
     let result = parse('Click "Users" link.');

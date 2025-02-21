@@ -105,7 +105,14 @@ export function parse(sentence: string) {
 
       if (shouldJustPush && prev) {
         // If the text is still within quote, just push it.
-        prev.words.push(text);
+        const lastIndex = prev.words.length - 1;
+
+        if (prev.words[lastIndex].endsWith('-') && clause.terms[i - 1].tags.includes('Hyphenated')) {
+          // We don't want to split texts by hyphens, especially if it's wrapped inside quote.
+          prev.words[lastIndex] += text;
+        } else {
+          prev.words.push(text);
+        }
 
         if (endsWithQuote) {
           prev = undefined;

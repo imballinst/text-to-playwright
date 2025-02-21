@@ -52,12 +52,19 @@ async function runPlaywrightExample() {
             if (!matches) return '';
 
             const [, object, elementType] = matches;
-            return `"${object.toLowerCase().replace(/\s+/g, '-')}-real-section" ${elementType}`;
+            let id = object.toLowerCase().replace(/\s+/g, '-');
+
+            if (object === 'Submit' && test.steps[i].includes('"Teams"')) {
+              // This is a "hack" so we don't have to re-do writing the tests.
+              id += '-teams';
+            }
+
+            return `"${id}" ${elementType}`;
           });
         }
       }
 
-      // await runTests(page, effectiveTestFile);
+      await runTests(page, effectiveTestFile);
     }
   } else {
     await runTests(page, parsedTestFile);

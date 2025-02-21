@@ -2,6 +2,7 @@ import yaml from 'yaml';
 import { z } from 'zod';
 
 export const Selector = z.union([z.literal('label'), z.literal('data-qa-id')]);
+export type Selector = z.infer<typeof Selector>;
 
 const TestCase = z.object({
   name: z.string(),
