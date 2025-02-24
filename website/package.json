@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:meter": "VITE_APP=meter vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },

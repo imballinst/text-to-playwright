@@ -2,6 +2,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { render } from 'preact';
 import { PropsWithChildren } from 'preact/compat';
 import { App } from './app.tsx';
+import { MeterApp } from './examples/meter/app.tsx';
 import './index.css';
 
 function Main({ children }: PropsWithChildren) {
@@ -14,9 +15,4 @@ function Main({ children }: PropsWithChildren) {
 
 export default App;
 
-render(
-  <Main>
-    <App />
-  </Main>,
-  document.getElementById('app')!
-);
+render(<Main>{import.meta.env.VITE_APP === 'meter' ? <MeterApp /> : <App />}</Main>, document.getElementById('app')!);
