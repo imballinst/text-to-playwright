@@ -1,4 +1,4 @@
-import { SVGProps } from 'preact/compat';
+import { SVGProps } from 'react';
 
 export function GitHubIcon(props: SVGProps<any>) {
   return (

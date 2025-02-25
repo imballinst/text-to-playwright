@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider';
-import { render } from 'preact';
-import { PropsWithChildren } from 'preact/compat';
+import { PropsWithChildren } from 'react';
+import { createRoot } from 'react-dom/client';
 import { App } from './app.tsx';
 import { MeterApp } from './examples/meter/app.tsx';
 import './index.css';
@@ -13,6 +13,5 @@ function Main({ children }: PropsWithChildren) {
   );
 }
 
-export default App;
-
-render(<Main>{import.meta.env.VITE_APP === 'meter' ? <MeterApp /> : <App />}</Main>, document.getElementById('app')!);
+const root = createRoot(document.getElementById('app')!);
+root.render(<Main>{import.meta.env.VITE_APP === 'meter' ? <MeterApp /> : <App />}</Main>);

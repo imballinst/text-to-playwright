@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 
 export function MeterApp() {
   return (
@@ -25,6 +26,9 @@ export function MeterApp() {
 
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor="critChance">Critical hit chance</Label>
+
+          <Slider defaultValue={[50]} max={100} step={1} />
+
           <Input type="text" id="critChance" placeholder="20" />
         </div>
 
