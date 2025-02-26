@@ -4,9 +4,14 @@ import { parse } from './parser/command';
 import { InputStructure, Selector } from './parser/input';
 import { AriaRole } from './types/aria';
 
-export async function runTests(page: Page, parsedTestFile: InputStructure) {
+export async function runTests(
+  page: Page,
+  parsedTestFile: InputStructure,
+  opts?: {
+    onFinishTestCase: (page: Page) => void | Promise<void>;
+  }
+) {
   const variables: Record<string, string> = {};
-  const innerHtml = await page.innerHTML('html');
   const globalSelector = parsedTestFile.selector;
 
   for (const testCase of parsedTestFile.tests) {
@@ -82,9 +87,7 @@ export async function runTests(page: Page, parsedTestFile: InputStructure) {
       }
     }
 
-    // Reset the state for the next run.
-    await page.reload();
-    await page.setContent(innerHtml);
+    await opts?.onFinishTestCase(page);
   }
 }
 

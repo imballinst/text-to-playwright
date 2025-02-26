@@ -1,0 +1,5 @@
+tests:
+  - name: Example test case
+    steps:
+      - Ensure "Result" element to contain text "Your DPS is 1100".
+      # TODO: test other stuff.

@@ -140,7 +140,7 @@ export function MeterApp() {
             <>
               <hr className="border-gray-700 w-full my-4" />
 
-              <p>Your DPS is {Number.isSafeInteger(result) ? result : result.toFixed(2)} 🚀</p>
+              <p aria-label="Result">Your DPS is {Number.isSafeInteger(result) ? result : result.toFixed(2)} 🚀</p>
             </>
           )}
         </form>
