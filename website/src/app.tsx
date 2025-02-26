@@ -8,7 +8,7 @@ import { runTests } from '@text-to-test/core';
 import debounce from 'lodash/debounce';
 import { Moon, Sun } from 'lucide-react';
 import { chromium, LoggerSingleton } from 'playwright';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createHighlighterCore, createJavaScriptRegexEngine, HighlighterCore } from 'shiki';
 import yaml from 'yaml';
 import { parseInputTestFile } from '../../src/parser/input';
@@ -38,9 +38,8 @@ export function App() {
 
     run();
 
-    return async () => {
-      const highlighter = await getShikiHighlighter();
-      highlighter.dispose();
+    return () => {
+      getShikiHighlighter().then((highlighter) => highlighter.dispose());
     };
   }, []);
 
@@ -115,12 +114,7 @@ export function App() {
               className="flex flex-1 resize-none"
               placeholder="Input your test file content here..."
               defaultValue={DEFAULT_TEST_CASE}
-              ref={(preactElement) => {
-                if (!preactElement) return;
-
-                // Preact is weird, we should access the `node.base` because `node` refers to the Preact element.
-                inputRef.current = (preactElement as unknown as { base: HTMLTextAreaElement }).base;
-              }}
+              ref={inputRef}
               onInput={async () => {
                 syncInputText(selector);
               }}

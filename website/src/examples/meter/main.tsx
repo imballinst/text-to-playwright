@@ -1,8 +1,9 @@
 import { ThemeProvider } from '@/components/theme-provider';
 import { PropsWithChildren } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './app.tsx';
-import './index.css';
+import '../../index.css';
+import './app.css';
+import { MeterApp } from './app.tsx';
 
 function Main({ children }: PropsWithChildren) {
   return (
@@ -15,6 +16,6 @@ function Main({ children }: PropsWithChildren) {
 const root = createRoot(document.getElementById('app')!);
 root.render(
   <Main>
-    <App />
+    <MeterApp />
   </Main>
 );

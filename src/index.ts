@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
-import { chromium } from 'playwright';
+import { chromium, Page } from 'playwright';
 import { parseArgs } from 'util';
 import { InputStructure, parseInputTestFile, Selector } from './parser/input';
 import { runTests } from './runner';
@@ -15,6 +15,11 @@ async function runPlaywrightExample() {
   const page = await browser.newPage();
 
   await page.setContent(fileContent);
+
+  const onFinishTestCase = async (page: Page) => {
+    await page.reload();
+    await page.setContent(fileContent);
+  };
 
   const parsedTestFile = parseInputTestFile(testFileContent);
   if (args.values.selector === 'data-qa-id') {
@@ -64,10 +69,10 @@ async function runPlaywrightExample() {
         }
       }
 
-      await runTests(page, effectiveTestFile);
+      await runTests(page, effectiveTestFile, { onFinishTestCase });
     }
   } else {
-    await runTests(page, parsedTestFile);
+    await runTests(page, parsedTestFile, { onFinishTestCase });
   }
 
   await browser.close();
