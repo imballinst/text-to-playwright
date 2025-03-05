@@ -1,5 +1,4 @@
 import { Locator, Page } from '@playwright/test';
-import { AriaRole } from '../types/aria';
 
 // Helper functions.
 interface SliderThumb {
@@ -19,37 +18,17 @@ interface SliderThumb {
   maxAttribute: string;
 }
 
-type SliderSelector =
-  | {
-      kind: 'role';
-      role: AriaRole;
-      name: string;
-      thumb?: SliderThumb;
-    }
-  | {
-      kind: 'label';
-      label: string;
-      thumb?: SliderThumb;
-    };
-
 export class SliderLocator {
   private page: Page;
-  private slider: Locator;
   private thumbInfo: SliderThumb | undefined;
 
+  slider: Locator;
   min = 0;
   max = 100;
 
-  constructor(page: Page, selector: SliderSelector) {
-    this.page = page;
-
-    if (selector.kind === 'label') {
-      this.slider = page.getByLabel(selector.label).first();
-    } else {
-      this.slider = page.getByRole(selector.role, { name: selector.name }).first();
-    }
-
-    this.thumbInfo = selector.thumb;
+  constructor(page: Page, locator: Locator, thumbLocator?: SliderThumb) {
+    this.slider = locator;
+    this.thumbInfo = thumbLocator;
   }
 
   async initSliderAttributes() {

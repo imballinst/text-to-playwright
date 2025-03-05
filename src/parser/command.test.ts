@@ -181,6 +181,45 @@ describe('Fill input', () => {
   });
 });
 
+describe('Slide input', () => {
+  test('Object with 1 word', () => {
+    const result = parse('Slide "Crit" slider to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Crit',
+      value: '80'
+    });
+  });
+
+  test('Object with 2 words', () => {
+    const result = parse('Slide "Critical hit chance" slider to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Critical hit chance',
+      value: '80'
+    });
+  });
+
+  test('Objects with specifiers', () => {
+    const result = parse('Slide "Critical hit chance" slider on the User section to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Critical hit chance',
+      specifier: 'User section',
+      value: '80'
+    });
+  });
+});
+
 describe('Hover element', () => {
   test('Object with 1 word', () => {
     const result = parse('Hover "Name" input.');

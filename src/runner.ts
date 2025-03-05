@@ -1,8 +1,9 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
+import { getLocator } from './locators/common';
+import { SliderLocator } from './locators/slider';
 import { LoggerSingleton } from './logger';
 import { parse } from './parser/command';
-import { InputStructure, Selector } from './parser/input';
-import { AriaRole } from './types/aria';
+import { InputStructure } from './parser/input';
 
 export async function runTests(
   page: Page,
@@ -13,10 +14,12 @@ export async function runTests(
 ) {
   const variables: Record<string, string> = {};
   const globalSelector = parsedTestFile.selector;
+  const globalSliderSelector = parsedTestFile.sliderSelector;
 
   for (const testCase of parsedTestFile.tests) {
-    const { name, steps } = testCase;
-    const testSelector = testCase.selector ?? globalSelector ?? 'label';
+    const { name, selector, sliderSelector, steps } = testCase;
+    const testSelector = selector ?? globalSelector ?? 'label';
+    const testSliderSelector = sliderSelector ?? globalSliderSelector ?? 'native';
 
     LoggerSingleton.log(name);
 
@@ -41,6 +44,29 @@ export async function runTests(
 
           await expect(locator).toBeVisible();
           await locator.fill(value!);
+        } else if (action === 'slide') {
+          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const slider = new SliderLocator(
+            page,
+            locator,
+            testSliderSelector === 'shadcn'
+              ? {
+                  locator: 'span[data-slot=slider-thumb]',
+                  valueAttribute: 'aria-valuenow',
+                  maxAttribute: 'aria-valuemax',
+                  minAttribute: 'aria-valuemin'
+                }
+              : undefined
+          );
+          await slider.initSliderAttributes();
+
+          await expect(slider.slider).toBeVisible();
+
+          const numberValue = Number(value);
+          if (isNaN(numberValue))
+            throw new Error(`Expected valid number for slider value, received ${numberValue} (from ${JSON.stringify(value)})`);
+
+          await slider.move(numberValue);
         } else if (action === 'ensure') {
           const locator = getLocator(page, elementType, object, testSelector, { specifier });
           const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
@@ -92,40 +118,6 @@ export async function runTests(
 }
 
 // Helper functions.
-function getLocator(page: Page | Locator, elementType: AriaRole, name: string, selector: Selector, opts?: { specifier?: string }) {
-  if (selector === 'data-qa-id') {
-    return page.locator(`[${selector}=${name}]`);
-  }
-
-  const { specifier } = opts ?? {};
-  let locator: Locator;
-
-  if (specifier) {
-    if (/section/i.test(specifier)) {
-      locator = page.locator('section', {
-        has: page.getByRole('heading', { name: specifier })
-      });
-
-      locator = getLocatorByElementType(locator, elementType, name);
-    } else {
-      locator = page.getByLabel(specifier).getByRole(elementType, { name }).first();
-    }
-  } else {
-    locator = getLocatorByElementType(page, elementType, name);
-  }
-
-  return locator;
-}
-
-function getLocatorByElementType(locator: Page | Locator, elementType: AriaRole, name: string) {
-  if (elementType === 'generic') {
-    // If generic, we can't really use `getByRole`, so we need to use `getByLabel`.
-    return locator.getByLabel(name).first();
-  }
-
-  return locator.getByRole(elementType, { name }).first();
-}
-
 function getAssertedValueDependingOnEnv(variables: Record<string, string>, variableName?: string, value?: string) {
   if (process.env.MOCK) {
     return variableName ? variableName : `"${value}"`;
