@@ -4,7 +4,7 @@ import { ARIA_ALIAS_RECORD, AriaRole } from '../types/aria';
 import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
 const Command = z.object({
-  action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store')]),
+  action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store'), z.literal('slide')]),
   object: z.string(),
   elementType: AriaRole,
   specifier: z.string().optional(),
@@ -188,6 +188,15 @@ export function parse(sentence: string) {
         }
         case 'into':
         case 'to': {
+          // There is a special case to slider, because it's moving something from/to.
+          const parsedAction = Command.shape.action.safeParse(record.action);
+          if (parsedAction.success && parsedAction.data === 'slide') {
+            const valueWords = rawCommand.words.slice(2).join(' ');
+            record.value = extractQuotationValue(valueWords);
+
+            break;
+          }
+
           const [assertBehavior, ...rest] = rawCommand.words.slice(1);
           const valueCriteria = rest.slice(0, 2).join(' ');
           let valueWords = '';

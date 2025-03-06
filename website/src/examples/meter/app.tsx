@@ -89,6 +89,22 @@ export function MeterApp() {
                 onValueChange={(newValue) => {
                   setValue('critChance', newValue[0]);
                 }}
+                aria-label="Crit chance slider shadcn"
+                id="critChance-slider-shadcn"
+                aria-controls="critChance critChance-slider-native"
+              />
+
+              <input
+                type="range"
+                value={values.critChance}
+                max={100}
+                step={1}
+                onChange={(e) => {
+                  setValue('critChance', Number(e.target.value));
+                }}
+                aria-label="Crit chance slider native"
+                id="critChance-slider-native"
+                aria-controls="critChance critChance-slider-shadcn"
               />
 
               <Input

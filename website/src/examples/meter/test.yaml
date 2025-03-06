@@ -2,4 +2,9 @@ tests:
   - name: Example test case
     steps:
       - Ensure "Result" element to contain text "Your DPS is 1100".
+      - command: Slide "Crit chance slider shadcn" slider to value "100".
+        sliderSelector: shadcn
+      - Ensure "Result" element to contain text "Your DPS is 1500".
+      - Slide "Crit chance slider native" slider to value "50".
+      - Ensure "Result" element to contain text "Your DPS is 1250".
       # TODO: test other stuff.

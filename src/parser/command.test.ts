@@ -26,7 +26,7 @@ describe('One-offs', () => {
     const result = parse('Click "users-real-section" link.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'link',
       object: 'users-real-section'
@@ -39,7 +39,7 @@ describe('Click', () => {
     let result = parse('Click "Users" link.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'link',
       object: 'Users'
@@ -48,7 +48,7 @@ describe('Click', () => {
     result = parse('Click "Submit" button.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Submit'
@@ -59,7 +59,7 @@ describe('Click', () => {
     let result = parse('Click "Create User" button.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Create User'
@@ -68,7 +68,7 @@ describe('Click', () => {
     result = parse('Click "Click me" button.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Click me'
@@ -79,7 +79,7 @@ describe('Click', () => {
     let result = parse('Click "Create User" button on the navbar.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Create User',
@@ -89,7 +89,7 @@ describe('Click', () => {
     result = parse('Click "Create User" button on the Main Navigation.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Create User',
@@ -99,7 +99,7 @@ describe('Click', () => {
     result = parse('Click "Create User" button on the Sidebar Navigation.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Create User',
@@ -111,7 +111,7 @@ describe('Click', () => {
     let result = parse('Click "Continue on studying" button.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Continue on studying'
@@ -120,7 +120,7 @@ describe('Click', () => {
     result = parse('Click "Continue on studying" button on the navbar.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'click',
       elementType: 'button',
       object: 'Continue on studying',
@@ -134,7 +134,7 @@ describe('Fill input', () => {
     const result = parse('Fill "Name" input with value "Hello World".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'fill',
       elementType: 'textbox',
       object: 'Name',
@@ -146,7 +146,7 @@ describe('Fill input', () => {
     const result = parse('Fill "Display Name" input with value "Hello World".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'fill',
       elementType: 'textbox',
       object: 'Display Name',
@@ -158,7 +158,7 @@ describe('Fill input', () => {
     const result = parse('Fill "Display Name" input on the User section with value "Hello World".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'fill',
       elementType: 'textbox',
       object: 'Display Name',
@@ -171,7 +171,7 @@ describe('Fill input', () => {
     const result = parse('Fill "Display Name" input on the User section with value "Hello. World".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'fill',
       elementType: 'textbox',
       object: 'Display Name',
@@ -181,12 +181,51 @@ describe('Fill input', () => {
   });
 });
 
+describe('Slide input', () => {
+  test('Object with 1 word', () => {
+    const result = parse('Slide "Crit" slider to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Crit',
+      value: '80'
+    });
+  });
+
+  test('Object with 2 words', () => {
+    const result = parse('Slide "Critical hit chance" slider to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Critical hit chance',
+      value: '80'
+    });
+  });
+
+  test('Objects with specifiers', () => {
+    const result = parse('Slide "Critical hit chance" slider on the User section to value "80".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'slide',
+      elementType: 'slider',
+      object: 'Critical hit chance',
+      specifier: 'User section',
+      value: '80'
+    });
+  });
+});
+
 describe('Hover element', () => {
   test('Object with 1 word', () => {
     const result = parse('Hover "Name" input.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'hover',
       elementType: 'textbox',
       object: 'Name'
@@ -197,7 +236,7 @@ describe('Hover element', () => {
     const result = parse('Hover "Display Name" input.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'hover',
       elementType: 'textbox',
       object: 'Display Name'
@@ -208,7 +247,7 @@ describe('Hover element', () => {
     const result = parse('Hover "Display Name" input on the User section.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'hover',
       elementType: 'textbox',
       object: 'Display Name',
@@ -222,7 +261,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Name" input to have value "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Name',
@@ -233,7 +272,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Result" element to contain text "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -246,7 +285,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Display Name" input to have value "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Display Name',
@@ -257,7 +296,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Expected Result" element to contain text "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Expected Result',
@@ -270,7 +309,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Display Name" input on the User section to have value "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Display Name',
@@ -282,7 +321,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Expected Result" element on the User section to contain text "hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Expected Result',
@@ -296,7 +335,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Display Name" input on the User section to have value {hello}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Display Name',
@@ -308,7 +347,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Expected Result" element on the User section to contain text {hello}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Expected Result',
@@ -322,7 +361,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Result" element to match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -333,7 +372,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Result" element to match pattern "/"Hello world"/".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -344,7 +383,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Result" element to match pattern "/[abc]+/".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -355,7 +394,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Result" element to match pattern "/(abc)+\\/\\//".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -366,7 +405,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Result" element to match pattern "/Mr\\. \\d{3}/".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -379,7 +418,7 @@ describe('Ensure value', () => {
     let result = parse('Ensure "Result" element not to match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Result',
@@ -391,7 +430,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Display Name" input on the User section not to have value "not hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Display Name',
@@ -404,7 +443,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Expected Result" element on the User section not to contain text "not hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Expected Result',
@@ -418,7 +457,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Display Name" input on the User section to have value "not hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'Display Name',
@@ -430,7 +469,7 @@ describe('Ensure value', () => {
     result = parse('Ensure "Expected Result" element on the User section to contain text "not hello".');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'generic',
       object: 'Expected Result',
@@ -446,7 +485,7 @@ describe('Ensure value', () => {
     );
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'ensure',
       elementType: 'textbox',
       object: 'User ID',
@@ -463,7 +502,7 @@ describe('Store value', () => {
     let result = parse('Store the value of "Name" input into variable {inputValue}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'store',
       elementType: 'textbox',
       object: 'Name',
@@ -473,7 +512,7 @@ describe('Store value', () => {
     result = parse('Store the value of "Name" input to variable {inputValue}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'store',
       elementType: 'textbox',
       object: 'Name',
@@ -485,7 +524,7 @@ describe('Store value', () => {
     let result = parse('Store the value of "Name" input on the User section into variable {inputValue}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'store',
       elementType: 'textbox',
       object: 'Name',
@@ -496,7 +535,7 @@ describe('Store value', () => {
     result = parse('Store the value of "Name" input on the User section to variable {inputValue}.');
 
     expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
+    expect(result[0]).toStrictEqual({
       action: 'store',
       elementType: 'textbox',
       object: 'Name',

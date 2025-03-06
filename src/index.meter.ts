@@ -10,7 +10,9 @@ async function runPlaywrightExample() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.goto('http://localhost:4173/meter/');
+  // await page.goto('http://localhost:4173/meter/');
+  await page.goto('http://localhost:5173/meter/');
+  // await page.goto('https://imballinst.github.io/text-to-playwright/meter/');
 
   const parsedTestFile = parseInputTestFile(testFileContent);
   await runTests(page, parsedTestFile);
