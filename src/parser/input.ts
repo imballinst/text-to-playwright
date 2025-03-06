@@ -7,15 +7,25 @@ export type Selector = z.infer<typeof Selector>;
 export const SliderType = z.union([z.literal('native'), z.literal('shadcn')]);
 export type SliderType = z.infer<typeof Selector>;
 
-const SharedFields = z.object({
+export const SharedFields = z.object({
   selector: Selector.optional(),
   sliderSelector: SliderType.optional()
 });
+export interface SharedFields extends z.infer<typeof SharedFields> {}
+
+const Command = z.union([
+  z.string(),
+  SharedFields.merge(
+    z.object({
+      command: z.string()
+    })
+  )
+]);
 
 const TestCase = SharedFields.merge(
   z.object({
     name: z.string(),
-    steps: z.array(z.string())
+    steps: z.array(Command)
   })
 );
 

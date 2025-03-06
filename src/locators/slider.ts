@@ -27,6 +27,7 @@ export class SliderLocator {
   max = 100;
 
   constructor(page: Page, locator: Locator, thumbLocator?: SliderThumb) {
+    this.page = page;
     this.slider = locator;
     this.thumbInfo = thumbLocator;
   }

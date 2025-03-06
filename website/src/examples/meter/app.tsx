@@ -11,7 +11,7 @@ export function MeterApp() {
     defaultValues: {
       baseDamage: 100,
       attacksPerSecond: 10,
-      critChance: 10,
+      critChance: 20,
       critDamage: 150
     }
   });

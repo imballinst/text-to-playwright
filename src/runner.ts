@@ -3,7 +3,7 @@ import { getLocator } from './locators/common';
 import { SliderLocator } from './locators/slider';
 import { LoggerSingleton } from './logger';
 import { parse } from './parser/command';
-import { InputStructure } from './parser/input';
+import { InputStructure, SharedFields } from './parser/input';
 
 export async function runTests(
   page: Page,
@@ -24,7 +24,21 @@ export async function runTests(
     LoggerSingleton.log(name);
 
     for (let i = 0; i < steps.length; i++) {
-      const command = steps[i];
+      const step = steps[i];
+      let tmpSelector: SharedFields['selector'];
+      let tmpSliderSelector: SharedFields['sliderSelector'];
+      let command: string;
+
+      if (typeof step === 'object') {
+        command = step.command;
+        tmpSelector = step.selector;
+        tmpSliderSelector = step.sliderSelector;
+      } else {
+        command = step;
+      }
+
+      const stepSelector = tmpSelector ?? testSelector;
+      const stepSliderSelector = tmpSliderSelector ?? testSliderSelector;
 
       LoggerSingleton.log(`  Step ${i + 1}: ${command}`);
       const parsedCommands = parse(command);
@@ -34,22 +48,22 @@ export async function runTests(
           parsedCommand;
 
         if (action === 'click') {
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, elementType, object, stepSelector, { specifier });
 
           await expect(locator).toBeVisible();
 
           await locator.click();
         } else if (action === 'fill') {
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, elementType, object, stepSelector, { specifier });
 
           await expect(locator).toBeVisible();
           await locator.fill(value!);
         } else if (action === 'slide') {
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, stepSliderSelector === 'shadcn' ? 'generic' : elementType, object, stepSelector, { specifier });
           const slider = new SliderLocator(
             page,
             locator,
-            testSliderSelector === 'shadcn'
+            stepSliderSelector === 'shadcn'
               ? {
                   locator: 'span[data-slot=slider-thumb]',
                   valueAttribute: 'aria-valuenow',
