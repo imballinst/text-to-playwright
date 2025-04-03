@@ -13,7 +13,7 @@ export const SharedFields = z.object({
 });
 export interface SharedFields extends z.infer<typeof SharedFields> {}
 
-const Command = z.union([
+const Step = z.union([
   z.string(),
   SharedFields.merge(
     z.object({
@@ -21,11 +21,12 @@ const Command = z.union([
     })
   )
 ]);
+export type Step = z.infer<typeof Step>;
 
 const TestCase = SharedFields.merge(
   z.object({
     name: z.string(),
-    steps: z.array(Command)
+    steps: z.array(Step)
   })
 );
 

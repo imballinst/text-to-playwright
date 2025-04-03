@@ -8,7 +8,7 @@ async function runPlaywrightExample() {
   const testFileContent = await readFile(path.join(process.cwd(), 'website/src/examples/meter/test.yaml'), 'utf-8');
 
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
+  const page = await browser.newPage({ recordVideo: { dir: 'videos' } });
 
   // await page.goto('http://localhost:4173/meter/');
   await page.goto('http://localhost:5173/meter/');
