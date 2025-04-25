@@ -15,13 +15,6 @@ process.env.VITE_YAML_CONTENT = readFileSync(resolve('../assets/test/test.yaml')
 export default defineConfig({
   base: process.env.BASE_PATH ?? '',
   plugins: [react(), tsconfigPaths(), ...tailwindcss()],
-  resolve: {
-    alias: {
-      // It's kinda what it is because of the import inside import stuff.
-      '@playwright/test': resolve('../src/mocks/playwright-test.ts'),
-      playwright: resolve('../src/mocks/playwright.ts')
-    }
-  },
   build: {
     rollupOptions: {
       input: {
@@ -29,8 +22,5 @@ export default defineConfig({
         meter: path.resolve(__dirname, 'meter/index.html')
       }
     }
-  },
-  define: {
-    'process.env': JSON.stringify({ MOCK: true })
   }
 });

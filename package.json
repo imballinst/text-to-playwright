@@ -4,7 +4,6 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "dev:meter": "tsx src/index.meter.ts",
-    "dev:mock": "MOCK=true tsx --tsconfig tsconfig.mock.json src/index.ts",
     "html": "serve assets/test",
     "test": "vitest"
   },

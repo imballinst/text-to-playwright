@@ -1,6 +1,10 @@
 import { Locator, Page } from '@playwright/test';
 
-// Helper functions.
+export const VALID_SLIDER_LOCATORS = [
+  { selector: 'input[type=range]', valueAttribute: 'value' },
+  { selector: 'span[data-slot=slider-thumb]', valueAttribute: 'aria-valuenow' }
+];
+
 interface SliderThumb {
   /* For example, in shadcn, `span[data-slot=slider-thumb]`. */
   locator: string;
@@ -47,7 +51,7 @@ export class SliderLocator {
     this.max = Number(await locator.getAttribute(maxAttribute ?? 'max'));
   }
 
-  async getSliderValue() {
+  private async getSliderValue() {
     let locator = this.slider;
     let valueAttribute = 'value';
 
@@ -63,7 +67,6 @@ export class SliderLocator {
     const { sliderPageX, thumbX, thumbY, width } = await this.getSliderPositions();
     let targetThumbX = sliderPageX + (width * targetValue) / this.max;
     let value = await this.getSliderValue();
-    console.info(targetValue);
 
     await this.page.mouse.move(thumbX, thumbY);
     await this.slider.hover();
@@ -82,7 +85,6 @@ export class SliderLocator {
     let inc = 1;
 
     while (value !== targetValue) {
-      console.info(targetThumbX, value, targetValue, inc);
       if (value > targetValue) {
         if (behavior === 'inc') {
           behavior = 'dec';
@@ -111,7 +113,7 @@ export class SliderLocator {
     return initial - targetThumbX;
   }
 
-  async getSliderPositions() {
+  private async getSliderPositions() {
     const bb = (await this.slider.boundingBox())!;
     const value = await this.getSliderValue();
 
