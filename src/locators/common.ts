@@ -3,7 +3,7 @@ import { Selector } from '../parser/input';
 import { AriaRole } from '../types/aria';
 
 export function getLocator(page: Page | Locator, elementType: AriaRole, name: string, selector: Selector, opts?: { specifier?: string }) {
-  if (selector === 'data-qa-id') {
+  if (selector === 'data-qa-id' || selector === 'id') {
     return page.locator(`[${selector}=${name}]`);
   }
 

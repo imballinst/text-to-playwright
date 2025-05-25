@@ -11,7 +11,7 @@ const Step = z.object({
   isNegativeAssertion: z.boolean().optional(),
   assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
   variableName: z.string().optional(),
-  valueBehavior: z.union([z.literal('accessible'), z.literal('visible')]).optional(),
+  valueBehavior: z.union([z.literal('accessible'), z.literal('visible'), z.literal('error')]).optional(),
   value: z.string().optional()
 });
 interface Step extends z.infer<typeof Step> {}
@@ -107,8 +107,12 @@ export function parse(sentence: string) {
         // If the text is still within quote, just push it.
         const lastIndex = prev.words.length - 1;
 
-        if (prev.words[lastIndex].endsWith('-') && clause.terms[i - 1].tags.includes('Hyphenated')) {
+        if (
+          prev.words[lastIndex].endsWith('-') &&
+          (clause.terms[i - 1].tags.includes('Hyphenated') || clause.terms[i].tags.includes('NumericValue'))
+        ) {
           // We don't want to split texts by hyphens, especially if it's wrapped inside quote.
+          // Or if it is a negative value.
           prev.words[lastIndex] += text;
         } else {
           prev.words.push(text);
@@ -202,9 +206,13 @@ export function parse(sentence: string) {
           let valueWords = '';
 
           if (valueCriteria === 'accessible description') {
-            // Accessible elements.
+            // Accessible elements: description.
             valueWords = rest.slice(2).join(' ');
             record.valueBehavior = 'accessible';
+          } else if (valueCriteria === 'error message') {
+            // Accessible elements: error message.
+            valueWords = rest.slice(2).join(' ');
+            record.valueBehavior = 'error';
           } else {
             // Normal value.
             valueWords = rest.slice(1).join(' ');

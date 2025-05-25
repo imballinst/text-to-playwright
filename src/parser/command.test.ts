@@ -179,6 +179,22 @@ describe('Fill input', () => {
       value: 'Hello. World'
     });
   });
+
+  test('Numbers', () => {
+    const expected = ['1', '10', '10000', '100.000', '100_000', '-1'];
+    for (const value of expected) {
+      const result = parse(`Fill "Display Name" input on the User section with value "${value}".`);
+
+      expect(result.length).toBe(1);
+      expect(result[0]).toStrictEqual({
+        action: 'fill',
+        elementType: 'textbox',
+        object: 'Display Name',
+        specifier: 'User section',
+        value
+      });
+    }
+  });
 });
 
 describe('Slide input', () => {
@@ -480,7 +496,7 @@ describe('Ensure value', () => {
   });
 
   test('Accessible texts', () => {
-    const result = parse(
+    let result = parse(
       'Ensure "User ID" input on the Real Users Section to have accessible description "The user ID does not have any requirements."'
     );
 
@@ -493,6 +509,19 @@ describe('Ensure value', () => {
       assertBehavior: 'exact',
       valueBehavior: 'accessible',
       value: 'The user ID does not have any requirements.'
+    });
+
+    result = parse('Ensure "User ID" input on the Real Users Section to have error message "The user ID should not be empty."');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'User ID',
+      specifier: 'Real Users Section',
+      assertBehavior: 'exact',
+      valueBehavior: 'error',
+      value: 'The user ID should not be empty.'
     });
   });
 });

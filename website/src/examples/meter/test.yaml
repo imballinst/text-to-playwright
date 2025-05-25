@@ -8,3 +8,7 @@ tests:
       - Slide "Crit chance slider native" slider to value "50".
       - Ensure "Result" element to contain text "Your DPS is 1250".
       # TODO: test other stuff.
+      - Fill "Base damage" input with value "-1".
+      - Ensure "Base damage" input to have error message "Base damage should be a positive number".
+      - Fill "Base damage" input with value "xdd".
+      - Ensure "Base damage" input to have error message "Base damage should be a number".

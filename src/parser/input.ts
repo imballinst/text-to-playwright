@@ -1,7 +1,7 @@
 import yaml from 'yaml';
 import { z } from 'zod';
 
-export const Selector = z.union([z.literal('label'), z.literal('data-qa-id')]);
+export const Selector = z.union([z.literal('label'), z.literal('data-qa-id'), z.literal('id')]);
 export type Selector = z.infer<typeof Selector>;
 
 export const SliderType = z.union([z.literal('native'), z.literal('shadcn')]);

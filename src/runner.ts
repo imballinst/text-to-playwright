@@ -96,6 +96,12 @@ export async function runTests(
             case 'exact': {
               if (valueBehavior === 'accessible') {
                 await expectLocator.toHaveAccessibleDescription(expectedValue);
+              } else if (valueBehavior === 'error') {
+                const errorTextId = await locator.getAttribute('aria-errormessage');
+                const tmpLocator = getLocator(page, 'generic', errorTextId!, 'id');
+                expectLocator = isNegativeAssertion ? expect(tmpLocator).not : expect(tmpLocator);
+
+                await expectLocator.toHaveText(expectedValue);
               } else {
                 await expectLocator.toHaveText(expectedValue);
               }

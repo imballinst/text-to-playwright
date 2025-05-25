@@ -27,7 +27,7 @@ async function runPlaywrightExample() {
       {
         name: 'root',
         modifier: (parsed) => {
-          const cloned = structuredClone(parsed) as InputStructure;
+          const cloned = structuredClone(parsed);
           cloned.selector = Selector.parse(args.values.selector);
           return cloned;
         }
@@ -35,7 +35,7 @@ async function runPlaywrightExample() {
       {
         name: 'test',
         modifier: (parsed) => {
-          const cloned = structuredClone(parsed) as InputStructure;
+          const cloned = structuredClone(parsed);
           for (const test of cloned.tests) {
             test.selector = Selector.parse(args.values.selector);
           }
