@@ -27,6 +27,8 @@ export function MeterApp() {
     trigger();
   }, [values, trigger]);
 
+  console.info(formState.errors);
+
   return (
     <main className="p-4 flex flex-col gap-y-4 items-center justify-center w-full h-full">
       <div className="max-w-96 w-full">
@@ -66,6 +68,7 @@ export function MeterApp() {
               type="text"
               id="attacksPerSecond"
               placeholder="10"
+              aria-invalid={!!formState.errors.attacksPerSecond?.message}
               aria-errormessage="attacksPerSecond-error"
               {...register('attacksPerSecond', {
                 required: true,
@@ -87,7 +90,7 @@ export function MeterApp() {
           <div className={cn('grid w-full max-w-sm items-center gap-1.5', addErrorClassName(formState.errors.critChance?.message))}>
             <Label htmlFor="critChance">Critical hit chance</Label>
 
-            <div className="flex gap-x-2">
+            <div className="flex gap-x-2 errormessage-outside">
               <Slider
                 value={[values.critChance!]}
                 max={100}
@@ -118,6 +121,7 @@ export function MeterApp() {
                 id="critChance"
                 placeholder="20"
                 className="max-w-16"
+                aria-invalid={!!formState.errors.critChance?.message}
                 aria-errormessage="critChance-error"
                 {...register('critChance', {
                   required: true,
@@ -138,19 +142,21 @@ export function MeterApp() {
           </div>
 
           <div className={cn('grid w-full max-w-sm items-center gap-1.5', addErrorClassName(formState.errors.critDamage?.message))}>
-            <Label htmlFor="critDamage">Critical hit % damage</Label>
+            <Label htmlFor="critDamage">Critical hit damage</Label>
 
             <Input
               type="text"
               id="critDamage"
               placeholder="150"
+              aria-invalid={!!formState.errors.critDamage?.message}
               aria-errormessage="critDamage-error"
               {...register('critDamage', {
                 required: true,
                 setValueAs: Number,
                 validate: (val) => {
                   if (isNaN(val)) return 'Critical hit damage should be a number';
-                  if (val <= 100) return 'Critical hit damage should be bigger than 100 (percent)';
+                  if (val < 0) return 'Critical hit damage should be a positive number';
+                  if (val > 100) return 'Critical hit damage should not be bigger than 100 (percent)';
 
                   return undefined;
                 }

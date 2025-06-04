@@ -10,3 +10,7 @@ body {
 [aria-invalid='true'] ~ .errormessage {
   @apply block;
 }
+
+.errormessage-outside:has([aria-invalid='true']) ~ .errormessage {
+  @apply block;
+}
