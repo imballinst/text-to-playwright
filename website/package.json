@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "1.1.14",
     "@radix-ui/react-label": "2.1.2",
     "@radix-ui/react-radio-group": "1.2.3",
     "@radix-ui/react-slider": "1.2.3",
@@ -17,6 +18,7 @@
     "@vitejs/plugin-react": "4.3.4",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "handlebars": "4.7.8",
     "lodash": "4.17.21",
     "lucide-react": "0.475.0",
     "react": "19.0.0",

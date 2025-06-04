@@ -19,7 +19,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
-        meter: path.resolve(__dirname, 'meter/index.html')
+        meter: path.resolve(__dirname, 'meter/index.html'),
+        'template-crud': path.resolve(__dirname, 'template-crud/index.html')
       }
     }
   }

@@ -27,8 +27,6 @@ export function MeterApp() {
     trigger();
   }, [values, trigger]);
 
-  console.info(formState.errors);
-
   return (
     <main className="p-4 flex flex-col gap-y-4 items-center justify-center w-full h-full">
       <div className="max-w-96 w-full">
@@ -47,7 +45,6 @@ export function MeterApp() {
                 required: true,
                 setValueAs: Number,
                 validate: (val) => {
-                  console.info(val);
                   if (isNaN(val)) return 'Base damage should be a number';
                   if (val < 0) return 'Base damage should be a positive number';
 

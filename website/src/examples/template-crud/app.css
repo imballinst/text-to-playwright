@@ -1,0 +1,20 @@
+html,
+body {
+  height: 100%;
+}
+
+button {
+  cursor: pointer;
+}
+
+.errormessage {
+  @apply hidden;
+}
+
+[aria-invalid='true'] ~ .errormessage {
+  @apply block;
+}
+
+.errormessage-outside:has([aria-invalid='true']) ~ .errormessage {
+  @apply block;
+}
