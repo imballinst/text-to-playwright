@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import Handlebars from 'handlebars';
 import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +28,7 @@ interface Template {
 export function TemplateCRUDApp() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selected, setSelected] = useState<Template | undefined>(undefined);
-  const [mode, setMode] = useState<'create' | 'update' | undefined>(undefined);
+  const [mode, setMode] = useState<'create' | 'update' | 'test' | undefined>(undefined);
 
   return (
     <main className="p-4 flex flex-col gap-y-4 w-full h-full">
@@ -60,10 +61,21 @@ export function TemplateCRUDApp() {
                 {templates.length > 0 ? (
                   templates.map((template) => (
                     <TableRow key={template.id}>
-                      <TableCell>{template.id}</TableCell>
+                      <TableCell>{template.id.slice(0, 6)}</TableCell>
                       <TableCell>{template.name}</TableCell>
                       <TableCell>
                         <div className="flex gap-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setMode('test');
+                              setSelected(template);
+                            }}
+                          >
+                            Test
+                          </Button>
+
                           <Button
                             size="sm"
                             variant="ghost"
@@ -137,7 +149,7 @@ export function TemplateCRUDApp() {
         </div>
 
         <div className="flex flex-1 flex-col">
-          {mode ? (
+          {mode === 'create' || mode === 'update' ? (
             <section className="flex flex-col gap-y-4">
               <h2 className="text-2xl font-semibold mb-4">{selected ? selected.name : 'Create template'}</h2>
 
@@ -158,8 +170,18 @@ export function TemplateCRUDApp() {
                 }}
               />
             </section>
+          ) : mode === 'test' && selected ? (
+            <section className="flex flex-col gap-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">Test template</h2>
+              </div>
+
+              <TemplateTestForm template={selected} />
+            </section>
           ) : (
-            <div className="flex h-full items-center text-gray-400 italic">Select a template from the left panel, or create a new one.</div>
+            <div className="flex h-full items-center justify-center text-gray-400 italic">
+              Select a template from the left panel, or create a new one.
+            </div>
           )}
         </div>
       </div>
@@ -171,8 +193,8 @@ function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?:
   const { formState, register, handleSubmit } = useForm<Template>({
     defaultValues: {
       id: initialValue?.id ?? crypto.randomUUID().replace(/-/g, ''),
-      name: initialValue?.name ?? '',
-      value: initialValue?.value ?? ''
+      name: initialValue?.name ?? 'Greetings template',
+      value: initialValue?.value ?? 'Hello {{name}}'
     }
   });
 
@@ -189,7 +211,6 @@ function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?:
           aria-invalid={!!formState.errors.name?.message}
           aria-errormessage="name-error"
           {...register('name', {
-            required: true,
             validate: (val) => {
               if (!val) return 'Template name is required';
 
@@ -219,8 +240,72 @@ function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?:
         </p>
       </div>
 
-      <Button>Create template</Button>
+      <Button>{initialValue ? 'Update template' : 'Create template'}</Button>
     </form>
+  );
+}
+
+function TemplateTestForm({ template: templateProp }: { template: Template }) {
+  const { formState, register, handleSubmit } = useForm<{ jsonString: string }>({
+    defaultValues: {
+      jsonString: ''
+    }
+  });
+  const [result, setResult] = useState('');
+
+  const onSubmit = handleSubmit((data) => {
+    const template = Handlebars.compile(templateProp.value);
+    setResult(template(JSON.parse(data.jsonString)));
+  });
+
+  return (
+    <div>
+      <div>
+        <Label htmlFor="value">Template value</Label>
+        <Textarea id="value" disabled value={templateProp.value} className="resize-none" />
+      </div>
+
+      <hr className="my-4" />
+
+      <form className="flex flex-col gap-y-4" onSubmit={onSubmit}>
+        <div className={cn('grid w-full items-center gap-1.5', addErrorClassName(formState.errors.jsonString?.message))}>
+          <Label htmlFor="jsonString">JSON string</Label>
+          <Input
+            type="text"
+            id="jsonString"
+            placeholder={`{ "hello": "world" }`}
+            aria-invalid={!!formState.errors.jsonString?.message}
+            aria-errormessage="jsonString-error"
+            {...register('jsonString', {
+              validate: (val) => {
+                if (!val) return 'JSON string is rqeuired.';
+
+                try {
+                  JSON.parse(val);
+                  return undefined;
+                } catch (err) {
+                  return 'JSON string should be a valid JSON.';
+                }
+              }
+            })}
+          />
+
+          <p className="text-xs errormessage" id="jsonString-error">
+            {formState.errors.jsonString?.message}
+          </p>
+        </div>
+
+        <Button>Test</Button>
+      </form>
+
+      {result && (
+        <>
+          <hr className="my-4" />
+
+          <pre className="text-xs">{result}</pre>
+        </>
+      )}
+    </div>
   );
 }
 
