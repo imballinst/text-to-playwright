@@ -11,13 +11,15 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Toaster } from '@/components/ui/sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import Handlebars from 'handlebars';
 import { ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface Template {
   id: string;
@@ -31,174 +33,186 @@ export function TemplateCRUDApp() {
   const [mode, setMode] = useState<'create' | 'update' | 'test' | undefined>(undefined);
 
   return (
-    <main className="p-4 flex flex-col gap-y-4 w-full h-full">
-      <h1 className="text-3xl font-bold mb-8">Template CRUD App</h1>
+    <>
+      <main className="p-4 flex flex-col gap-y-4 w-full h-full">
+        <h1 className="text-3xl font-bold mb-8">Template CRUD App</h1>
 
-      <div className="flex flex-1 gap-x-8">
-        <section className="flex flex-1 flex-col gap-y-4">
-          <div className="flex justify-between">
-            <h2 className="text-2xl font-semibold">Existing templates</h2>
+        <div className="flex flex-1 gap-x-8">
+          <section className="flex flex-1 flex-col gap-y-4">
+            <div className="flex justify-between">
+              <h2 className="text-2xl font-semibold">Existing templates section</h2>
 
-            <Button
-              onClick={() => {
-                setMode('create');
-              }}
-            >
-              Create template
-            </Button>
-          </div>
+              <Button
+                onClick={() => {
+                  setMode('create');
+                  setSelected(undefined);
+                }}
+              >
+                Create template
+              </Button>
+            </div>
 
-          <div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {templates.length > 0 ? (
-                  templates.map((template) => (
-                    <TableRow key={template.id}>
-                      <TableCell>{template.id.slice(0, 6)}</TableCell>
-                      <TableCell>{template.name}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-x-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setMode('test');
-                              setSelected(template);
-                            }}
-                          >
-                            Test
-                          </Button>
+            <div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {templates.length > 0 ? (
+                    templates.map((template) => (
+                      <TableRow key={template.id}>
+                        <TableCell>{template.id.slice(0, 6)}</TableCell>
+                        <TableCell>{template.name}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-x-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setMode('test');
+                                setSelected(template);
+                              }}
+                            >
+                              Test
+                            </Button>
 
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setMode('update');
-                              setSelected(template);
-                            }}
-                          >
-                            Edit
-                          </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setMode('update');
+                                setSelected(template);
+                              }}
+                            >
+                              Edit
+                            </Button>
 
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="ghost">
-                                Delete
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Delete template</DialogTitle>
-                                <DialogDescription>
-                                  Are you sure you want to delete the template {template.name}? This action cannot be undone.
-                                </DialogDescription>
-                              </DialogHeader>
-
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Cancel</Button>
-                                </DialogClose>
-                                <Button
-                                  variant="destructive"
-                                  onClick={() => {
-                                    if (selected?.id === template.id) {
-                                      setSelected(undefined);
-                                      setMode(undefined);
-                                    }
-
-                                    setTemplates((prev) => {
-                                      const idx = prev.findIndex((item) => item.id === template.id);
-                                      const newTemplates = [...prev];
-                                      newTemplates.splice(idx, 1);
-
-                                      return newTemplates;
-                                    });
-                                  }}
-                                >
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button size="sm" variant="ghost">
                                   Delete
                                 </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>Delete template</DialogTitle>
+                                  <DialogDescription>
+                                    Are you sure you want to delete the template {template.name}? This action cannot be undone.
+                                  </DialogDescription>
+                                </DialogHeader>
+
+                                <DialogFooter>
+                                  <DialogClose asChild>
+                                    <Button variant="outline">Cancel</Button>
+                                  </DialogClose>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                      if (selected?.id === template.id) {
+                                        setSelected(undefined);
+                                        setMode(undefined);
+                                      }
+
+                                      toast(`Succesfully deleted template.`, { position: 'top-right' });
+
+                                      setTemplates((prev) => {
+                                        const idx = prev.findIndex((item) => item.id === template.id);
+                                        const newTemplates = [...prev];
+                                        newTemplates.splice(idx, 1);
+
+                                        return newTemplates;
+                                      });
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-gray-400">
+                        There are no created templates yet.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-gray-400">
-                      There are no created templates yet.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </section>
-
-        <div className="flex h-full items-center">
-          <ChevronRight size={12} />
-          <ChevronRight size={12} className="-ml-2" />
-        </div>
-
-        <div className="flex flex-1 flex-col">
-          {mode === 'create' || mode === 'update' ? (
-            <section className="flex flex-col gap-y-4">
-              <h2 className="text-2xl font-semibold mb-4">{selected ? selected.name : 'Create template'}</h2>
-
-              <TemplateForm
-                initialValue={selected}
-                onSubmit={(data) => {
-                  setSelected(data);
-                  setTemplates((prev) => {
-                    const idx = prev.findIndex((template) => template.id === data.id);
-                    if (idx === -1) {
-                      return prev.concat(data);
-                    }
-
-                    const newTemplates = [...prev];
-                    newTemplates[idx] = data;
-                    return newTemplates;
-                  });
-                }}
-              />
-            </section>
-          ) : mode === 'test' && selected ? (
-            <section className="flex flex-col gap-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Test template</h2>
-              </div>
-
-              <TemplateTestForm template={selected} />
-            </section>
-          ) : (
-            <div className="flex h-full items-center justify-center text-gray-400 italic">
-              Select a template from the left panel, or create a new one.
+                  )}
+                </TableBody>
+              </Table>
             </div>
-          )}
+          </section>
+
+          <div className="flex h-full items-center">
+            <ChevronRight size={12} />
+            <ChevronRight size={12} className="-ml-2" />
+          </div>
+
+          <div className="flex flex-1 flex-col">
+            {mode === 'create' || mode === 'update' ? (
+              <section className="flex flex-col gap-y-4">
+                <h2 className="text-2xl font-semibold mb-4">{selected ? selected.name : 'Create template section'}</h2>
+
+                <TemplateForm
+                  initialValue={selected}
+                  onSubmit={(data) => {
+                    toast(`Successfully ${mode}d template.`, { position: 'top-right' });
+
+                    setMode(undefined);
+                    setSelected(data);
+                    setTemplates((prev) => {
+                      const idx = prev.findIndex((template) => template.id === data.id);
+                      if (idx === -1) {
+                        return prev.concat(data);
+                      }
+
+                      const newTemplates = [...prev];
+                      newTemplates[idx] = data;
+                      return newTemplates;
+                    });
+                  }}
+                />
+              </section>
+            ) : mode === 'test' && selected ? (
+              <section className="flex flex-col gap-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-semibold">Test template</h2>
+                </div>
+
+                <TemplateTestForm template={selected} />
+              </section>
+            ) : (
+              <div className="flex h-full items-center justify-center text-gray-400 italic">
+                Select a template from the left panel, or create a new one.
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <Toaster containerAriaLabel="Notifications" hotkey={[]} />
+    </>
   );
 }
 
 function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?: Template; onSubmit: (values: Template) => void }) {
-  const { formState, register, handleSubmit } = useForm<Template>({
-    defaultValues: {
-      id: initialValue?.id ?? crypto.randomUUID().replace(/-/g, ''),
-      name: initialValue?.name ?? 'Greetings template',
-      value: initialValue?.value ?? 'Hello {{name}}'
-    }
+  const { formState, register, handleSubmit, reset } = useForm<Template>({
+    defaultValues: getFormInitialValues(initialValue)
   });
 
-  const onSubmit = handleSubmit((data) => onSubmitProp(data));
+  useEffect(() => {
+    reset(getFormInitialValues(initialValue));
+  }, [initialValue]);
+
+  const onSubmit = handleSubmit((data) => {
+    onSubmitProp(data);
+  });
 
   return (
     <form className="flex flex-col gap-y-4" onSubmit={onSubmit}>
@@ -311,4 +325,12 @@ function TemplateTestForm({ template: templateProp }: { template: Template }) {
 
 function addErrorClassName(errorMessage: string | undefined) {
   return errorMessage ? '[&>label]:text-red-400 [&_input]:border-red-400 [&>p]:text-red-400' : undefined;
+}
+
+function getFormInitialValues(initialValue: Template | undefined) {
+  return {
+    id: initialValue?.id ?? crypto.randomUUID().replace(/-/g, ''),
+    name: initialValue?.name ?? 'Greetings template',
+    value: initialValue?.value ?? 'Hello {{name}}'
+  };
 }

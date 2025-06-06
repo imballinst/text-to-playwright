@@ -86,7 +86,10 @@ export async function runTests(
           const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
           let expectLocator = isNegativeAssertion ? expect(locator).not : expect(locator);
 
-          await expect(locator).toBeVisible();
+          const hasAriaLive = await locator.getAttribute('aria-live');
+          if (!hasAriaLive) {
+            await expect(locator).toBeVisible();
+          }
 
           switch (assertBehavior) {
             case 'contain': {
