@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 export function MeterApp() {
-  const { control, formState, register, setValue } = useForm({
-    reValidateMode: 'onChange',
+  const { control, formState, register, setValue, trigger } = useForm({
     defaultValues: {
       baseDamage: 100,
       attacksPerSecond: 10,
@@ -25,7 +24,8 @@ export function MeterApp() {
     const xCritMultiplier = (asserted.critChance / 100) * (asserted.critDamage / 100 - 1);
 
     setResult(rawDPS * (1 + xCritMultiplier));
-  }, [values]);
+    trigger();
+  }, [values, trigger]);
 
   return (
     <main className="p-4 flex flex-col gap-y-4 items-center justify-center w-full h-full">
@@ -39,20 +39,23 @@ export function MeterApp() {
               type="text"
               id="baseDamage"
               placeholder="1500"
+              aria-invalid={!!formState.errors.baseDamage?.message}
+              aria-errormessage="baseDamage-error"
               {...register('baseDamage', {
                 required: true,
                 setValueAs: Number,
                 validate: (val) => {
-                  const parsed = Number(val);
-                  if (isNaN(parsed)) return 'Base damage should be a number';
-                  if (parsed < 0) return 'Base damage should be a positive number';
+                  if (isNaN(val)) return 'Base damage should be a number';
+                  if (val < 0) return 'Base damage should be a positive number';
 
                   return undefined;
                 }
               })}
             />
 
-            <p className="text-xs">{formState.errors.baseDamage?.message}</p>
+            <p className="text-xs errormessage" id="baseDamage-error">
+              {formState.errors.baseDamage?.message}
+            </p>
           </div>
 
           <div className={cn('grid w-full max-w-sm items-center gap-1.5', addErrorClassName(formState.errors.attacksPerSecond?.message))}>
@@ -62,26 +65,29 @@ export function MeterApp() {
               type="text"
               id="attacksPerSecond"
               placeholder="10"
+              aria-invalid={!!formState.errors.attacksPerSecond?.message}
+              aria-errormessage="attacksPerSecond-error"
               {...register('attacksPerSecond', {
                 required: true,
                 setValueAs: Number,
                 validate: (val) => {
-                  const parsed = Number(val);
-                  if (isNaN(parsed)) return 'Attacks per second should be a number';
-                  if (parsed < 0) return 'Attacks per second should be a positive number';
+                  if (isNaN(val)) return 'Attacks per second should be a number';
+                  if (val < 0) return 'Attacks per second should be a positive number';
 
                   return undefined;
                 }
               })}
             />
 
-            <p className="text-xs">{formState.errors.attacksPerSecond?.message}</p>
+            <p className="text-xs errormessage" id="attacksPerSecond-error">
+              {formState.errors.attacksPerSecond?.message}
+            </p>
           </div>
 
           <div className={cn('grid w-full max-w-sm items-center gap-1.5', addErrorClassName(formState.errors.critChance?.message))}>
             <Label htmlFor="critChance">Critical hit chance</Label>
 
-            <div className="flex gap-x-2">
+            <div className="flex gap-x-2 errormessage-outside">
               <Slider
                 value={[values.critChance!]}
                 max={100}
@@ -112,13 +118,14 @@ export function MeterApp() {
                 id="critChance"
                 placeholder="20"
                 className="max-w-16"
+                aria-invalid={!!formState.errors.critChance?.message}
+                aria-errormessage="critChance-error"
                 {...register('critChance', {
                   required: true,
                   setValueAs: Number,
                   validate: (val) => {
-                    const parsed = Number(val);
-                    if (isNaN(parsed)) return 'Critical hit chance should be a number';
-                    if (parsed < 0) return 'Critical hit chance should be a positive number';
+                    if (isNaN(val)) return 'Critical hit chance should be a number';
+                    if (val < 0) return 'Critical hit chance should be a positive number';
 
                     return undefined;
                   }
@@ -126,30 +133,36 @@ export function MeterApp() {
               />
             </div>
 
-            <p className="text-xs">{formState.errors.critChance?.message}</p>
+            <p className="text-xs errormessage" id="critChance-error">
+              {formState.errors.critChance?.message}
+            </p>
           </div>
 
           <div className={cn('grid w-full max-w-sm items-center gap-1.5', addErrorClassName(formState.errors.critDamage?.message))}>
-            <Label htmlFor="critDamage">Critical hit % damage</Label>
+            <Label htmlFor="critDamage">Critical hit damage</Label>
 
             <Input
               type="text"
               id="critDamage"
               placeholder="150"
+              aria-invalid={!!formState.errors.critDamage?.message}
+              aria-errormessage="critDamage-error"
               {...register('critDamage', {
                 required: true,
                 setValueAs: Number,
                 validate: (val) => {
-                  const parsed = Number(val);
-                  if (isNaN(parsed)) return 'Critical hit damage should be a number';
-                  if (parsed <= 100) return 'Critical hit damage should be bigger than 100 (percent)';
+                  if (isNaN(val)) return 'Critical hit damage should be a number';
+                  if (val < 0) return 'Critical hit damage should be a positive number';
+                  if (val > 100) return 'Critical hit damage should not be bigger than 100 (percent)';
 
                   return undefined;
                 }
               })}
             />
 
-            <p className="text-xs">{formState.errors.critDamage?.message}</p>
+            <p className="text-xs errormessage" id="critDamage-error">
+              {formState.errors.critDamage?.message}
+            </p>
           </div>
 
           {result !== undefined && (

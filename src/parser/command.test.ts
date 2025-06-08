@@ -32,6 +32,17 @@ describe('One-offs', () => {
       object: 'users-real-section'
     });
   });
+
+  test('with quote to escape colon and hyphens', () => {
+    const result = parse(`'Click "users-real-section" link.'`);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'link',
+      object: 'users-real-section'
+    });
+  });
 });
 
 describe('Click', () => {
@@ -130,6 +141,18 @@ describe('Click', () => {
 });
 
 describe('Fill input', () => {
+  test('Empty input', () => {
+    const result = parse('Fill "Name" input with value "".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'Name',
+      value: ''
+    });
+  });
+
   test('Object with 1 word', () => {
     const result = parse('Fill "Name" input with value "Hello World".');
 
@@ -155,7 +178,7 @@ describe('Fill input', () => {
   });
 
   test('Objects with specifiers', () => {
-    const result = parse('Fill "Display Name" input on the User section with value "Hello World".');
+    let result = parse('Fill "Display Name" input on the User section with value "Hello World".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -163,6 +186,18 @@ describe('Fill input', () => {
       elementType: 'textbox',
       object: 'Display Name',
       specifier: 'User section',
+      value: 'Hello World'
+    });
+
+    result = parse('Fill "Display Name" input on the "User" section with value "Hello World".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'Display Name',
+      specifier: 'User',
+      isSection: true,
       value: 'Hello World'
     });
   });
@@ -178,6 +213,34 @@ describe('Fill input', () => {
       specifier: 'User section',
       value: 'Hello. World'
     });
+  });
+
+  test('Input with JSON string inside it', () => {
+    const result = parse('Fill "JSON string" input with value "{ "name": "John" }".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'JSON string',
+      value: '{ "name": "John" }'
+    });
+  });
+
+  test('Numbers', () => {
+    const expected = ['1', '10', '10000', '100.000', '100_000', '-1'];
+    for (const value of expected) {
+      const result = parse(`Fill "Display Name" input on the User section with value "${value}".`);
+
+      expect(result.length).toBe(1);
+      expect(result[0]).toStrictEqual({
+        action: 'fill',
+        elementType: 'textbox',
+        object: 'Display Name',
+        specifier: 'User section',
+        value
+      });
+    }
   });
 });
 
@@ -257,6 +320,55 @@ describe('Hover element', () => {
 });
 
 describe('Ensure value', () => {
+  test('Existence', () => {
+    let result = parse('Ensure "Create template" button to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" button on the "Create template" section to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      isSection: true,
+      specifier: 'Create template',
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" button on the Create template section to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      specifier: 'Create template section',
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" heading to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'heading',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      assertBehavior: 'exist'
+    });
+  });
+
   test('Object with 1 word', () => {
     let result = parse('Ensure "Name" input to have value "hello".');
 
@@ -415,7 +527,7 @@ describe('Ensure value', () => {
   });
 
   test('Negative assertions', () => {
-    let result = parse('Ensure "Result" element not to match pattern "/$\\d{4}/".');
+    let result = parse('Ensure "Result" element to not match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -427,7 +539,7 @@ describe('Ensure value', () => {
       value: '$\\d{4}'
     });
 
-    result = parse('Ensure "Display Name" input on the User section not to have value "not hello".');
+    result = parse('Ensure "Display Name" input on the User section to not have value "not hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -440,7 +552,7 @@ describe('Ensure value', () => {
       specifier: 'User section'
     });
 
-    result = parse('Ensure "Expected Result" element on the User section not to contain text "not hello".');
+    result = parse('Ensure "Expected Result" element on the User section to not contain text "not hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -480,7 +592,7 @@ describe('Ensure value', () => {
   });
 
   test('Accessible texts', () => {
-    const result = parse(
+    let result = parse(
       'Ensure "User ID" input on the Real Users Section to have accessible description "The user ID does not have any requirements."'
     );
 
@@ -493,6 +605,19 @@ describe('Ensure value', () => {
       assertBehavior: 'exact',
       valueBehavior: 'accessible',
       value: 'The user ID does not have any requirements.'
+    });
+
+    result = parse('Ensure "User ID" input on the Real Users Section to have error message "The user ID should not be empty."');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'textbox',
+      object: 'User ID',
+      specifier: 'Real Users Section',
+      assertBehavior: 'exact',
+      valueBehavior: 'error',
+      value: 'The user ID should not be empty.'
     });
   });
 });

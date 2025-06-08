@@ -3,20 +3,21 @@ import { z } from 'zod';
 import { ARIA_ALIAS_RECORD, AriaRole } from '../types/aria';
 import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
-const Command = z.object({
+const Step = z.object({
   action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store'), z.literal('slide')]),
   object: z.string(),
   elementType: AriaRole,
   specifier: z.string().optional(),
+  isSection: z.boolean().optional(),
   isNegativeAssertion: z.boolean().optional(),
-  assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
+  assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match'), z.literal('exist')]).optional(),
   variableName: z.string().optional(),
-  valueBehavior: z.union([z.literal('accessible'), z.literal('visible')]).optional(),
+  valueBehavior: z.union([z.literal('accessible'), z.literal('visible'), z.literal('error')]).optional(),
   value: z.string().optional()
 });
-interface Command extends z.infer<typeof Command> {}
+interface Step extends z.infer<typeof Step> {}
 
-interface PreparsedCommand extends Omit<Command, 'action' | 'assertBehavior' | 'elementType'> {
+interface PreparsedCommand extends Omit<Step, 'action' | 'assertBehavior' | 'elementType'> {
   action: string;
   elementType: string;
   assertBehavior?: string;
@@ -28,8 +29,14 @@ interface PartOfSpeech {
 }
 
 const REGEX_SENTENCE_SEPARATOR = /[.,\n]/;
+const REGEX_START_END_QUOTE = /^'(.+)'$/;
 
-export function parseSentence(sentence: string) {
+export function parseSentence(rawSentence: string) {
+  let sentence = rawSentence;
+  if (REGEX_START_END_QUOTE.test(sentence)) {
+    sentence = sentence.replace(REGEX_START_END_QUOTE, '$1');
+  }
+
   const clauses: string[] = [];
 
   if (REGEX_SENTENCE_SEPARATOR.test(sentence)) {
@@ -86,12 +93,14 @@ export function parseSentence(sentence: string) {
 
 export function parse(sentence: string) {
   const result = parseSentence(sentence);
-  const output: Command[] = [];
+  const output: Step[] = [];
 
   for (const clause of result) {
     const cur: PartOfSpeech[] = [];
     let prev: PartOfSpeech | undefined;
     let isWithinQuote = false;
+    let isNegativeAssertion = false;
+    let numberOfQuotes = 0;
 
     for (let i = 0; i < clause.terms.length; i++) {
       const term = clause.terms[i];
@@ -102,19 +111,26 @@ export function parse(sentence: string) {
       const shouldJustPush = isWithinQuote;
 
       isWithinQuote = (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
+      numberOfQuotes += getNumberOfQuotes(text);
+
+      const isEndOfSegment = endsWithQuote && numberOfQuotes % 2 === 0;
 
       if (shouldJustPush && prev) {
         // If the text is still within quote, just push it.
         const lastIndex = prev.words.length - 1;
 
-        if (prev.words[lastIndex].endsWith('-') && clause.terms[i - 1].tags.includes('Hyphenated')) {
+        if (
+          prev.words[lastIndex].endsWith('-') &&
+          (clause.terms[i - 1].tags.includes('Hyphenated') || clause.terms[i].tags.includes('NumericValue'))
+        ) {
           // We don't want to split texts by hyphens, especially if it's wrapped inside quote.
+          // Or if it is a negative value.
           prev.words[lastIndex] += text;
         } else {
           prev.words.push(text);
         }
 
-        if (endsWithQuote) {
+        if (isEndOfSegment) {
           prev = undefined;
         }
 
@@ -129,11 +145,11 @@ export function parse(sentence: string) {
         term.chunk = 'Noun';
         prev = undefined;
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
-        term.chunk = 'Negative';
-        prev = undefined;
+        isNegativeAssertion = true;
+        continue;
       }
 
-      if (!['Verb', 'Noun', 'Negative'].includes(term.chunk)) continue;
+      if (!['Verb', 'Noun'].includes(term.chunk)) continue;
 
       if (!prev || prev.type !== term.chunk) {
         prev = {
@@ -145,7 +161,7 @@ export function parse(sentence: string) {
         prev.words.push(text);
       }
 
-      if (endsWithQuote) {
+      if (isEndOfSegment) {
         prev = undefined;
       }
     }
@@ -158,14 +174,15 @@ export function parse(sentence: string) {
     const order = Object.keys(record) as Array<keyof PreparsedCommand>;
     let idx = 0;
 
+    if (isNegativeAssertion) {
+      record.isNegativeAssertion = true;
+    }
+
     for (const rawCommand of cur) {
       switch (rawCommand.words[0]) {
-        case 'not': {
-          record.isNegativeAssertion = true;
-          break;
-        }
         case 'on': {
-          let specifier = removePunctuations(rawCommand.words.slice(2).join(' '));
+          const rawSpecifier = rawCommand.words.slice(2).join(' ');
+          let specifier = removePunctuations(rawSpecifier);
 
           if (specifier[0] === specifier[0].toUpperCase()) {
             // Means a name. Do nothing.
@@ -178,6 +195,12 @@ export function parse(sentence: string) {
 
           record.specifier = specifier;
 
+          // "User" section vs User section mean different things.
+          if (rawSpecifier.includes('"')) {
+            record.specifier = record.specifier.replace(/\s+section$/, '');
+            record.isSection = true;
+          }
+
           break;
         }
         case 'with': {
@@ -189,7 +212,7 @@ export function parse(sentence: string) {
         case 'into':
         case 'to': {
           // There is a special case to slider, because it's moving something from/to.
-          const parsedAction = Command.shape.action.safeParse(record.action);
+          const parsedAction = Step.shape.action.safeParse(record.action);
           if (parsedAction.success && parsedAction.data === 'slide') {
             const valueWords = rawCommand.words.slice(2).join(' ');
             record.value = extractQuotationValue(valueWords);
@@ -198,13 +221,24 @@ export function parse(sentence: string) {
           }
 
           const [assertBehavior, ...rest] = rawCommand.words.slice(1);
+          if (assertBehavior === 'exist') {
+            // Exist or not exist. The "not" will be handled in another switch branch.
+            record.assertBehavior = 'exist';
+
+            continue;
+          }
+
           const valueCriteria = rest.slice(0, 2).join(' ');
           let valueWords = '';
 
           if (valueCriteria === 'accessible description') {
-            // Accessible elements.
+            // Accessible elements: description.
             valueWords = rest.slice(2).join(' ');
             record.valueBehavior = 'accessible';
+          } else if (valueCriteria === 'error message') {
+            // Accessible elements: error message.
+            valueWords = rest.slice(2).join(' ');
+            record.valueBehavior = 'error';
           } else {
             // Normal value.
             valueWords = rest.slice(1).join(' ');
@@ -263,7 +297,7 @@ export function parse(sentence: string) {
       idx++;
     }
 
-    output.push(Command.parse(record));
+    output.push(Step.parse(record));
   }
 
   return output;
@@ -288,4 +322,11 @@ function extractRegexPattern(value: string) {
 
 function extractQuotationValue(value: string) {
   return value.slice(value.indexOf('"') + 1, value.lastIndexOf('"'));
+}
+
+function getNumberOfQuotes(text: string) {
+  const re = /"/g;
+  const matches = Array.from(text.matchAll(re));
+
+  return matches.length;
 }

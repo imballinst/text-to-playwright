@@ -8,3 +8,24 @@ tests:
       - Slide "Crit chance slider native" slider to value "50".
       - Ensure "Result" element to contain text "Your DPS is 1250".
       # TODO: test other stuff.
+      - Fill "Base damage" input with value "-1".
+      - Ensure "Base damage" input to have error message "Base damage should be a positive number".
+      - Fill "Base damage" input with value "xdd".  
+      - Ensure "Base damage" input to have error message "Base damage should be a number".
+      # Validate attack per second.
+      - Fill "Attacks per second" input with value "-1".
+      - Ensure "Attacks per second" input to have error message "Attacks per second should be a positive number".
+      - Fill "Attacks per second" input with value "xdd".  
+      - Ensure "Attacks per second" input to have error message "Attacks per second should be a number".
+      # Validate crit chance.
+      - Fill "Critical hit chance" input with value "-1".
+      - Ensure "Critical hit chance" input to have error message "Critical hit chance should be a positive number".
+      - Fill "Critical hit chance" input with value "xdd".  
+      - Ensure "Critical hit chance" input to have error message "Critical hit chance should be a number".
+      # Validate crit damage.
+      - Fill "Critical hit damage" input with value "-1".
+      - Ensure "Critical hit damage" input to have error message "Critical hit damage should be a positive number".
+      - Fill "Critical hit damage" input with value "101".
+      - Ensure "Critical hit damage" input to have error message "Critical hit damage should not be bigger than 100 (percent)".
+      - Fill "Critical hit damage" input with value "xdd".  
+      - Ensure "Critical hit damage" input to have error message "Critical hit damage should be a number".

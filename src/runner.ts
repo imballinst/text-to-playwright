@@ -44,22 +44,30 @@ export async function runTests(
       const parsedCommands = parse(command);
 
       for (const parsedCommand of parsedCommands) {
-        const { action, elementType, object, specifier, assertBehavior, isNegativeAssertion, variableName, value, valueBehavior } =
-          parsedCommand;
+        const {
+          action,
+          elementType,
+          object,
+          specifier,
+          isSection,
+          assertBehavior,
+          isNegativeAssertion,
+          variableName,
+          value,
+          valueBehavior
+        } = parsedCommand;
+        const getLocatorOpts = { specifier, isSection };
 
         if (action === 'click') {
-          const locator = getLocator(page, elementType, object, stepSelector, { specifier });
-
-          await expect(locator).toBeVisible();
+          const locator = getLocator(page, elementType, object, stepSelector, getLocatorOpts);
 
           await locator.click();
         } else if (action === 'fill') {
-          const locator = getLocator(page, elementType, object, stepSelector, { specifier });
+          const locator = getLocator(page, elementType, object, stepSelector, getLocatorOpts);
 
-          await expect(locator).toBeVisible();
           await locator.fill(value!);
         } else if (action === 'slide') {
-          const locator = getLocator(page, stepSliderSelector === 'shadcn' ? 'generic' : elementType, object, stepSelector, { specifier });
+          const locator = getLocator(page, stepSliderSelector === 'shadcn' ? 'generic' : elementType, object, stepSelector, getLocatorOpts);
           const slider = new SliderLocator(
             page,
             locator,
@@ -82,13 +90,15 @@ export async function runTests(
 
           await slider.move(numberValue);
         } else if (action === 'ensure') {
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, getLocatorOpts);
           const expectedValue = getAssertedValueDependingOnEnv(variables, variableName, value);
           let expectLocator = isNegativeAssertion ? expect(locator).not : expect(locator);
 
-          await expect(locator).toBeVisible();
-
           switch (assertBehavior) {
+            case 'exist': {
+              await expectLocator.toBeVisible();
+              break;
+            }
             case 'contain': {
               await expectLocator.toContainText(expectedValue);
               break;
@@ -96,6 +106,12 @@ export async function runTests(
             case 'exact': {
               if (valueBehavior === 'accessible') {
                 await expectLocator.toHaveAccessibleDescription(expectedValue);
+              } else if (valueBehavior === 'error') {
+                const errorTextId = await locator.getAttribute('aria-errormessage');
+                const tmpLocator = getLocator(page, 'generic', errorTextId!, 'id');
+                expectLocator = isNegativeAssertion ? expect(tmpLocator).not : expect(tmpLocator);
+
+                await expectLocator.toHaveText(expectedValue);
               } else {
                 await expectLocator.toHaveText(expectedValue);
               }
@@ -115,13 +131,12 @@ export async function runTests(
           }
         } else if (action === 'store') {
           LoggerSingleton.setPreText(`    let ${variableName} = `);
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, getLocatorOpts);
 
           variables[variableName!] = elementType === 'textbox' ? await locator.inputValue() : await locator.innerText();
         } else if (action === 'hover') {
-          const locator = getLocator(page, elementType, object, testSelector, { specifier });
+          const locator = getLocator(page, elementType, object, testSelector, getLocatorOpts);
 
-          await expect(locator).toBeVisible();
           await locator.hover();
         }
       }

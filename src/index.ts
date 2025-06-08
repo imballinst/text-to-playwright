@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { chromium, Page } from 'playwright';
 import { parseArgs } from 'util';
-import { InputStructure, parseInputTestFile, Selector } from './parser/input';
+import { InputStructure, parseInputTestFile, Selector, Step } from './parser/input';
 import { runTests } from './runner';
 
 const args = parseArgs({ options: { selector: { type: 'string', default: 'label' } } });
@@ -27,7 +27,7 @@ async function runPlaywrightExample() {
       {
         name: 'root',
         modifier: (parsed) => {
-          const cloned = structuredClone(parsed) as InputStructure;
+          const cloned = structuredClone(parsed);
           cloned.selector = Selector.parse(args.values.selector);
           return cloned;
         }
@@ -35,7 +35,7 @@ async function runPlaywrightExample() {
       {
         name: 'test',
         modifier: (parsed) => {
-          const cloned = structuredClone(parsed) as InputStructure;
+          const cloned = structuredClone(parsed);
           for (const test of cloned.tests) {
             test.selector = Selector.parse(args.values.selector);
           }
@@ -53,19 +53,21 @@ async function runPlaywrightExample() {
 
       for (const test of effectiveTestFile.tests) {
         for (let i = 0; i < test.steps.length; i++) {
-          test.steps[i] = test.steps[i].replace(/"([\w\s]+)" (link|button|input|element)/g, (...matches) => {
-            if (!matches) return '';
+          replaceStepValue(test.steps, i, (command) =>
+            command.replace(/"([\w\s]+)" (link|button|input|element)/g, (...matches) => {
+              if (!matches) return '';
 
-            const [, object, elementType] = matches;
-            let id = object.toLowerCase().replace(/\s+/g, '-');
+              const [, object, elementType] = matches;
+              let id = object.toLowerCase().replace(/\s+/g, '-');
 
-            if (object === 'Submit' && test.steps[i].includes('"Teams"')) {
-              // This is a "hack" so we don't have to re-do writing the tests.
-              id += '-teams';
-            }
+              if (object === 'Submit' && command.includes('"Teams"')) {
+                // This is a "hack" so we don't have to re-do writing the tests.
+                id += '-teams';
+              }
 
-            return `"${id}" ${elementType}`;
-          });
+              return `"${id}" ${elementType}`;
+            })
+          );
         }
       }
 
@@ -80,3 +82,14 @@ async function runPlaywrightExample() {
 }
 
 runPlaywrightExample();
+
+// Helper functions.
+function replaceStepValue(steps: Step[], i: number, cb: (value: string) => string) {
+  const step = steps[i];
+  if (typeof step === 'object') {
+    step.command = cb(step.command);
+    return;
+  }
+
+  steps[i] = cb(step);
+}

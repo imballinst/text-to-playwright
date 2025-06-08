@@ -1,7 +1,7 @@
 import yaml from 'yaml';
 import { z } from 'zod';
 
-export const Selector = z.union([z.literal('label'), z.literal('data-qa-id')]);
+export const Selector = z.union([z.literal('label'), z.literal('data-qa-id'), z.literal('id')]);
 export type Selector = z.infer<typeof Selector>;
 
 export const SliderType = z.union([z.literal('native'), z.literal('shadcn')]);
@@ -13,7 +13,7 @@ export const SharedFields = z.object({
 });
 export interface SharedFields extends z.infer<typeof SharedFields> {}
 
-const Command = z.union([
+const Step = z.union([
   z.string(),
   SharedFields.merge(
     z.object({
@@ -21,11 +21,12 @@ const Command = z.union([
     })
   )
 ]);
+export type Step = z.infer<typeof Step>;
 
 const TestCase = SharedFields.merge(
   z.object({
     name: z.string(),
-    steps: z.array(Command)
+    steps: z.array(Step)
   })
 );
 

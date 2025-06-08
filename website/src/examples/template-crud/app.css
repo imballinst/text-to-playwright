@@ -3,6 +3,10 @@ body {
   height: 100%;
 }
 
+button {
+  cursor: pointer;
+}
+
 .errormessage {
   @apply hidden;
 }
