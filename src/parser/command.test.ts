@@ -32,6 +32,17 @@ describe('One-offs', () => {
       object: 'users-real-section'
     });
   });
+
+  test('with quote to escape colon and hyphens', () => {
+    const result = parse(`'Click "users-real-section" link.'`);
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'link',
+      object: 'users-real-section'
+    });
+  });
 });
 
 describe('Click', () => {

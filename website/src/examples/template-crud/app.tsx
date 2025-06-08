@@ -78,6 +78,7 @@ export function TemplateCRUDApp() {
                               }}
                             >
                               Test
+                              <span className="sr-only">{template.name}</span>
                             </Button>
 
                             <Button
@@ -191,7 +192,13 @@ export function TemplateCRUDApp() {
                   <h2 className="text-2xl font-semibold">Test template</h2>
                 </div>
 
-                <TemplateTestForm template={selected} />
+                <TemplateTestForm
+                  template={selected}
+                  onCancel={() => {
+                    setMode(undefined);
+                    setSelected(undefined);
+                  }}
+                />
               </section>
             ) : (
               <div className="flex h-full items-center justify-center text-gray-400 italic">
@@ -281,7 +288,7 @@ function TemplateForm({
   );
 }
 
-function TemplateTestForm({ template: templateProp }: { template: Template }) {
+function TemplateTestForm({ template: templateProp, onCancel }: { template: Template; onCancel: () => void }) {
   const { formState, register, handleSubmit } = useForm<{ jsonString: string }>({
     defaultValues: {
       jsonString: ''
@@ -331,14 +338,26 @@ function TemplateTestForm({ template: templateProp }: { template: Template }) {
           </p>
         </div>
 
-        <Button>Test</Button>
+        <div className="flex gap-x-2 w-full items-center">
+          <div className="w-[50%]">
+            <Button className="w-full" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+
+          <div className="w-[50%]">
+            <Button className="w-full">Test</Button>
+          </div>
+        </div>
       </form>
 
       {result && (
         <>
           <hr className="my-4" />
 
-          <pre className="text-xs">{result}</pre>
+          <section aria-label="Result">
+            <pre className="text-xs">{result}</pre>
+          </section>
         </>
       )}
     </div>

@@ -8,6 +8,9 @@ tests:
       - Click "Create template" button on the "Existing templates" section.
       - Click "Create template" button on the "Create template" section.
       - Ensure "Notifications" element to contain text "Successfully created template.".
+      # Update, cancel.
+      - Click "Edit Greetings template" button on the "Existing templates" section.
+      - Click "Cancel" button on the "Greetings template" section.
       # Update.
       - Click "Edit Greetings template" button on the "Existing templates" section.
       - Fill "Template name" input with value "".
@@ -16,3 +19,12 @@ tests:
       - Fill "Template name" input with value "Hello world".
       - Click "Update template" button on the "Greetings template" section.
       - Ensure "Notifications" element to contain text "Successfully updated template.".
+      # Test, cancel.
+      - Click "Test Hello world" button on the "Existing templates" section.
+      - Click "Cancel" button on the "Test template" section.
+      # Test.
+      - Click "Test Hello world" button on the "Existing templates" section.
+      - Ensure "Template value" input to have value "Hello {{name}}".
+      - 'Fill "JSON string" input with value "{ "name": "hehe" }".'
+      - Click "Test" button on the "Test template" section.
+      - Ensure "Result" section to have text "Hello hehe".

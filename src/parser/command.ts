@@ -29,8 +29,14 @@ interface PartOfSpeech {
 }
 
 const REGEX_SENTENCE_SEPARATOR = /[.,\n]/;
+const REGEX_START_END_QUOTE = /^'(.+)'$/;
 
-export function parseSentence(sentence: string) {
+export function parseSentence(rawSentence: string) {
+  let sentence = rawSentence;
+  if (REGEX_START_END_QUOTE.test(sentence)) {
+    sentence = sentence.replace(REGEX_START_END_QUOTE, '$1');
+  }
+
   const clauses: string[] = [];
 
   if (REGEX_SENTENCE_SEPARATOR.test(sentence)) {
