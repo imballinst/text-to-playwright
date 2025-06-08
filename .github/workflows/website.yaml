@@ -26,9 +26,12 @@ jobs:
 
       # Install the top-level packages.
       - run: yarn
-      - run: yarn test
 
       # Install the website packages.
+      - name: Test
+        run: yarn --cwd website && yarn test:ci
+
+      # Build the website.
       - name: Build
         working-directory: ./website
         run: yarn && yarn build
