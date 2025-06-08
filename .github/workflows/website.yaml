@@ -26,6 +26,7 @@ jobs:
 
       # Install the top-level packages.
       - run: yarn
+      - run: yarn playwright install-deps && yarn playwright install
 
       # Install the website packages.
       - name: Test
