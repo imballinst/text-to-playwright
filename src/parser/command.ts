@@ -100,6 +100,7 @@ export function parse(sentence: string) {
     let prev: PartOfSpeech | undefined;
     let isWithinQuote = false;
     let isNegativeAssertion = false;
+    let numberOfQuotes = 0;
 
     for (let i = 0; i < clause.terms.length; i++) {
       const term = clause.terms[i];
@@ -110,6 +111,9 @@ export function parse(sentence: string) {
       const shouldJustPush = isWithinQuote;
 
       isWithinQuote = (isWithinQuote || text.startsWith('"')) && !endsWithQuote;
+      numberOfQuotes += getNumberOfQuotes(text);
+
+      const isEndOfSegment = endsWithQuote && numberOfQuotes % 2 === 0;
 
       if (shouldJustPush && prev) {
         // If the text is still within quote, just push it.
@@ -126,7 +130,7 @@ export function parse(sentence: string) {
           prev.words.push(text);
         }
 
-        if (endsWithQuote) {
+        if (isEndOfSegment) {
           prev = undefined;
         }
 
@@ -157,7 +161,7 @@ export function parse(sentence: string) {
         prev.words.push(text);
       }
 
-      if (endsWithQuote) {
+      if (isEndOfSegment) {
         prev = undefined;
       }
     }
@@ -318,4 +322,11 @@ function extractRegexPattern(value: string) {
 
 function extractQuotationValue(value: string) {
   return value.slice(value.indexOf('"') + 1, value.lastIndexOf('"'));
+}
+
+function getNumberOfQuotes(text: string) {
+  const re = /"/g;
+  const matches = Array.from(text.matchAll(re));
+
+  return matches.length;
 }

@@ -215,6 +215,18 @@ describe('Fill input', () => {
     });
   });
 
+  test('Input with JSON string inside it', () => {
+    const result = parse('Fill "JSON string" input with value "{ "name": "John" }".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'JSON string',
+      value: '{ "name": "John" }'
+    });
+  });
+
   test('Numbers', () => {
     const expected = ['1', '10', '10000', '100.000', '100_000', '-1'];
     for (const value of expected) {
