@@ -8,8 +8,9 @@ const Step = z.object({
   object: z.string(),
   elementType: AriaRole,
   specifier: z.string().optional(),
+  isSection: z.boolean().optional(),
   isNegativeAssertion: z.boolean().optional(),
-  assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match')]).optional(),
+  assertBehavior: z.union([z.literal('exact'), z.literal('contain'), z.literal('match'), z.literal('exist')]).optional(),
   variableName: z.string().optional(),
   valueBehavior: z.union([z.literal('accessible'), z.literal('visible'), z.literal('error')]).optional(),
   value: z.string().optional()
@@ -92,6 +93,7 @@ export function parse(sentence: string) {
     const cur: PartOfSpeech[] = [];
     let prev: PartOfSpeech | undefined;
     let isWithinQuote = false;
+    let isNegativeAssertion = false;
 
     for (let i = 0; i < clause.terms.length; i++) {
       const term = clause.terms[i];
@@ -133,11 +135,11 @@ export function parse(sentence: string) {
         term.chunk = 'Noun';
         prev = undefined;
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
-        term.chunk = 'Negative';
-        prev = undefined;
+        isNegativeAssertion = true;
+        continue;
       }
 
-      if (!['Verb', 'Noun', 'Negative'].includes(term.chunk)) continue;
+      if (!['Verb', 'Noun'].includes(term.chunk)) continue;
 
       if (!prev || prev.type !== term.chunk) {
         prev = {
@@ -162,14 +164,15 @@ export function parse(sentence: string) {
     const order = Object.keys(record) as Array<keyof PreparsedCommand>;
     let idx = 0;
 
+    if (isNegativeAssertion) {
+      record.isNegativeAssertion = true;
+    }
+
     for (const rawCommand of cur) {
       switch (rawCommand.words[0]) {
-        case 'not': {
-          record.isNegativeAssertion = true;
-          break;
-        }
         case 'on': {
-          let specifier = removePunctuations(rawCommand.words.slice(2).join(' '));
+          const rawSpecifier = rawCommand.words.slice(2).join(' ');
+          let specifier = removePunctuations(rawSpecifier);
 
           if (specifier[0] === specifier[0].toUpperCase()) {
             // Means a name. Do nothing.
@@ -181,6 +184,12 @@ export function parse(sentence: string) {
           }
 
           record.specifier = specifier;
+
+          // "User" section vs User section mean different things.
+          if (rawSpecifier.includes('"')) {
+            record.specifier = record.specifier.replace(/\s+section$/, '');
+            record.isSection = true;
+          }
 
           break;
         }
@@ -202,6 +211,13 @@ export function parse(sentence: string) {
           }
 
           const [assertBehavior, ...rest] = rawCommand.words.slice(1);
+          if (assertBehavior === 'exist') {
+            // Exist or not exist. The "not" will be handled in another switch branch.
+            record.assertBehavior = 'exist';
+
+            continue;
+          }
+
           const valueCriteria = rest.slice(0, 2).join(' ');
           let valueWords = '';
 

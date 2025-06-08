@@ -2,16 +2,22 @@ import { Locator, Page } from '@playwright/test';
 import { Selector } from '../parser/input';
 import { AriaRole } from '../types/aria';
 
-export function getLocator(page: Page | Locator, elementType: AriaRole, name: string, selector: Selector, opts?: { specifier?: string }) {
+export function getLocator(
+  page: Page | Locator,
+  elementType: AriaRole,
+  name: string,
+  selector: Selector,
+  opts?: { specifier?: string; isSection?: boolean }
+) {
   if (selector === 'data-qa-id' || selector === 'id') {
     return page.locator(`[${selector}=${name}]`);
   }
 
-  const { specifier } = opts ?? {};
+  const { specifier, isSection } = opts ?? {};
   let locator: Locator;
 
   if (specifier) {
-    if (/section/i.test(specifier)) {
+    if (/section/i.test(specifier) || isSection) {
       locator = page.locator('section', {
         has: page.getByRole('heading', { name: specifier })
       });

@@ -1,6 +1,18 @@
 tests:
   - name: Example test case
     steps:
-      - Click "Create template" button on the Existing templates section.
-      - Click "Create template" button on the Create template section.
+      - Click "Create template" button on the "Existing templates" section.
+      - Click "Cancel" button on the "Create template" section.
+      - Ensure "Create template" heading to not exist.
+      # Create.
+      - Click "Create template" button on the "Existing templates" section.
+      - Click "Create template" button on the "Create template" section.
       - Ensure "Notifications" element to contain text "Successfully created template.".
+      # Update.
+      - Click "Edit Greetings template" button on the "Existing templates" section.
+      - Fill "Template name" input with value "".
+      - Click "Update template" button on the "Greetings template" section.
+      - Ensure "Template name" input to have error message "Template name is required".
+      - Fill "Template name" input with value "Hello world".
+      - Click "Update template" button on the "Greetings template" section.
+      - Ensure "Notifications" element to contain text "Successfully updated template.".

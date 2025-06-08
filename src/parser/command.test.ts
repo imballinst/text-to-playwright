@@ -130,6 +130,18 @@ describe('Click', () => {
 });
 
 describe('Fill input', () => {
+  test('Empty input', () => {
+    const result = parse('Fill "Name" input with value "".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'Name',
+      value: ''
+    });
+  });
+
   test('Object with 1 word', () => {
     const result = parse('Fill "Name" input with value "Hello World".');
 
@@ -155,7 +167,7 @@ describe('Fill input', () => {
   });
 
   test('Objects with specifiers', () => {
-    const result = parse('Fill "Display Name" input on the User section with value "Hello World".');
+    let result = parse('Fill "Display Name" input on the User section with value "Hello World".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -163,6 +175,18 @@ describe('Fill input', () => {
       elementType: 'textbox',
       object: 'Display Name',
       specifier: 'User section',
+      value: 'Hello World'
+    });
+
+    result = parse('Fill "Display Name" input on the "User" section with value "Hello World".');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'fill',
+      elementType: 'textbox',
+      object: 'Display Name',
+      specifier: 'User',
+      isSection: true,
       value: 'Hello World'
     });
   });
@@ -273,6 +297,55 @@ describe('Hover element', () => {
 });
 
 describe('Ensure value', () => {
+  test('Existence', () => {
+    let result = parse('Ensure "Create template" button to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" button on the "Create template" section to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      isSection: true,
+      specifier: 'Create template',
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" button on the Create template section to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'button',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      specifier: 'Create template section',
+      assertBehavior: 'exist'
+    });
+
+    result = parse('Ensure "Create template" heading to not exist.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'heading',
+      object: 'Create template',
+      isNegativeAssertion: true,
+      assertBehavior: 'exist'
+    });
+  });
+
   test('Object with 1 word', () => {
     let result = parse('Ensure "Name" input to have value "hello".');
 
@@ -431,7 +504,7 @@ describe('Ensure value', () => {
   });
 
   test('Negative assertions', () => {
-    let result = parse('Ensure "Result" element not to match pattern "/$\\d{4}/".');
+    let result = parse('Ensure "Result" element to not match pattern "/$\\d{4}/".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -443,7 +516,7 @@ describe('Ensure value', () => {
       value: '$\\d{4}'
     });
 
-    result = parse('Ensure "Display Name" input on the User section not to have value "not hello".');
+    result = parse('Ensure "Display Name" input on the User section to not have value "not hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
@@ -456,7 +529,7 @@ describe('Ensure value', () => {
       specifier: 'User section'
     });
 
-    result = parse('Ensure "Expected Result" element on the User section not to contain text "not hello".');
+    result = parse('Ensure "Expected Result" element on the User section to not contain text "not hello".');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({

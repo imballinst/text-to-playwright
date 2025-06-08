@@ -40,7 +40,7 @@ export function TemplateCRUDApp() {
         <div className="flex flex-1 gap-x-8">
           <section className="flex flex-1 flex-col gap-y-4">
             <div className="flex justify-between">
-              <h2 className="text-2xl font-semibold">Existing templates section</h2>
+              <h2 className="text-2xl font-semibold">Existing templates</h2>
 
               <Button
                 onClick={() => {
@@ -89,12 +89,14 @@ export function TemplateCRUDApp() {
                               }}
                             >
                               Edit
+                              <span className="sr-only">{template.name}</span>
                             </Button>
 
                             <Dialog>
                               <DialogTrigger asChild>
                                 <Button size="sm" variant="ghost">
                                   Delete
+                                  <span className="sr-only">{template.name}</span>
                                 </Button>
                               </DialogTrigger>
                               <DialogContent className="sm:max-w-[425px]">
@@ -157,10 +159,14 @@ export function TemplateCRUDApp() {
           <div className="flex flex-1 flex-col">
             {mode === 'create' || mode === 'update' ? (
               <section className="flex flex-col gap-y-4">
-                <h2 className="text-2xl font-semibold mb-4">{selected ? selected.name : 'Create template section'}</h2>
+                <h2 className="text-2xl font-semibold mb-4">{selected ? selected.name : 'Create template'}</h2>
 
                 <TemplateForm
                   initialValue={selected}
+                  onCancel={() => {
+                    setMode(undefined);
+                    setSelected(undefined);
+                  }}
                   onSubmit={(data) => {
                     toast(`Successfully ${mode}d template.`, { position: 'top-right' });
 
@@ -196,12 +202,20 @@ export function TemplateCRUDApp() {
         </div>
       </main>
 
-      <Toaster containerAriaLabel="Notifications" hotkey={[]} />
+      <Toaster containerAriaLabel="Notifications" closeButton />
     </>
   );
 }
 
-function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?: Template; onSubmit: (values: Template) => void }) {
+function TemplateForm({
+  initialValue,
+  onCancel,
+  onSubmit: onSubmitProp
+}: {
+  initialValue?: Template;
+  onCancel: () => void;
+  onSubmit: (values: Template) => void;
+}) {
   const { formState, register, handleSubmit, reset } = useForm<Template>({
     defaultValues: getFormInitialValues(initialValue)
   });
@@ -210,9 +224,7 @@ function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?:
     reset(getFormInitialValues(initialValue));
   }, [initialValue]);
 
-  const onSubmit = handleSubmit((data) => {
-    onSubmitProp(data);
-  });
+  const onSubmit = handleSubmit(onSubmitProp);
 
   return (
     <form className="flex flex-col gap-y-4" onSubmit={onSubmit}>
@@ -254,7 +266,17 @@ function TemplateForm({ initialValue, onSubmit: onSubmitProp }: { initialValue?:
         </p>
       </div>
 
-      <Button>{initialValue ? 'Update template' : 'Create template'}</Button>
+      <div className="flex gap-x-2 w-full items-center">
+        <div className="w-[50%]">
+          <Button className="w-full" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+
+        <div className="w-[50%]">
+          <Button className="w-full">{initialValue ? 'Update template' : 'Create template'}</Button>
+        </div>
+      </div>
     </form>
   );
 }
@@ -292,7 +314,7 @@ function TemplateTestForm({ template: templateProp }: { template: Template }) {
             aria-errormessage="jsonString-error"
             {...register('jsonString', {
               validate: (val) => {
-                if (!val) return 'JSON string is rqeuired.';
+                if (!val) return 'JSON string is rqeuired';
 
                 try {
                   JSON.parse(val);

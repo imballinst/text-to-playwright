@@ -6,7 +6,8 @@
     "dev:meter": "tsx src/index.scenario.ts --scenario meter",
     "dev:template": "tsx src/index.scenario.ts --scenario template-crud",
     "html": "serve assets/test",
-    "test": "vitest"
+    "test": "vitest --exclude ./tests",
+    "pw": "playwright test"
   },
   "dependencies": {
     "compromise": "14.14.2",
