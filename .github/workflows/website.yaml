@@ -28,8 +28,11 @@ jobs:
       - run: yarn
       - run: yarn playwright install-deps && yarn playwright install
 
-      # Install the website packages.
-      - name: Test
+      # Install the website packages, then test.
+      - name: Test assets/test folder
+        run: yarn dev && yarn dev --selector data-qa-id
+
+      - name: Test website folder
         run: yarn --cwd website && yarn test:ci
 
       # Build the website.
