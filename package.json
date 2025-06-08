@@ -7,6 +7,7 @@
     "dev:template": "tsx src/index.scenario.ts --scenario template-crud",
     "html": "serve assets/test",
     "test": "vitest --exclude ./tests",
+    "test:ci": "vitest --config vitest.config.ci.ts",
     "pw": "playwright test"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "@eslint/js": "9.20.0",
     "@playwright/test": "1.49.1",
     "@types/node": "22.10.5",
+    "axios": "1.9.0",
     "eslint": "9.20.0",
     "globals": "15.14.0",
     "prettier": "3.4.2",
