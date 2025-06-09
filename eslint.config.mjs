@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   { files: ['**/*.{js,mjs,cjs,ts}'] },
-  { languageOptions: { globals: globals.browser } },
+  { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -20,6 +20,12 @@ export default [
         'off',
         {
           patterns: ['**/mocks/*']
+        }
+      ],
+      'no-unused-vars': [
+        'error',
+        {
+          caughtErrors: 'none'
         }
       ],
       '@typescript-eslint/no-empty-object-type': 'off'

@@ -12,6 +12,7 @@ install-state.gz
 
 #!.yarn/cache
 .pnp.*
+dist
 
 node_modules
 /test-results/

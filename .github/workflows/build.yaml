@@ -22,6 +22,5 @@ jobs:
         with:
           node-version: 20
           cache: yarn
-      - run: yarn set version 4.5.1
 
       - run: yarn && yarn test
