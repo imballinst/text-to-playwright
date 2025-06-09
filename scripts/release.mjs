@@ -5,7 +5,7 @@ import path from 'path';
 
 const PACKAGE_JSON = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8'));
 
-const { name, version } = JSON.parse(fs.readFileSync(PACKAGE_JSON, 'utf-8'));
+const { name, version } = PACKAGE_JSON;
 let shouldPublish = true;
 
 try {
