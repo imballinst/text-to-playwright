@@ -22,6 +22,12 @@ export default [
           patterns: ['**/mocks/*']
         }
       ],
+      'no-unused-vars': [
+        'error',
+        {
+          caughtErrors: 'none'
+        }
+      ],
       '@typescript-eslint/no-empty-object-type': 'off'
     }
   }
