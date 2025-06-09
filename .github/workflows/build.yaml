@@ -22,7 +22,5 @@ jobs:
         with:
           node-version: 20
           cache: yarn
-      - run: yarn set version 4.5.1
 
       - run: yarn && yarn test
-      - run: yarn playwright install && yarn dev && yarn dev --selector data-qa-id

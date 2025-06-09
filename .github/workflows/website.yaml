@@ -22,13 +22,19 @@ jobs:
         with:
           node-version: 20
           cache: yarn
-      - run: yarn set version 4.5.1
 
       # Install the top-level packages.
       - run: yarn
-      - run: yarn test
+      - run: yarn playwright install-deps && yarn playwright install
 
-      # Install the website packages.
+      # Install the website packages, then test.
+      - name: Test assets/test folder
+        run: 'yarn dev:static && yarn dev:static --selector data-qa-id'
+
+      - name: Test website folder
+        run: yarn --cwd website && yarn test:ci
+
+      # Build the website.
       - name: Build
         working-directory: ./website
         run: yarn && yarn build
