@@ -25,7 +25,7 @@ if (shouldPublish) {
   console.info(`Running: create .npmrc`);
   fs.writeFileSync(path.join(process.cwd(), '.npmrc'), `//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN}`, 'utf-8');
 
-  console.info(`Running: yarn run build`);
+  console.info(`Running: yarn build`);
   execSync(`yarn run build`, { stdio: 'inherit' });
 
   console.info(`Running: yarn changeset publish`);
