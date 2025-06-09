@@ -24,6 +24,7 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+      - run: yarn
 
       - name: Create Release Pull Request
         uses: changesets/action@v1
