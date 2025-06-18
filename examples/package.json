@@ -1,0 +1,12 @@
+{
+  "name": "examples",
+  "packageManager": "yarn@4.5.1",
+  "scripts": {
+    "run:meter": "text-to-playwright tests/meter.yaml https://imballinst.github.io/text-to-playwright/meter/",
+    "run:template-crud": "text-to-playwright tests/template-crud.yaml https://imballinst.github.io/text-to-playwright/template-crud/",
+    "sync:tests": "node sync-tests.mjs"
+  },
+  "dependencies": {
+    "text-to-playwright": "0.0.2"
+  }
+}
