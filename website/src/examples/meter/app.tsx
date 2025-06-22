@@ -153,7 +153,6 @@ export function MeterApp() {
                 validate: (val) => {
                   if (isNaN(val)) return 'Critical hit damage should be a number';
                   if (val < 0) return 'Critical hit damage should be a positive number';
-                  if (val > 100) return 'Critical hit damage should not be bigger than 100 (percent)';
 
                   return undefined;
                 }

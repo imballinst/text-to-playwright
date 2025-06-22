@@ -1,6 +1,8 @@
 tests:
   - name: Example test case
     steps:
+      - waitForURL: '**/template-crud/'
+        pageTitle: Template CRUD | Demo
       # Create, cancel.
       - Click "Create template" button on the "Existing templates" section.
       - Click "Cancel" button on the "Create template" section.
