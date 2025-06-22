@@ -1,7 +1,7 @@
 {
   "name": "text-to-playwright",
   "packageManager": "yarn@4.5.1",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "files": [
     "dist"
   ],
