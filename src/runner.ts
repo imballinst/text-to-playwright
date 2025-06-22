@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import { Config, ConfigVariables } from './config/config';
 import { getLocator } from './locators/common';
 import { SliderLocator } from './locators/slider';
 import { LoggerSingleton } from './logger';
@@ -9,12 +10,19 @@ export async function runTests(
   page: Page,
   parsedTestFile: InputStructure,
   opts?: {
-    onFinishTestCase: (page: Page) => void | Promise<void>;
+    config?: Config;
+    onFinishTestCase?: (page: Page) => void | Promise<void>;
   }
 ) {
   const variables: Record<string, string> = {};
   const globalSelector = parsedTestFile.selector;
   const globalSliderSelector = parsedTestFile.sliderSelector;
+
+  if (opts?.config?.globalVariables) {
+    for (const key in opts.config.globalVariables) {
+      ConfigVariables.set(variables, key, opts.config.globalVariables[key]);
+    }
+  }
 
   for (const testCase of parsedTestFile.tests) {
     const { name, selector, sliderSelector, steps } = testCase;
@@ -96,8 +104,13 @@ export async function runTests(
           await locator.click();
         } else if (action === 'fill') {
           const locator = getLocator(page, elementType, object, stepSelector, getLocatorOpts);
+          let effectiveValue = value!;
 
-          await locator.fill(value!);
+          if (ConfigVariables.isGlobalVariable(effectiveValue)) {
+            effectiveValue = ConfigVariables.get(variables, effectiveValue);
+          }
+
+          await locator.fill(effectiveValue);
         } else if (action === 'slide') {
           const locator = getLocator(page, stepSliderSelector === 'shadcn' ? 'generic' : elementType, object, stepSelector, getLocatorOpts);
           const slider = new SliderLocator(
@@ -174,7 +187,7 @@ export async function runTests(
       }
     }
 
-    await opts?.onFinishTestCase(page);
+    await opts?.onFinishTestCase?.(page);
   }
 }
 
