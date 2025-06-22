@@ -25,7 +25,7 @@ jobs:
 
       # Install the top-level packages.
       - run: yarn
-      - run: yarn playwright install-deps && yarn playwright install
+      - run: yarn playwright install chromium-headless-shell --with-deps
 
       # Install the website packages, then test.
       - name: Test assets/test folder
