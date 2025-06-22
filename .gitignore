@@ -22,3 +22,5 @@ node_modules
 videos/
 
 .DS_Store
+
+src/wips/*.yaml
