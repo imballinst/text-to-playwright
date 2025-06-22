@@ -37,9 +37,9 @@ jobs:
       # Build the website.
       - name: Build
         working-directory: ./website
-        run: yarn && yarn build
+        run: yarn build
         env:
-          BASE_PATH: text-to-playwright
+          BASE_PATH: /text-to-playwright
 
       - name: Prepare publish
         working-directory: ./
