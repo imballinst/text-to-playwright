@@ -1,9 +1,9 @@
 import nlp from 'compromise';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ARIA_ALIAS_RECORD, AriaRole } from '../types/aria';
 import { ASSERT_BEHAVIOR_ALIAS } from '../types/assertions';
 
-const Step = z.object({
+const Command = z.object({
   action: z.union([z.literal('click'), z.literal('hover'), z.literal('fill'), z.literal('ensure'), z.literal('store'), z.literal('slide')]),
   object: z.string(),
   elementType: AriaRole,
@@ -15,9 +15,9 @@ const Step = z.object({
   valueBehavior: z.union([z.literal('accessible'), z.literal('visible'), z.literal('error')]).optional(),
   value: z.string().optional()
 });
-interface Step extends z.infer<typeof Step> {}
+interface Command extends z.infer<typeof Command> {}
 
-interface PreparsedCommand extends Omit<Step, 'action' | 'assertBehavior' | 'elementType'> {
+interface PreparsedCommand extends Omit<Command, 'action' | 'assertBehavior' | 'elementType'> {
   action: string;
   elementType: string;
   assertBehavior?: string;
@@ -93,7 +93,7 @@ export function parseSentence(rawSentence: string) {
 
 export function parse(sentence: string) {
   const result = parseSentence(sentence);
-  const output: Step[] = [];
+  const output: Command[] = [];
 
   for (const clause of result) {
     const cur: PartOfSpeech[] = [];
@@ -212,7 +212,7 @@ export function parse(sentence: string) {
         case 'into':
         case 'to': {
           // There is a special case to slider, because it's moving something from/to.
-          const parsedAction = Step.shape.action.safeParse(record.action);
+          const parsedAction = Command.shape.action.safeParse(record.action);
           if (parsedAction.success && parsedAction.data === 'slide') {
             const valueWords = rawCommand.words.slice(2).join(' ');
             record.value = extractQuotationValue(valueWords);
@@ -297,7 +297,7 @@ export function parse(sentence: string) {
       idx++;
     }
 
-    output.push(Step.parse(record));
+    output.push(Command.parse(record));
   }
 
   return output;

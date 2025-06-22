@@ -1,5 +1,5 @@
 import yaml from 'yaml';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const Selector = z.union([z.literal('label'), z.literal('data-qa-id'), z.literal('id')]);
 export type Selector = z.infer<typeof Selector>;
@@ -13,14 +13,31 @@ export const SharedFields = z.object({
 });
 export interface SharedFields extends z.infer<typeof SharedFields> {}
 
-const Step = z.union([
-  z.string(),
-  SharedFields.merge(
-    z.object({
-      command: z.string()
-    })
-  )
-]);
+const StepCommand = z.object({
+  ...SharedFields.shape,
+  command: z.string()
+});
+const StepWaitForURL = z.object({
+  waitForURL: z.string(),
+  pageTitle: z.string().optional()
+});
+
+const Step = z.transform((input) => {
+  if (typeof input === 'string') return input;
+
+  const result = StepCommand.safeParse(input);
+  if (result.success)
+    return {
+      kind: 'command',
+      ...result.data
+    } as const;
+
+  const waitForURLResult = StepWaitForURL.parse(input);
+  return {
+    kind: 'waitForURL',
+    ...waitForURLResult
+  } as const;
+});
 export type Step = z.infer<typeof Step>;
 
 const TestCase = SharedFields.merge(

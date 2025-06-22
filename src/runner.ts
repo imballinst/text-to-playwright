@@ -27,20 +27,52 @@ export async function runTests(
       const step = steps[i];
       let tmpSelector: SharedFields['selector'];
       let tmpSliderSelector: SharedFields['sliderSelector'];
-      let command: string;
+      let command: string | { url: string; pageTitle: string | undefined };
+      let renderedCommand = '';
 
       if (typeof step === 'object') {
-        command = step.command;
-        tmpSelector = step.selector;
-        tmpSliderSelector = step.sliderSelector;
+        if (step.kind === 'command') {
+          command = step.command;
+          tmpSelector = step.selector;
+          tmpSliderSelector = step.sliderSelector;
+
+          renderedCommand = command;
+        } else {
+          command = {
+            url: step.waitForURL,
+            pageTitle: step.pageTitle
+          };
+
+          renderedCommand = `Wait for URL: ${step.waitForURL}`;
+          if (step.pageTitle) {
+            renderedCommand += ` with page title ${step.pageTitle}`;
+          }
+        }
       } else {
         command = step;
+        renderedCommand = command;
       }
 
       const stepSelector = tmpSelector ?? testSelector;
       const stepSliderSelector = tmpSliderSelector ?? testSliderSelector;
 
-      LoggerSingleton.log(`  Step ${i + 1}: ${command}`);
+      LoggerSingleton.log(`  Step ${i + 1}: ${renderedCommand}`);
+
+      if (typeof command === 'object') {
+        // Wait for URL is a special command.
+        const { pageTitle: pageTitleString, url: urlString } = command;
+
+        const url = convertStringToStringOrRegExp(urlString);
+        await page.waitForURL(url);
+
+        if (pageTitleString) {
+          const pageTitle = convertStringToStringOrRegExp(pageTitleString);
+          expect(await page.title()).toMatch(pageTitle);
+        }
+        continue;
+      }
+
+      // Non-wait URLs are a classic command.
       const parsedCommands = parse(command);
 
       for (const parsedCommand of parsedCommands) {
@@ -153,4 +185,19 @@ function getAssertedValueDependingOnEnv(variables: Record<string, string>, varia
   }
 
   return variableName ? variables[variableName] : value!;
+}
+
+function convertStringToStringOrRegExp(value: string) {
+  const re = /^\/.+\/\w?$/;
+  let result: string | RegExp;
+
+  if (re.test(value)) {
+    const isLastCharFlag = /\w/.test(value.charAt(-1));
+
+    result = new RegExp(isLastCharFlag ? value.slice(1, -2) : value.slice(1, -1));
+  } else {
+    result = value;
+  }
+
+  return result;
 }

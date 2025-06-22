@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import debounce from 'lodash/debounce';
 import { Moon, Sun } from 'lucide-react';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { ZodError, ZodIssue } from 'zod';
+import { ZodError, z } from 'zod/v4';
 import { parseInputTestFile } from '../../src/parser/input';
 import './app.css';
 
@@ -14,7 +14,7 @@ const DEFAULT_TEST_CASE = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
 
 type TextParseOutput =
   | { errors: null }
-  | { errors: ZodIssue[]; type: 'zod' }
+  | { errors: z.core.$ZodIssue[]; type: 'zod' }
   | { errors: [string]; type: 'normal' }
   | { errors: [string]; type: 'unknown' };
 
@@ -95,7 +95,7 @@ function getOutput(testFile: string): TextParseOutput {
     return { errors: null };
   } catch (err) {
     if (err instanceof ZodError) {
-      return { type: 'zod', errors: err.errors };
+      return { type: 'zod', errors: err.issues };
     } else if (err instanceof Error) {
       return { type: 'normal', errors: [err.message] };
     }
