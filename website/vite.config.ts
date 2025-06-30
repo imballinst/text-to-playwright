@@ -20,7 +20,8 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
         meter: path.resolve(__dirname, 'meter/index.html'),
-        'template-crud': path.resolve(__dirname, 'template-crud/index.html')
+        'template-crud': path.resolve(__dirname, 'template-crud/index.html'),
+        'pricing-package': path.resolve(__dirname, 'pricing-package/index.html')
       }
     }
   }
