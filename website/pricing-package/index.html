@@ -97,8 +97,8 @@
             <label class="option-box">
               <span class="option-description" x-data="sandwichInfo">
                 <span class="step-value" x-text="addons.tomato.title"></span>
-                <span class="step-description" x-text="addons.tomato.description"></span> </span
-              >>
+                <span class="step-description" x-text="addons.tomato.description"></span>
+              </span>
 
               <input type="radio" name="addons" value="tomato" />
             </label>
@@ -175,15 +175,10 @@
         <ol class="option-summary grid grid-cols-1 gap-4">
           <template x-for="(value, key) in formData">
             <li>
-              <div
-                class="option-box"
-                :aria-labelledby="`step-${key}-title step-${key}-value`"
-                :aria-describedby="`step-${key}-description`"
-              >
-                <div class="step-title" x-text="value.stepTitle" :id="`step-${key}-title`"></div>
+              <div class="option-box" :aria-labelledby="`step-${key}-title`" :aria-describedby="`step-${key}-description`">
+                <div class="step-title" x-text="`${value.stepTitle}: ${value.title}`" :id="`step-${key}-title`"></div>
 
                 <div class="step-content">
-                  <div class="step-value" x-text="value.title" :id="`step-${key}-value`"></div>
                   <div class="step-description" x-text="value.description" :id="`step-${key}-description`"></div>
                 </div>
               </div>

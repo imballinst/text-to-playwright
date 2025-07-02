@@ -138,6 +138,26 @@ describe('Click', () => {
       specifier: 'nav'
     });
   });
+
+  test('Edge cases with checkbox/radio', () => {
+    let result = parse('Click "Continue on studying" radio.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'radio',
+      object: 'Continue on studying'
+    });
+
+    result = parse('Click "Continue on studying" checkbox.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'checkbox',
+      object: 'Continue on studying'
+    });
+  });
 });
 
 describe('Fill input', () => {
