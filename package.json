@@ -11,6 +11,7 @@
     "dev:static": "tsx src/index.static.ts",
     "dev:meter": "tsx src/index.scenario.ts --scenario meter",
     "dev:template": "tsx src/index.scenario.ts --scenario template-crud",
+    "dev:pricing": "tsx src/index.scenario.ts --scenario pricing-package",
     "html": "serve assets/test",
     "test": "vitest --exclude ./tests",
     "test:ci": "tsx scripts/test-e2e.ts",

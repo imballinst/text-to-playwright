@@ -37,21 +37,16 @@ export async function main() {
     }
   });
 
-  await runUntilExit(() =>
-    spawn('yarn', ['dev:meter'], {
-      cwd: process.cwd(),
-      detached: false,
-      ...COMMON_SPAWN_OPTS
-    })
-  );
-
-  await runUntilExit(() =>
-    spawn('yarn', ['dev:template'], {
-      cwd: process.cwd(),
-      detached: false,
-      ...COMMON_SPAWN_OPTS
-    })
-  );
+  const examples = ['meter', 'template', 'pricing'];
+  for (const example of examples) {
+    await runUntilExit(() =>
+      spawn('yarn', [`dev:${example}`], {
+        cwd: process.cwd(),
+        detached: false,
+        ...COMMON_SPAWN_OPTS
+      })
+    );
+  }
 
   cleanup();
 }

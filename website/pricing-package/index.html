@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pricing Package | Demo</title>
+
+    <link rel="stylesheet" href="/pricing-package/index.css" />
+  </head>
+  <body>
+    <div class="px-6 py-4" x-data="sandwichForm">
+      <section class="option-section" x-show="step === 0">
+        <h2 class="text-3xl font-semibold mb-6">Choose Your Bread</h2>
+
+        <form name="bread" @submit.prevent="submit($event)">
+          <div class="option-selections">
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="bread.plain.title"></span>
+                <span class="step-description" x-text="bread.plain.description"></span>
+              </span>
+
+              <input type="radio" name="bread" value="plain" checked="" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="bread.multigrain.title"></span>
+                <span class="step-description" x-text="bread.multigrain.description"></span>
+              </span>
+
+              <input type="radio" name="bread" value="multigrain" />
+            </label>
+          </div>
+
+          <div class="flex flex-1 justify-end">
+            <button class="option-next" type="submit">Next</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="option-section" x-show="step === 1">
+        <h2 class="text-3xl font-semibold mb-6">Select Your Filling</h2>
+
+        <form name="filling" @submit.prevent="submit($event)">
+          <div class="option-selections">
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="filling.chicken.title"></span>
+                <span class="step-description" x-text="filling.chicken.description"></span>
+              </span>
+
+              <input type="radio" name="filling" value="chicken" checked="" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="filling.beef.title"></span>
+                <span class="step-description" x-text="filling.beef.description"></span>
+              </span>
+
+              <input type="radio" name="filling" value="beef" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="filling.tuna.title"></span>
+                <span class="step-description" x-text="filling.tuna.description"></span>
+              </span>
+
+              <input type="radio" name="filling" value="tuna" />
+            </label>
+          </div>
+
+          <div class="flex flex-1 justify-between">
+            <button class="option-next" type="button" x-on:click="step--">Previous</button>
+            <button class="option-next" type="submit">Next</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="option-section" x-show="step === 2">
+        <h2 class="text-3xl font-semibold mb-6">Pick Your Add-ons</h2>
+
+        <form name="addons" @submit.prevent="submit($event)">
+          <div class="option-selections">
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="addons.pickle.title"></span>
+                <span class="step-description" x-text="addons.pickle.description"></span>
+              </span>
+
+              <input type="radio" name="addons" value="pickle" checked="" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="addons.tomato.title"></span>
+                <span class="step-description" x-text="addons.tomato.description"></span>
+              </span>
+
+              <input type="radio" name="addons" value="tomato" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="addons.cucumber.title"></span>
+                <span class="step-description" x-text="addons.cucumber.description"></span>
+              </span>
+
+              <input type="radio" name="addons" value="cucumber" />
+            </label>
+          </div>
+
+          <div class="flex flex-1 justify-between">
+            <button class="option-next" type="button" x-on:click="step--">Previous</button>
+            <button class="option-next" type="submit">Next</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="option-section" x-show="step === 3">
+        <h2 class="text-3xl font-semibold mb-6">Choose Your Sauce</h2>
+
+        <form name="sauce" @submit.prevent="submit($event)">
+          <div class="option-selections">
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="sauce.mayonnaise.title"></span>
+                <span class="step-description" x-text="sauce.mayonnaise.description"></span>
+              </span>
+
+              <input type="radio" name="sauce" value="mayonnaise" checked="" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="sauce.mustard.title"></span>
+                <span class="step-description" x-text="sauce.mustard.description"></span>
+              </span>
+
+              <input type="radio" name="sauce" value="mustard" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="sauce.tomato.title"></span>
+                <span class="step-description" x-text="sauce.tomato.description"></span>
+              </span>
+
+              <input type="radio" name="sauce" value="tomato" />
+            </label>
+
+            <label class="option-box">
+              <span class="option-description" x-data="sandwichInfo">
+                <span class="step-value" x-text="sauce.chili.title"></span>
+                <span class="step-description" x-text="sauce.chili.description"></span>
+              </span>
+
+              <input type="radio" name="sauce" value="chili" />
+            </label>
+          </div>
+
+          <div class="flex flex-1 justify-between">
+            <button class="option-next" type="button" x-on:click="step--">Previous</button>
+            <button class="option-next" type="submit">Next</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="option-section" x-show="step === 4">
+        <h2 class="text-3xl font-semibold mb-6">Summary</h2>
+
+        <ol class="option-summary grid grid-cols-1 gap-4">
+          <template x-for="(value, key) in formData">
+            <li>
+              <div class="option-box" :aria-labelledby="`step-${key}-title`" :aria-describedby="`step-${key}-description`">
+                <div class="step-title" x-text="`${value.stepTitle}: ${value.title}`" :id="`step-${key}-title`"></div>
+
+                <div class="step-content">
+                  <div class="step-description" x-text="value.description" :id="`step-${key}-description`"></div>
+                </div>
+              </div>
+            </li>
+          </template>
+        </ol>
+      </section>
+    </div>
+
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <script>
+      document.addEventListener('alpine:init', () => {
+        const getDictionary = () => ({
+          bread: {
+            plain: {
+              title: 'Plain',
+              description: 'Soft white bread with a mild flavor.'
+            },
+            multigrain: {
+              title: 'Multigrain',
+              description: 'A heartier option with whole grains for extra texture and nutrients.'
+            }
+          },
+          filling: {
+            chicken: {
+              title: 'Chicken',
+              description: 'Tender grilled chicken breast slices.'
+            },
+            beef: {
+              title: 'Beef',
+              description: 'Savory roasted beef slices.'
+            },
+            tuna: {
+              title: 'Tuna',
+              description: 'Light tuna salad with a hint of herbs.'
+            }
+          },
+          addons: {
+            pickle: {
+              title: 'Pickle',
+              description: 'Adds a tangy crunch.'
+            },
+            tomato: {
+              title: 'Tomato',
+              description: 'Fresh and juicy slices.'
+            },
+            cucumber: {
+              title: 'Cucumber',
+              description: 'Cool and crisp texture.'
+            }
+          },
+          sauce: {
+            mayonnaise: {
+              title: 'Mayonnaise',
+              description: 'Creamy and smooth.'
+            },
+            mustard: {
+              title: 'Mustard',
+              description: 'Sharp and zesty.'
+            },
+            tomato: {
+              title: 'Tomato',
+              description: 'Classic tomato ketchup.'
+            },
+            chili: {
+              title: 'Chili',
+              description: 'Spicy kick for extra heat.'
+            }
+          }
+        });
+        const stepTitleRecord = {
+          bread: 'Bread',
+          filling: 'Filling',
+          addons: 'Add-ons',
+          sauce: 'Sauce'
+        };
+        const dictionary = getDictionary();
+
+        Alpine.data('sandwichForm', () => ({
+          step: 0,
+          formData: {
+            bread: {
+              stepTitle: 'Bread',
+              title: 'Title',
+              description: 'Description'
+            }
+          },
+
+          submit(e) {
+            const formData = new FormData(e.target);
+            const newFormData = { ...this.formData };
+            formData.forEach((v, k) => {
+              newFormData[k] = {
+                stepTitle: stepTitleRecord[k],
+                ...dictionary[k][v]
+              };
+            });
+
+            this.step++;
+            this.formData = newFormData;
+          }
+        }));
+
+        Alpine.data('sandwichInfo', () => getDictionary());
+      });
+    </script>
+  </body>
+</html>

@@ -39,7 +39,7 @@ jobs:
         working-directory: ./website
         run: yarn build
         env:
-          BASE_PATH: /text-to-playwright
+          VITE_BASE_PATH: /text-to-playwright
 
       - name: Prepare publish
         working-directory: ./

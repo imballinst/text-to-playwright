@@ -1,0 +1,17 @@
+tests:
+  - name: Example test case
+    steps:
+      - waitForURL: '**/pricing-package/'
+        pageTitle: Pricing Package | Demo
+      - Click "Multigrain" radio.
+      - Click "Next" button.
+      - Click "Tuna" radio.
+      - Click "Next" button.
+      - Click "Cucumber" radio.
+      - Click "Next" button.
+      - Click "Chili" radio.
+      - Click "Next" button.
+      - 'Ensure "Bread: Multigrain" element to have accessible description "A heartier option with whole grains for extra texture and nutrients.".'
+      - 'Ensure "Filling: Tuna" element to have accessible description "Light tuna salad with a hint of herbs.".'
+      - 'Ensure "Add-ons: Cucumber" element to have accessible description "Cool and crisp texture.".'
+      - 'Ensure "Sauce: Chili" element to have accessible description "Spicy kick for extra heat.".'

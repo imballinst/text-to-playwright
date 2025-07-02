@@ -5,6 +5,8 @@ import { parseArgs } from 'util';
 import { parseInputTestFile } from './parser/input';
 import { runTests } from './runner';
 
+const SCENARIOS_WITHOUT_NESTED_FOLDER = ['pricing-package'];
+
 async function runPlaywrightExample() {
   const parsedArgs = parseArgs({
     options: {
@@ -18,7 +20,7 @@ async function runPlaywrightExample() {
   } = parsedArgs;
   if (!scenario) throw new Error('The --scenario option must be provided.');
 
-  const testFileContent = await readFile(path.join(process.cwd(), `website/src/examples/${scenario}/test.yaml`), 'utf-8');
+  const testFileContent = await readFile(getPathToFolder(scenario), 'utf-8');
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ recordVideo: process.env.RECORD ? { dir: 'videos' } : undefined });
@@ -40,3 +42,12 @@ async function runPlaywrightExample() {
 }
 
 runPlaywrightExample();
+
+// Helper functions.
+function getPathToFolder(scenario: string) {
+  if (SCENARIOS_WITHOUT_NESTED_FOLDER.includes(scenario)) {
+    return path.join(process.cwd(), `website/${scenario}/test.yaml`);
+  }
+
+  return path.join(process.cwd(), `website/src/examples/${scenario}/test.yaml`);
+}
