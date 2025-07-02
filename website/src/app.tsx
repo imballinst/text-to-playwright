@@ -2,6 +2,14 @@ import { GitHubIcon } from '@/components/icons';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from '@/components/ui/navigation-menu';
 import { Textarea } from '@/components/ui/textarea';
 import debounce from 'lodash/debounce';
 import { Moon, Sun } from 'lucide-react';
@@ -10,7 +18,10 @@ import { ZodError, z } from 'zod/v4';
 import { parseInputTestFile } from '../../src/parser/input';
 import './app.css';
 
-const DEFAULT_TEST_CASE = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
+const DEFAULT_TEST_CASE: string = (import.meta.env.VITE_YAML_CONTENT ?? '').trim();
+const LIST_OF_APPS: string[][] = ((import.meta.env.VITE_APP_INPUTS ?? '').split(';') as string[]).map((item) => item.split(','));
+
+console.info(import.meta.env.VITE_APP_INPUTS);
 
 type TextParseOutput =
   | { errors: null }
@@ -36,7 +47,26 @@ export function App() {
   return (
     <>
       <nav className="px-6 py-2 border-b border-b-border flex justify-between items-center sticky top-0 bg-background/90">
-        <div>text-to-playwright</div>
+        <div className="flex gap-x-2">
+          <div className="flex items-center">text-to-playwright</div>
+
+          <div className="ml-6">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Examples</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    {LIST_OF_APPS.map(([key, value]) => (
+                      <NavigationMenuLink key={key} className="min-w-[125px]" href={`${import.meta.env.VITE_BASE_PATH}/${key}/`}>
+                        {value}
+                      </NavigationMenuLink>
+                    ))}
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+        </div>
 
         <div className="flex items-center gap-x-2">
           <a href="https://github.com/imballinst/text-to-playwright" target="_blank" rel="noreferrer" aria-label="GitHub repository">
