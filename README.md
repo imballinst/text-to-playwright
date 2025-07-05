@@ -1,22 +1,24 @@
 # text-to-playwright
 
-[![build](https://github.com/imballinst/text-to-playwright/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/imballinst/text-to-playwright/actions/workflows/build.yaml)
-
-![NPM Version](https://img.shields.io/npm/v/text-to-playwright)
+<p align="center">
+  <a href="https://www.npmjs.com/package/text-to-playwright"><img src="https://img.shields.io/npm/v/text-to-playwright" alt="npm version"/></a>
+  <a href="https://github.com/imballinst/text-to-playwright/actions/workflows/build.yaml"><img src="https://github.com/imballinst/text-to-playwright/actions/workflows/build.yaml/badge.svg?branch=main" alt="build status"/></a>
+</p>
 
 `text-to-playwright` is a library that helps you write tests that is _kinda_ written with human language and converts it to Playwright cases. Behind the scenes, instead of using `@playwright/test`, this library is using the `chromium` to open the web page and use [Locator object](https://playwright.dev/docs/api/class-locator) for the assertions.
 
 ## Requirements
 
 - Node.js 20+
+- `@playwright/test` installed as peer dependency
 
 ## Installation
 
 ```sh
-npm i --save-dev text-to-playwright
+npm i --save-dev text-to-playwright @playwright/test
 
 # Or yarn:
-# yarn add -D text-to-playwright
+# yarn add -D text-to-playwright @playwright/test
 ```
 
 ## Getting started
