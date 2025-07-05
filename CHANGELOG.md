@@ -1,5 +1,11 @@
 # text-to-playwright
 
+## 0.1.1
+
+### Patch Changes
+
+- 50c8047: chore: update README.md
+
 ## 0.1.0
 
 ### Minor Changes
