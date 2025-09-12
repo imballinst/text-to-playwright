@@ -3,7 +3,7 @@ tests:
     steps:
       - waitForURL: '**/table/'
         pageTitle: Table Example
-      - Ensure "Table: Filter, Sort, Pagination" heading to exist.
+      - 'Ensure "Table: Filter, Sort, Pagination" heading to exist.'
       - Fill "Filter by name or city..." input with value "Alice".
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to not exist.
