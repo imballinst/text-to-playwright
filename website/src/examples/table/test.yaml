@@ -1,0 +1,20 @@
+tests:
+  - name: Table filter, sort, and pagination
+    steps:
+      - waitForURL: '**/table/'
+        pageTitle: Table Example
+      - Ensure "Table: Filter, Sort, Pagination" heading to exist.
+      - Fill "Filter by name or city..." input with value "Alice".
+      - Ensure "Alice" cell to exist.
+      - Ensure "Bob" cell to not exist.
+      - Fill "Filter by name or city..." input with value "".
+      - Click "Name" header.
+      - Ensure "Alice" cell to exist.
+      - Ensure "Bob" cell to exist.
+      - Click "Name" header.
+      - Ensure "Bob" cell to exist.
+      - Ensure "Alice" cell to exist.
+      - Click "Next" button.
+      - Ensure "Frank" cell to exist.
+      - Click "Prev" button.
+      - Ensure "Alice" cell to exist.
