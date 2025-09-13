@@ -30,11 +30,19 @@ interface PartOfSpeech {
 
 const REGEX_SENTENCE_SEPARATOR = /[.,\n]/;
 const REGEX_START_END_QUOTE = /^'(.+)'$/;
+const PHRASE_MAPPING = {
+  'table header': 'columnheader'
+};
 
 export function parseSentence(rawSentence: string) {
   let sentence = rawSentence;
   if (REGEX_START_END_QUOTE.test(sentence)) {
     sentence = sentence.replace(REGEX_START_END_QUOTE, '$1');
+  }
+
+  for (const [key, value] of Object.entries(PHRASE_MAPPING)) {
+    const re = new RegExp(key, 'gi');
+    sentence = sentence.replace(re, value);
   }
 
   const clauses: string[] = [];

@@ -12,9 +12,10 @@ tests:
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to exist.
       - Click "Name" table header.
-      - Ensure "Bob" cell to exist.
-      - Ensure "Alice" cell to exist.
+      - Ensure "Bob" cell not to exist.
+      - Ensure "Alice" cell not to exist.
       - Click "Next" button.
-      - Ensure "Frank" cell to exist.
-      - Click "Prev" button.
+      - Ensure "Frank" cell not to exist.
       - Ensure "Alice" cell to exist.
+      - Click "Prev" button.
+      - Ensure "Alice" cell not to exist.

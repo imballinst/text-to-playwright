@@ -103,6 +103,7 @@ function TableExample() {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
+                  scope="col"
                   onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                   style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
                 >

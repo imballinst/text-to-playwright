@@ -58,13 +58,13 @@ describe('One-offs', () => {
 });
 
 describe('Element type parsing', () => {
-  test.only('table header --> rowheader', () => {
-    const result = parse('Click "Name" table header');
+  test('table header --> rowheader', () => {
+    const result = parse('Click "Name" table header.');
 
     expect(result.length).toBe(1);
     expect(result[0]).toStrictEqual({
       action: 'click',
-      elementType: 'rowheader',
+      elementType: 'columnheader',
       object: 'Name'
     });
   });
