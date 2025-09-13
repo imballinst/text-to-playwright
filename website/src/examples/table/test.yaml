@@ -8,10 +8,10 @@ tests:
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to not exist.
       - Fill "Filter by name or city..." input with value "".
-      - Click "Name" header.
+      - Click "Name" table header.
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to exist.
-      - Click "Name" header.
+      - Click "Name" table header.
       - Ensure "Bob" cell to exist.
       - Ensure "Alice" cell to exist.
       - Click "Next" button.
