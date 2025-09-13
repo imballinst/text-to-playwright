@@ -141,7 +141,7 @@ export function parse(sentence: string) {
         term.chunk = 'Noun';
       }
 
-      if (term.chunk === 'Pivot' && ['with', 'on', 'to', 'into'].includes(text)) {
+      if ((term.chunk === 'Pivot' || term.tags.includes('Conjunction')) && ['with', 'on', 'to', 'into'].includes(text)) {
         term.chunk = 'Noun';
         prev = undefined;
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {

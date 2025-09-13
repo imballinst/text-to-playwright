@@ -340,6 +340,18 @@ describe('Hover element', () => {
 });
 
 describe('Ensure value', () => {
+  test('with comma and colon inside quote', () => {
+    const result = parse('\'Ensure "Table: Filter, Sort, Pagination" heading to exist.\'');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'heading',
+      object: 'Table: Filter, Sort, Pagination',
+      assertBehavior: 'exist'
+    });
+  });
+
   test('Existence', () => {
     let result = parse('Ensure "Create template" button to not exist.');
 
