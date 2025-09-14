@@ -14,6 +14,7 @@ export function MeterApp() {
       critChance: 20,
       critDamage: 150
     },
+    mode: 'onChange'
   });
   const [result, setResult] = useState<number | undefined>();
 
