@@ -1,21 +1,42 @@
 tests:
-  - name: Table filter, sort, and pagination
+  - name: Table filter, sort, and pagination (both tables)
     steps:
       - waitForURL: '**/table/'
         pageTitle: Table | Demo
       - 'Ensure "Table: Filter, Sort, Pagination" heading to exist.'
-      - Fill "Filter by name or city" input with value "Alice".
-      - Ensure "Alice" cell to exist.
-      - Ensure "Bob" cell to not exist.
-      - Fill "Filter by name or city" input with value "".
-      - Click "Name" table header.
-      - Ensure "Alice" cell to exist.
-      - Ensure "Bob" cell to exist.
-      - Click "Name" table header.
-      - Ensure "Bob" cell not to exist.
-      - Ensure "Alice" cell not to exist.
-      - Click "Next" button.
-      - Ensure "Frank" cell not to exist.
-      - Ensure "Alice" cell to exist.
-      - Click "Prev" button.
-      - Ensure "Alice" cell not to exist.
+      - 'Ensure "Table A" heading on the "Table A" section to exist.'
+      - 'Ensure "Table B" heading on the "Table B" section to exist.'
+
+      # Interactions for Table A
+      - 'Fill "Filter by name or city" input on the "Table A" section with value "Alice".'
+      - 'Ensure "Alice" cell on the "Table A" section to exist.'
+      - 'Ensure "Bob" cell on the "Table A" section to not exist.'
+      - 'Fill "Filter by name or city" input on the "Table A" section with value "".'
+      - 'Click "Name" table header on the "Table A" section.'
+      - 'Ensure "Alice" cell on the "Table A" section to exist.'
+      - 'Ensure "Bob" cell on the "Table A" section to exist.'
+      - 'Click "Name" table header on the "Table A" section.'
+      - 'Ensure "Bob" cell on the "Table A" section not to exist.'
+      - 'Ensure "Alice" cell on the "Table A" section not to exist.'
+      - 'Click "Next" button on the "Table A" section.'
+      - 'Ensure "Frank" cell on the "Table A" section not to exist.'
+      - 'Ensure "Alice" cell on the "Table A" section to exist.'
+      - 'Click "Prev" button on the "Table A" section.'
+      - 'Ensure "Alice" cell on the "Table A" section not to exist.'
+
+      # Interactions for Table B
+      - 'Fill "Filter by name or city" input on the "Table B" section with value "Alice".'
+      - 'Ensure "Alice" cell on the "Table B" section to exist.'
+      - 'Ensure "Bob" cell on the "Table B" section to not exist.'
+      - 'Fill "Filter by name or city" input on the "Table B" section with value "".'
+      - 'Click "Name" table header on the "Table B" section.'
+      - 'Ensure "Alice" cell on the "Table B" section to exist.'
+      - 'Ensure "Bob" cell on the "Table B" section to exist.'
+      - 'Click "Name" table header on the "Table B" section.'
+      - 'Ensure "Bob" cell on the "Table B" section not to exist.'
+      - 'Ensure "Alice" cell on the "Table B" section not to exist.'
+      - 'Click "Next" button on the "Table B" section.'
+      - 'Ensure "Frank" cell on the "Table B" section not to exist.'
+      - 'Ensure "Alice" cell on the "Table B" section to exist.'
+      - 'Click "Prev" button on the "Table B" section.'
+      - 'Ensure "Alice" cell on the "Table B" section not to exist.'
