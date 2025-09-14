@@ -149,7 +149,10 @@ export function parse(sentence: string) {
         term.chunk = 'Noun';
       }
 
-      if ((term.chunk === 'Pivot' || term.tags.includes('Conjunction')) && ['with', 'on', 'to', 'into'].includes(text)) {
+      if (
+        (term.chunk === 'Pivot' || term.tags.includes('Conjunction') || clause.terms[i + 1]?.normal === 'the') &&
+        ['with', 'on', 'to', 'into'].includes(text)
+      ) {
         term.chunk = 'Noun';
         prev = undefined;
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
@@ -305,7 +308,7 @@ export function parse(sentence: string) {
       idx++;
     }
 
-    output.push(Command.parse(record));
+    output.push(Command.parse(record, { reportInput: true }));
   }
 
   return output;
