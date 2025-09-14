@@ -20,6 +20,22 @@ tests:
     expect(parsed.tests[0].steps[1]).toBe(`Ensure "Output" element to contain text "hello"`);
   });
 
+  test('with comma and colon inside quote', () => {
+    const fileContent = `
+tests:
+  - name: Example test case
+    steps:
+      - 'Ensure "Table: Filter, Sort, Pagination" heading to exist.'
+    `.trim();
+
+    const parsed = parseInputTestFile(fileContent);
+
+    expect(parsed.tests.length).toBe(1);
+    expect(parsed.tests[0].name).toBe('Example test case');
+    expect(parsed.tests[0].steps.length).toBe(1);
+    expect(parsed.tests[0].steps[0]).toBe(`Ensure "Table: Filter, Sort, Pagination" heading to exist.`);
+  });
+
   test('with comments', () => {
     const fileContent = `
 tests:

@@ -1,3 +1,4 @@
+import { AppNavbar } from '@/components/app-navbar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -33,7 +34,8 @@ export function TemplateCRUDApp() {
   const [mode, setMode] = useState<'create' | 'update' | 'test' | undefined>(undefined);
 
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground font-sans">
+      <AppNavbar />
       <main className="p-4 flex flex-col gap-y-4 w-full h-full">
         <h1 className="text-3xl font-bold mb-8">Template CRUD App</h1>
 
@@ -210,7 +212,7 @@ export function TemplateCRUDApp() {
       </main>
 
       <Toaster containerAriaLabel="Notifications" closeButton />
-    </>
+    </div>
   );
 }
 

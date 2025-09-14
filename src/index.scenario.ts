@@ -33,12 +33,13 @@ async function runPlaywrightExample() {
 
   try {
     await runTests(page, parsedTestFile);
+    console.info(`✅ All tests completed!`);
   } catch (err) {
+    console.info(`❌ Some tests failed!`);
     console.error(err);
   }
 
   await browser.close();
-  console.info(`✅ All tests completed!`);
 }
 
 runPlaywrightExample();

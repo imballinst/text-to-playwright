@@ -61,7 +61,7 @@ async function safeFindExistingFile(fileNames: string[], dir: string) {
 
       await stat(path.join(dir, fileName));
       return fullPath;
-    } catch (err) {
+    } catch {
       // No-op.
     }
   }

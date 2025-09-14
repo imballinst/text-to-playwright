@@ -1,0 +1,7 @@
+/* Ensure the document fills the viewport so layout utilities (like min-h-screen) work reliably */
+html,
+body,
+#root {
+  height: 100vh;
+  margin: 0;
+}

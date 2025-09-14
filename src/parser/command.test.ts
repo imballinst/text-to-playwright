@@ -43,6 +43,31 @@ describe('One-offs', () => {
       object: 'users-real-section'
     });
   });
+
+  test('with comma and colon inside quote', () => {
+    const result = parse('\'Ensure "Table: Filter, Sort, Pagination" heading to exist.\'');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'ensure',
+      elementType: 'heading',
+      object: 'Table: Filter, Sort, Pagination',
+      assertBehavior: 'exist'
+    });
+  });
+});
+
+describe('Element type parsing', () => {
+  test('table header --> rowheader', () => {
+    const result = parse('Click "Name" table header.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'columnheader',
+      object: 'Name'
+    });
+  });
 });
 
 describe('Click', () => {

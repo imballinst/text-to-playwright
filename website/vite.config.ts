@@ -14,12 +14,14 @@ process.env.VITE_YAML_CONTENT = readFileSync(resolve('../assets/test/test.yaml')
 const VITE_APP_INPUTS = {
   meter: path.resolve(__dirname, 'meter/index.html'),
   'template-crud': path.resolve(__dirname, 'template-crud/index.html'),
-  'pricing-package': path.resolve(__dirname, 'pricing-package/index.html')
+  'pricing-package': path.resolve(__dirname, 'pricing-package/index.html'),
+  table: path.resolve(__dirname, 'table/index.html')
 };
 const VITE_APP_INPUTS_TO_TITLE: Record<keyof typeof VITE_APP_INPUTS, string> = {
   meter: 'DPS Meter',
   'template-crud': 'Template CRUD',
-  'pricing-package': 'Pricing Package'
+  'pricing-package': 'Pricing Package',
+  table: 'Table Example'
 };
 
 process.env.VITE_APP_INPUTS = Object.entries(VITE_APP_INPUTS_TO_TITLE).join(';');

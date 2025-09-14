@@ -30,11 +30,19 @@ interface PartOfSpeech {
 
 const REGEX_SENTENCE_SEPARATOR = /[.,\n]/;
 const REGEX_START_END_QUOTE = /^'(.+)'$/;
+const PHRASE_MAPPING = {
+  'table header': 'columnheader'
+};
 
 export function parseSentence(rawSentence: string) {
   let sentence = rawSentence;
   if (REGEX_START_END_QUOTE.test(sentence)) {
     sentence = sentence.replace(REGEX_START_END_QUOTE, '$1');
+  }
+
+  for (const [key, value] of Object.entries(PHRASE_MAPPING)) {
+    const re = new RegExp(key, 'gi');
+    sentence = sentence.replace(re, value);
   }
 
   const clauses: string[] = [];
@@ -141,7 +149,10 @@ export function parse(sentence: string) {
         term.chunk = 'Noun';
       }
 
-      if (term.chunk === 'Pivot' && ['with', 'on', 'to', 'into'].includes(text)) {
+      if (
+        (term.chunk === 'Pivot' || term.tags.includes('Conjunction') || clause.terms[i + 1]?.normal === 'the') &&
+        ['with', 'on', 'to', 'into'].includes(text)
+      ) {
         term.chunk = 'Noun';
         prev = undefined;
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
@@ -297,7 +308,7 @@ export function parse(sentence: string) {
       idx++;
     }
 
-    output.push(Command.parse(record));
+    output.push(Command.parse(record, { reportInput: true }));
   }
 
   return output;
