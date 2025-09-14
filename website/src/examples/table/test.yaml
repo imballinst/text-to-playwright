@@ -4,10 +4,10 @@ tests:
       - waitForURL: '**/table/'
         pageTitle: Table Example
       - 'Ensure "Table: Filter, Sort, Pagination" heading to exist.'
-      - Fill "Filter by name or city..." input with value "Alice".
+      - Fill "Filter by name or city" input with value "Alice".
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to not exist.
-      - Fill "Filter by name or city..." input with value "".
+      - Fill "Filter by name or city" input with value "".
       - Click "Name" table header.
       - Ensure "Alice" cell to exist.
       - Ensure "Bob" cell to exist.

@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { AppNavbar } from '@/components/ui/app-navbar';
+import { AppNavbar } from '@/components/app-navbar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   ColumnDef,
@@ -11,7 +11,6 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table';
-import { Moon, Sun } from 'lucide-react';
 import { useState } from 'react';
 import './app.css';
 
@@ -30,14 +29,8 @@ const initialData = [
 
 const PAGE_SIZE = 5;
 
-const LIST_OF_APPS = [
-  ['meter', 'Meter'],
-  ['template-crud', 'Template CRUD'],
-  ['table', 'Table'],
-];
-const BASE_PATH = '/';
 
-function TableExample() {
+export function TableApp() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [pageIndex, setPageIndex] = useState(0);
 
@@ -65,8 +58,17 @@ function TableExample() {
   ];
 
   const table = useReactTable({
-    data: initialData,
+    data: initialData.filter(
+      (row) =>
+        row.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
+        row.city.toLowerCase().includes(globalFilter.toLowerCase())
+    ),
     columns,
+    state: {
+      globalFilter,
+      pagination: { pageIndex, pageSize: PAGE_SIZE }
+    },
+    onPaginationChange: (updater) => {
       let nextPageIndex = 0;
       if (typeof updater === 'function') {
         const next = updater({ pageIndex, pageSize: PAGE_SIZE });
@@ -77,76 +79,71 @@ function TableExample() {
       setPageIndex(nextPageIndex);
     },
     getCoreRowModel: getCoreRowModel(),
-    return (
-      <div className="min-h-screen bg-background text-foreground font-sans">
-        <AppNavbar appList={LIST_OF_APPS} basePath={BASE_PATH} />
-        <main className="p-4 flex flex-col gap-y-4 w-full h-full font-sans">
-          <h1 className="text-3xl font-bold mb-8 text-center">Table: Filter, Sort, Pagination</h1>
-          <div className="max-w-4xl w-full mx-auto">
-            <Input
-              type="text"
-              placeholder="Filter by name or city..."
-              value={globalFilter}
-              onChange={(e) => {
-                setGlobalFilter(e.target.value);
-                setPageIndex(0);
-              }}
-              className="filter-input font-sans"
-              aria-label="Filter by name or city"
-            />
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        scope="col"
-                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                        style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
-                        className="font-sans"
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ''}
-                      </TableHead>
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: false,
+    pageCount: Math.ceil(initialData.length / PAGE_SIZE),
+  });
+
+  return (
+    <div className="min-h-screen bg-background text-foreground font-sans">
+      <AppNavbar />
+      <main className="p-4 flex flex-col gap-y-4 w-full h-full font-sans">
+        <h1 className="text-3xl font-bold mb-8 text-center">Table: Filter, Sort, Pagination</h1>
+        <div className="max-w-4xl w-full mx-auto">
+          <Input
+            type="text"
+            placeholder="Filter by name or city..."
+            value={globalFilter}
+            onChange={(e) => {
+              setGlobalFilter(e.target.value);
+              setPageIndex(0);
+            }}
+            className="filter-input font-sans"
+            aria-label="Filter by name or city"
+          />
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      scope="col"
+                      onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                      style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
+                      className="font-sans"
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ''}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="font-sans">
+                    No data found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="font-sans">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="font-sans">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.length === 0 ? (
-      <AppNavbar />
-                    <TableCell colSpan={columns.length} className="font-sans">
-                      No data found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} className="font-sans">
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="font-sans">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            <div className="pagination font-sans">
-              <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} variant="outline">
-                Prev
-              </Button>
-              <span>
-                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-              </span>
-              <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} variant="outline">
-                Next
-              </Button>
-            </div>
-          </div>
-        </main>
-      </div>
+                ))
+              )}
+            </TableBody>
+          </Table>
+          <div className="pagination font-sans">
+            <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} variant="outline">
               Prev
             </Button>
             <span>
@@ -161,5 +158,3 @@ function TableExample() {
     </div>
   );
 }
-
-export default TableExample;

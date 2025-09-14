@@ -1,4 +1,4 @@
-import { AppNavbar } from '@/components/ui/app-navbar';
+import { AppNavbar } from '@/components/app-navbar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

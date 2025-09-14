@@ -1,3 +1,4 @@
+
 import { GitHubIcon } from '@/components/icons';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,15 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Moon, Sun } from 'lucide-react';
 
+const LIST_OF_APPS = [
+  ['meter', 'Meter'],
+  ['template-crud', 'Template CRUD'],
+  ['table', 'Table']
+];
+const BASE_PATH = '/';
+
 export function AppNavbar() {
   const { theme, setTheme } = useTheme();
-  const LIST_OF_APPS = [
-    ['meter', 'Meter'],
-    ['template-crud', 'Template CRUD'],
-    ['table', 'Table']
-  ];
-  const BASE_PATH = '/';
 
   return (
     <nav className="px-6 py-2 border-b border-b-border flex justify-between items-center sticky top-0 bg-background/90">

@@ -1,16 +1,10 @@
-import { AppNavbar } from '@/components/ui/app-navbar';
+import { AppNavbar } from '@/components/app-navbar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-const LIST_OF_APPS = [
-  ['meter', 'Meter'],
-  ['template-crud', 'Template CRUD'],
-  ['table', 'Table']
-];
-const BASE_PATH = '/';
 
 export function MeterApp() {
   const { control, formState, register, setValue } = useForm({
@@ -19,7 +13,7 @@ export function MeterApp() {
       attacksPerSecond: 10,
       critChance: 20,
       critDamage: 150
-    }
+    },
   });
   const [result, setResult] = useState<number | undefined>();
 
