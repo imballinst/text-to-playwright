@@ -57,8 +57,8 @@ describe('One-offs', () => {
   });
 });
 
-describe('Element type parsing', () => {
-  test('table header --> rowheader', () => {
+describe('Element type parsing: columnheader', () => {
+  test('normal', () => {
     const result = parse('Click "Name" table header.');
 
     expect(result.length).toBe(1);
@@ -66,6 +66,28 @@ describe('Element type parsing', () => {
       action: 'click',
       elementType: 'columnheader',
       object: 'Name'
+    });
+  });
+
+  test('repeated', () => {
+    const result = parse('Click "Table header" table header.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'columnheader',
+      object: 'Table header'
+    });
+  });
+
+  test('with same ext inside escaped quotes', () => {
+    const result = parse('Click "Weird \\"Table header\\" Stuff" table header.');
+
+    expect(result.length).toBe(1);
+    expect(result[0]).toStrictEqual({
+      action: 'click',
+      elementType: 'columnheader',
+      object: 'Weird "Table header" Stuff'
     });
   });
 });
