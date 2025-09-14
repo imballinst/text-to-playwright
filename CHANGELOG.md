@@ -1,5 +1,11 @@
 # text-to-playwright
 
+## 0.2.0
+
+### Minor Changes
+
+- 12a8ed9: feat: implement table-related test functionalities
+
 ## 0.1.1
 
 ### Patch Changes
