@@ -1,68 +1,7 @@
+/* Ensure the document fills the viewport so layout utilities (like min-h-screen) work reliably */
 html,
-body {
-  height: 100%;
-  background: #18181b;
-  color: #e4e4e7;
-}
-
-.table-demo {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #232326;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-}
-.table-demo h2 {
-  margin-bottom: 1rem;
-  color: #e4e4e7;
-}
-.filter-input {
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  width: 100%;
-  border: 1px solid #3f3f46;
-  border-radius: 4px;
-  background: #18181b;
-  color: #e4e4e7;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-  background: #232326;
-}
-th,
-td {
-  padding: 0.75rem;
-  border: 1px solid #27272a;
-  text-align: left;
-}
-th {
-  cursor: pointer;
-  background: #18181b;
-  user-select: none;
-  color: #e4e4e7;
-}
-th:hover {
-  background: #27272a;
-}
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
-.pagination button {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: #3b82f6;
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.pagination button:disabled {
-  background: #52525b;
-  cursor: not-allowed;
+body,
+#root {
+  height: 100vh;
+  margin: 0;
 }
