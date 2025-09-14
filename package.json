@@ -13,6 +13,7 @@
     "dev:template": "tsx src/index.scenario.ts --scenario template-crud",
     "dev:table": "tsx src/index.scenario.ts --scenario table",
     "dev:pricing": "tsx src/index.scenario.ts --scenario pricing-package",
+    "website": "yarn --cwd website dev",
     "html": "serve assets/test",
     "test": "vitest --exclude ./tests",
     "test:ci": "tsx scripts/test-e2e.ts",

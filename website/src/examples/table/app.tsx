@@ -1,6 +1,6 @@
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { AppNavbar } from '@/components/app-navbar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   ColumnDef,
@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import './app.css';
 
 const initialData = [
@@ -28,62 +28,51 @@ const initialData = [
 ];
 
 const PAGE_SIZE = 5;
-
+const columns: ColumnDef<(typeof initialData)[0]>[] = [
+  {
+    accessorKey: 'id',
+    header: () => 'ID',
+    cell: (info) => info.getValue()
+  },
+  {
+    accessorKey: 'name',
+    header: () => 'Name',
+    cell: (info) => info.getValue()
+  },
+  {
+    accessorKey: 'age',
+    header: () => 'Age',
+    cell: (info) => info.getValue()
+  },
+  {
+    accessorKey: 'city',
+    header: () => 'City',
+    cell: (info) => info.getValue()
+  }
+];
 
 export function TableApp() {
   const [globalFilter, setGlobalFilter] = useState('');
-  const [pageIndex, setPageIndex] = useState(0);
 
-  const columns: ColumnDef<(typeof initialData)[0]>[] = [
-    {
-      accessorKey: 'id',
-      header: () => 'ID',
-      cell: (info) => info.getValue()
-    },
-    {
-      accessorKey: 'name',
-      header: () => 'Name',
-      cell: (info) => info.getValue()
-    },
-    {
-      accessorKey: 'age',
-      header: () => 'Age',
-      cell: (info) => info.getValue()
-    },
-    {
-      accessorKey: 'city',
-      header: () => 'City',
-      cell: (info) => info.getValue()
-    }
-  ];
-
+  const filteredData = useMemo(
+    () =>
+      initialData.filter(
+        (row) => row.name.toLowerCase().includes(globalFilter.toLowerCase()) || row.city.toLowerCase().includes(globalFilter.toLowerCase())
+      ),
+    [globalFilter]
+  );
   const table = useReactTable({
-    data: initialData.filter(
-      (row) =>
-        row.name.toLowerCase().includes(globalFilter.toLowerCase()) ||
-        row.city.toLowerCase().includes(globalFilter.toLowerCase())
-    ),
+    data: filteredData,
     columns,
-    state: {
-      globalFilter,
-      pagination: { pageIndex, pageSize: PAGE_SIZE }
-    },
-    onPaginationChange: (updater) => {
-      let nextPageIndex = 0;
-      if (typeof updater === 'function') {
-        const next = updater({ pageIndex, pageSize: PAGE_SIZE });
-        nextPageIndex = next.pageIndex;
-      } else {
-        nextPageIndex = updater.pageIndex;
+    initialState: {
+      pagination: {
+        pageSize: PAGE_SIZE
       }
-      setPageIndex(nextPageIndex);
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: false,
-    pageCount: Math.ceil(initialData.length / PAGE_SIZE),
+    getPaginationRowModel: getPaginationRowModel()
   });
 
   return (
@@ -98,7 +87,7 @@ export function TableApp() {
             value={globalFilter}
             onChange={(e) => {
               setGlobalFilter(e.target.value);
-              setPageIndex(0);
+              table.setPageIndex(0);
             }}
             className="filter-input font-sans"
             aria-label="Filter by name or city"
@@ -123,14 +112,14 @@ export function TableApp() {
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows.length === 0 ? (
+              {table.getPaginationRowModel().rows.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="font-sans">
                     No data found.
                   </TableCell>
                 </TableRow>
               ) : (
-                table.getRowModel().rows.map((row) => (
+                table.getPaginationRowModel().rows.map((row) => (
                   <TableRow key={row.id} className="font-sans">
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="font-sans">
@@ -143,13 +132,21 @@ export function TableApp() {
             </TableBody>
           </Table>
           <div className="pagination font-sans">
-            <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} variant="outline">
+            <Button
+              onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)}
+              disabled={!table.getCanPreviousPage()}
+              variant="outline"
+            >
               Prev
             </Button>
             <span>
               Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </span>
-            <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} variant="outline">
+            <Button
+              onClick={() => table.setPageIndex(table.getState().pagination.pageIndex + 1)}
+              disabled={!table.getCanNextPage()}
+              variant="outline"
+            >
               Next
             </Button>
           </div>

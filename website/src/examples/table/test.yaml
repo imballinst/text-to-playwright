@@ -2,7 +2,7 @@ tests:
   - name: Table filter, sort, and pagination
     steps:
       - waitForURL: '**/table/'
-        pageTitle: Table Example
+        pageTitle: Table | Demo
       - 'Ensure "Table: Filter, Sort, Pagination" heading to exist.'
       - Fill "Filter by name or city" input with value "Alice".
       - Ensure "Alice" cell to exist.
