@@ -61,12 +61,18 @@ export function TableApp() {
   const columnsB = useMemo(() => columns.map((c) => ({ ...c })), []);
 
   const filteredDataA = useMemo(
-    () => initialData.filter((row) => row.name.toLowerCase().includes(filterA.toLowerCase()) || row.city.toLowerCase().includes(filterA.toLowerCase())),
+    () =>
+      initialData.filter(
+        (row) => row.name.toLowerCase().includes(filterA.toLowerCase()) || row.city.toLowerCase().includes(filterA.toLowerCase())
+      ),
     [filterA]
   );
 
   const filteredDataB = useMemo(
-    () => initialData.filter((row) => row.name.toLowerCase().includes(filterB.toLowerCase()) || row.city.toLowerCase().includes(filterB.toLowerCase())),
+    () =>
+      initialData.filter(
+        (row) => row.name.toLowerCase().includes(filterB.toLowerCase()) || row.city.toLowerCase().includes(filterB.toLowerCase())
+      ),
     [filterB]
   );
 
@@ -158,13 +164,21 @@ export function TableApp() {
               </TableBody>
             </Table>
             <div className="pagination mt-4 flex items-center gap-4">
-              <Button onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)} disabled={!table.getCanPreviousPage()} variant="outline">
+              <Button
+                onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)}
+                disabled={!table.getCanPreviousPage()}
+                variant="outline"
+              >
                 Prev
               </Button>
               <span>
                 Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
               </span>
-              <Button onClick={() => table.setPageIndex(table.getState().pagination.pageIndex + 1)} disabled={!table.getCanNextPage()} variant="outline">
+              <Button
+                onClick={() => table.setPageIndex(table.getState().pagination.pageIndex + 1)}
+                disabled={!table.getCanNextPage()}
+                variant="outline"
+              >
                 Next
               </Button>
             </div>
@@ -223,18 +237,25 @@ export function TableApp() {
               </TableBody>
             </Table>
             <div className="pagination mt-4 flex items-center gap-4">
-              <Button onClick={() => tableB.setPageIndex(tableB.getState().pagination.pageIndex - 1)} disabled={!tableB.getCanPreviousPage()} variant="outline">
+              <Button
+                onClick={() => tableB.setPageIndex(tableB.getState().pagination.pageIndex - 1)}
+                disabled={!tableB.getCanPreviousPage()}
+                variant="outline"
+              >
                 Prev
               </Button>
               <span>
                 Page {tableB.getState().pagination.pageIndex + 1} of {tableB.getPageCount()}
               </span>
-              <Button onClick={() => tableB.setPageIndex(tableB.getState().pagination.pageIndex + 1)} disabled={!tableB.getCanNextPage()} variant="outline">
+              <Button
+                onClick={() => tableB.setPageIndex(tableB.getState().pagination.pageIndex + 1)}
+                disabled={!tableB.getCanNextPage()}
+                variant="outline"
+              >
                 Next
               </Button>
             </div>
           </section>
-
         </div>
       </main>
     </div>
