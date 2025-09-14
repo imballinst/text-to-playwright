@@ -32,12 +32,12 @@ export async function main() {
     try {
       await axios('http://localhost:5173');
       return true;
-    } catch (err) {
+    } catch {
       return false;
     }
   });
 
-  const examples = ['meter', 'template', 'pricing'];
+  const examples = ['meter', 'template', 'pricing', 'table'];
   for (const example of examples) {
     await runUntilExit(() =>
       spawn('yarn', [`dev:${example}`], {
