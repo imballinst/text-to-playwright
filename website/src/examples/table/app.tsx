@@ -54,6 +54,10 @@ const columns: ColumnDef<(typeof initialData)[0]>[] = [
 export function TableApp() {
   const [globalFilter, setGlobalFilter] = useState('');
 
+  // Create independent column defs per table to avoid shared internal state
+  const columnsA = useMemo(() => columns.map((c) => ({ ...c })), []);
+  const columnsB = useMemo(() => columns.map((c) => ({ ...c })), []);
+
   const filteredData = useMemo(
     () =>
       initialData.filter(
@@ -63,7 +67,22 @@ export function TableApp() {
   );
   const table = useReactTable({
     data: filteredData,
-    columns,
+    columns: columnsA,
+    initialState: {
+      pagination: {
+        pageSize: PAGE_SIZE
+      }
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel()
+  });
+
+  // Second independent table instance using same data
+  const tableB = useReactTable({
+    data: filteredData,
+    columns: columnsB,
     initialState: {
       pagination: {
         pageSize: PAGE_SIZE
@@ -92,45 +111,91 @@ export function TableApp() {
             className="filter-input font-sans"
             aria-label="Filter by name or city"
           />
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      scope="col"
-                      onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                      style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
-                      className="font-sans"
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ''}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getPaginationRowModel().rows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="font-sans">
-                    No data found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                table.getPaginationRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="font-sans">
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="font-sans">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Table A</h2>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        scope="col"
+                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
+                        className="font-sans"
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ''}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getPaginationRowModel().rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="font-sans">
+                      No data found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  table.getPaginationRowModel().rows.map((row) => (
+                    <TableRow key={row.id} className="font-sans">
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="font-sans">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </section>
+
+          <section className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Table B</h2>
+            <Table>
+              <TableHeader>
+                {tableB.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        scope="col"
+                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        style={{ cursor: header.column.getCanSort() ? 'pointer' : 'default' }}
+                        className="font-sans"
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() ? (header.column.getIsSorted() === 'asc' ? ' ↑' : ' ↓') : ''}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {tableB.getPaginationRowModel().rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="font-sans">
+                      No data found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  tableB.getPaginationRowModel().rows.map((row) => (
+                    <TableRow key={row.id} className="font-sans">
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="font-sans">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </section>
           <div className="pagination font-sans">
             <Button
               onClick={() => table.setPageIndex(table.getState().pagination.pageIndex - 1)}
