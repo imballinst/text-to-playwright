@@ -30,19 +30,17 @@ interface PartOfSpeech {
 
 const REGEX_SENTENCE_SEPARATOR = /[.,\n]/;
 const REGEX_START_END_QUOTE = /^'(.+)'$/;
-const PHRASE_MAPPING = {
-  'table header': 'columnheader'
+const PHRASE_MAPPING: Record<string, { followingWords: string[]; replacement: string }> = {
+  table: {
+    followingWords: ['header'],
+    replacement: 'columnheader'
+  }
 };
 
 export function parseSentence(rawSentence: string) {
   let sentence = rawSentence;
   if (REGEX_START_END_QUOTE.test(sentence)) {
     sentence = sentence.replace(REGEX_START_END_QUOTE, '$1');
-  }
-
-  for (const [key, value] of Object.entries(PHRASE_MAPPING)) {
-    const re = new RegExp(key, 'gi');
-    sentence = sentence.replace(re, value);
   }
 
   const clauses: string[] = [];
@@ -74,13 +72,15 @@ export function parseSentence(rawSentence: string) {
   }
 
   return clauses.map((clause) => {
-    const lexicon = (nlp(clause).quotations().out('array') as string[]).map(removeQuotes).reduce(
-      (obj, cur) => {
-        obj[cur] = 'Noun';
-        return obj;
-      },
-      {} as Record<string, string>
-    );
+    const lexicon = (nlp(clause).quotations().out('array') as string[])
+      .map((val) => removeQuotes(val))
+      .reduce(
+        (obj, cur) => {
+          obj[cur] = 'Noun';
+          return obj;
+        },
+        {} as Record<string, string>
+      );
 
     const doc = nlp(clause, {
       hover: 'Verb',
@@ -113,7 +113,7 @@ export function parse(sentence: string) {
     for (let i = 0; i < clause.terms.length; i++) {
       const term = clause.terms[i];
       const post = term.post.endsWith('.') ? term.post.slice(0, -1) : term.post;
-      const text = (term.pre + term.text + post).trim();
+      let text = (term.pre + term.text + post).trim();
 
       const endsWithQuote = text.endsWith('"');
       const shouldJustPush = isWithinQuote;
@@ -158,6 +158,15 @@ export function parse(sentence: string) {
       } else if (!isWithinQuote && term.chunk === 'Noun' && term.tags.includes('Negative')) {
         isNegativeAssertion = true;
         continue;
+      } else if (!isWithinQuote && PHRASE_MAPPING[text]) {
+        // Special handling for phrase mapping.
+        const { followingWords, replacement } = PHRASE_MAPPING[text];
+        const nextWords = clause.terms.slice(i + 1, i + 1 + followingWords.length).map((t: any) => t.text.toLowerCase());
+
+        if (nextWords.join(' ') === followingWords.join(' ')) {
+          text = replacement;
+          i += followingWords.length;
+        }
       }
 
       if (!['Verb', 'Noun'].includes(term.chunk)) continue;
@@ -294,7 +303,7 @@ export function parse(sentence: string) {
             if (record.action === 'store') {
               record.object = joined.slice(joined.indexOf('"') + 1, joined.lastIndexOf('"'));
             } else {
-              record.object = removeQuotes(joined);
+              record.object = removeQuotes(joined, false);
             }
           } else if (key === 'elementType') {
             let effectiveObject = removePunctuations(rawCommand.words.join(' '));
@@ -319,8 +328,11 @@ function removePunctuations(value: string) {
   return value.replace(/[.,"]/g, '');
 }
 
-function removeQuotes(value: string) {
-  return value.replace(/"/g, '');
+function removeQuotes(value: string, keepBackslashes = true) {
+  if (keepBackslashes) return value.replace(/"/g, '');
+
+  // Replace quotes that aren't preceded by backslash first, then remove the backslashes preceding the quotes.
+  return value.replace(/(?<!\\)"/g, '').replace(/\\"/g, '"');
 }
 
 function extractVariableName(value: string) {
