@@ -163,7 +163,7 @@ export function parse(sentence: string) {
         const { followingWords, replacement } = PHRASE_MAPPING[text];
         const nextWords = clause.terms.slice(i + 1, i + 1 + followingWords.length).map((t: any) => t.text.toLowerCase());
 
-        if (JSON.stringify(nextWords) === JSON.stringify(followingWords)) {
+        if (nextWords.join(' ') === followingWords.join(' ')) {
           text = replacement;
           i += followingWords.length;
         }
@@ -303,7 +303,7 @@ export function parse(sentence: string) {
             if (record.action === 'store') {
               record.object = joined.slice(joined.indexOf('"') + 1, joined.lastIndexOf('"'));
             } else {
-              record.object = removeQuotes(joined, true);
+              record.object = removeQuotes(joined, false);
             }
           } else if (key === 'elementType') {
             let effectiveObject = removePunctuations(rawCommand.words.join(' '));
@@ -328,8 +328,8 @@ function removePunctuations(value: string) {
   return value.replace(/[.,"]/g, '');
 }
 
-function removeQuotes(value: string, keepQuoteEscapes = true) {
-  if (!keepQuoteEscapes) return value.replace(/"/g, '');
+function removeQuotes(value: string, keepBackslashes = true) {
+  if (keepBackslashes) return value.replace(/"/g, '');
 
   // Replace quotes that aren't preceded by backslash first, then remove the backslashes preceding the quotes.
   return value.replace(/(?<!\\)"/g, '').replace(/\\"/g, '"');
